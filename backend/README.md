@@ -171,6 +171,34 @@ Actualiza el modo de uso elegido en la pantalla **"Selección de Modo"**.
 
 ---
 
+### `PATCH /api/auth/pin` 🔒 (Hito 2 — BK-2.1)
+
+Configura el PIN de seguridad de 4 dígitos con el que el adulto autoriza la
+vinculación de dispositivos y los cambios críticos. El PIN se cifra con
+**bcrypt** y nunca se almacena ni se devuelve en texto plano.
+
+**Headers:** `Authorization: Bearer <JWT>`
+
+**Request**
+
+```json
+{ "pin": "4829" }
+```
+
+- `pin`: obligatorio, exactamente 4 dígitos numéricos.
+
+**Response `200 OK`**
+
+```json
+{ "message": "PIN creado con éxito" }
+```
+
+**Errores:** `400` PIN no válido (no son 4 dígitos) · `401` sin token · `403` token inválido · `404` responsable inexistente.
+
+> Solo puede existir un PIN activo por responsable: el nuevo sobrescribe al anterior.
+
+---
+
 ### Claims del JWT
 
 ```json
@@ -216,9 +244,11 @@ Ya implementados en el backend (aún sin pantallas conectadas en el cliente):
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| `POST` | `/api/devices/link` | Registra un dispositivo protegido |
-| `GET` | `/api/devices` | Lista los dispositivos del responsable |
-| `PATCH` | `/api/devices/:id/status` | Activa/desactiva un dispositivo |
+| `PATCH` | `/api/auth/pin` | Configura el PIN de seguridad del responsable (Hito 2) 🔒 |
+| `POST` | `/api/devices/link` | Registra un dispositivo protegido (estado PENDING + linkCode) 🔒 |
+| `POST` | `/api/devices/confirm-link` | Confirma el vínculo validando el PIN (estado ACTIVE) 🔒 |
+| `GET` | `/api/devices` | Lista los dispositivos del responsable 🔒 |
+| `PATCH` | `/api/devices/:id/status` | Activa/desactiva un dispositivo 🔒 |
 | `POST` | `/api/blocklist/check` | Verifica si un dominio está bloqueado (público) |
 | `GET` | `/api/blocklist` | Lista de bloqueo oficial + personalizada 🔒 |
 | `GET` | `/api/blocklist/status` | Estado de actualización de la lista de bloqueo 🔒 |
@@ -354,3 +384,170 @@ Permite mostrar en la app el estado de actualización de la lista de bloqueo.
 
 > ⚠️ `authorizeRoles` **no debe aplicarse** al flujo de "Modo Dispositivo Protegido": como el
 > dispositivo usa la cuenta del adulto, filtrar por rol bloquearía también el celular del menor.
+
+---
+
+## Hito 2 — Gestión de Dispositivos, PIN de Seguridad y Vinculación
+
+### Modelo de datos extendido
+
+**Responsable** (campos nuevos):
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `pinHash` | `string?` | Hash bcrypt del PIN de 4 dígitos. Nunca en texto plano. |
+| `pinUpdatedAt` | `string?` | Fecha en que se configuró el PIN vigente. |
+
+**Dispositivo**:
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `id` | `string` (uuid) | Identificador del dispositivo |
+| `responsibleId` | `string` | UUID del responsable dueño |
+| `deviceName` | `string` | Nombre del dispositivo (ej. "Tablet de Sofía") |
+| `fechaNacimiento` | `string` | Fecha de nacimiento del menor (YYYY-MM-DD) |
+| `linkCode` | `string` | Código de vinculación alfanumérico (8 chars) |
+| `deviceToken` | `string?` | Token FCM para notificaciones push |
+| `status` | `'pending' \| 'active' \| 'inactive'` | Estado del dispositivo |
+| `lastSeen` | `string` (ISO 8601) | Última actividad |
+| `createdAt` | `string` (ISO 8601) | Fecha de alta |
+
+Valores de `status` normalizados case-insensitivamente: `active`/`activo`, `inactive`/`disabled`/`inactivo`, `pending`/`pendiente`.
+
+---
+
+### `POST /api/devices/link` 🔒 (BK-2.2)
+
+El adulto responsable registra el dispositivo del menor con `deviceName` y `fechaNacimiento`.
+El dispositivo queda en estado `pending` con un `linkCode` único que la app del dispositivo
+protegido usará para identificar el perfil.
+
+**Headers:** `Authorization: Bearer <JWT>`
+
+**Request**
+
+```json
+{
+  "deviceName": "Tablet de Sofía",
+  "fechaNacimiento": "2015-08-12",
+  "deviceToken": "fcm-token-opcional"
+}
+```
+
+**Response `201 Created`**
+
+```json
+{
+  "message": "Device registered successfully. Pending confirmation.",
+  "device": {
+    "id": "uuid",
+    "deviceName": "Tablet de Sofía",
+    "fechaNacimiento": "2015-08-12",
+    "status": "pending",
+    "linkCode": "XK9M2P7R",
+    "responsibleId": "uuid",
+    "createdAt": "2026-..."
+  },
+  "deviceId": "uuid",
+  "linkCode": "XK9M2P7R"
+}
+```
+
+También crea una alerta `DEVICE_PENDING` para el responsable.
+
+**Errores:** `400` deviceName o fechaNacimiento ausentes / formato inválido · `401` sin token · `403` token inválido.
+
+---
+
+### `POST /api/devices/confirm-link` 🔒 (BK-2.3)
+
+La app del dispositivo protegido confirma el vínculo enviando `deviceId` (o `linkCode`)
+y el `pin` de 4 dígitos del responsable. El backend valida el PIN contra el `pinHash`
+almacenado y cambia el estado de `pending` a `active`.
+
+**Headers:** `Authorization: Bearer <JWT>`
+
+**Request**
+
+```json
+{ "deviceId": "uuid-device", "pin": "4829" }
+```
+
+O usando `linkCode`:
+
+```json
+{ "linkCode": "XK9M2P7R", "pin": "4829" }
+```
+
+**Response `200 OK`**
+
+```json
+{
+  "message": "Vinculación confirmada",
+  "device": {
+    "id": "uuid",
+    "status": "active"
+  }
+}
+```
+
+También crea una alerta `DEVICE_LINKED` para el responsable.
+
+**Errores:**
+- `400` deviceId/linkCode o pin ausentes
+- `401` PIN inválido
+- `404` dispositivo no encontrado o no pertenece al responsable
+- `409` dispositivo ya ACTIVE / responsable sin PIN configurado
+
+---
+
+### `GET /api/devices` 🔒 (BK-2.4)
+
+Lista los dispositivos vinculados del responsable autenticado, filtrados por `responsibleId`.
+
+**Headers:** `Authorization: Bearer <JWT>`
+
+**Response `200 OK`**
+
+```json
+{ "devices": [ { "id": "...", "deviceName": "...", "status": "pending", ... } ] }
+```
+
+---
+
+### `PATCH /api/devices/:id/status` 🔒 (BK-2.4)
+
+Activa o desactiva la protección del dispositivo.
+
+**Headers:** `Authorization: Bearer <JWT>`
+
+**Request**
+
+```json
+{ "status": "inactive" }
+```
+
+Valores admitidos: `active` | `inactive` (case-insensitive).
+
+**Response `200 OK`**
+
+```json
+{ "message": "Device status updated successfully", "device": { ... } }
+```
+
+**Errores:** `400` status inválido · `401` sin token · `403` token inválido · `404` dispositivo no encontrado o no pertenece al responsable.
+
+---
+
+### Pruebas
+
+```bash
+npm test
+```
+
+| Suite | Cubre |
+|-------|--------|
+| `src/__tests__/auth.test.ts` | BK-1.1 registro · BK-1.2 login · BK-1.3 modo de usuario · BK-1.4 middleware y roles |
+| `src/__tests__/blocklist.test.ts` | Consulta de dominios · dominios personalizados · estado de actualización · sincronización de la lista oficial |
+| `src/__tests__/devices.test.ts` | BK-2.1 PIN · BK-2.2 link device · BK-2.3 confirm-link · BK-2.4 list y status |
+| `src/__tests__/app.test.ts` | Integración de health, auth, dispositivos, blocklist y eventos |
