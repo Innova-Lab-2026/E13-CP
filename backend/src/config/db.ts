@@ -1,3 +1,4 @@
+//carpeta config, archivo db.ts, contiene la estructura de la base de datos en memoria y las interfaces de los modelos de datos.
 export interface Responsible {
   id: string;
   email: string;
@@ -11,7 +12,10 @@ export interface Device {
   responsibleId: string;
   deviceName: string;
   deviceToken: string;
-  status: 'active' | 'inactive';
+  // [NUEVO] Modificamos los estados posibles para soportar el flujo del PIN
+  status: 'pending' | 'active' | 'inactive';
+  // [NUEVO] Campo para almacenar temporalmente el PIN de 4 dígitos de vinculación
+  pairingPin?: string;
   lastSeen: string;
   createdAt: string;
 }

@@ -115,7 +115,7 @@ export default function DashboardScreen() {
     setCurrentTab(tabId);
     if (tabId === "dispositivos") router.push("/tutor/devices");
     if (tabId === "historial") router.push("/tutor/history");
-    if (tabId === "configuracion") router.push("/tutor/settings");
+    if (tabId === "configuracion") router.push("/tutor/settings/indexSettings");
   };
 
   // TODO BACKEND: Función para marcar notificación como leída en la API (PATCH /api/v1/notifications/:id)
