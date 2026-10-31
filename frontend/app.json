@@ -10,6 +10,9 @@
     "ios": {
       "supportsTablet": true
     },
+    "autolinking": {
+      "nativeModulesDir": "./modules"
+    },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -17,14 +20,18 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.frontend"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+
     "plugins": [
       "expo-router",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-router",
+      "expo-font"
     ]
   }
 }

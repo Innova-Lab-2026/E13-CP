@@ -1,16 +1,20 @@
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from "expo-status-bar";
+import AppButton from "../../src/components/AppButton";
+import { router } from "expo-router";
+
 import {
   ImageBackground,
   StyleSheet,
+  Image,
   Text,
   View,
   Pressable,
-} from 'react-native';
+} from "react-native";
 
-export default function App() {
+export default function Onboarding() {
   return (
     <ImageBackground
-      source={require('./assets/onboarding-bg.png')} // ← Ruta de tu imagen
+      source={require("../../assets/onboarding-bg-00.png")} // ← Ruta de tu imagen
       style={styles.container}
       resizeMode="cover"
     >
@@ -18,9 +22,11 @@ export default function App() {
 
       {/* Logo */}
       <View style={styles.header}>
-        <View style={styles.logo}>
-          <Text style={styles.logoText}>BA Protege+</Text>
-        </View>
+        <Image
+          source={require("../../assets/protege-01.png")}
+          style={styles.loteriaImage}
+          resizeMode="contain"
+        />
 
         {/* Indicadores del onboarding */}
         <View style={styles.pagination}>
@@ -37,26 +43,27 @@ export default function App() {
         </Text>
 
         <Text style={styles.description}>
-          En esta aplicación podrás bloquear páginas de apuestas online
-          en el dispositivo para acompañar y proteger a tu familia
-          en el mundo digital.
+          En esta aplicación podrás bloquear páginas de apuestas online en el
+          dispositivo para acompañar y proteger a tu familia en el mundo
+          digital.
         </Text>
       </View>
 
       {/* Botones */}
       <View style={styles.footer}>
-        <Pressable
-          style={styles.skipButton}
-          onPress={() => console.log('Omitir onboarding')}
-        >
-          <Text style={styles.skipText}>Omitir</Text>
+        <Pressable>
+          <AppButton
+            variant="tertiary"
+            title="Omitir"
+            onPress={() => router.replace("/login")}
+          />
         </Pressable>
 
-        <Pressable
-          style={styles.continueButton}
-          onPress={() => console.log('Continuar onboarding')}
-        >
-          <Text style={styles.continueText}>Continuar</Text>
+        <Pressable>
+          <AppButton
+            title="Continuar"
+            onPress={() => router.push("/onboarding2")}
+          />
         </Pressable>
       </View>
     </ImageBackground>
@@ -66,29 +73,33 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingTop: 65,
     paddingBottom: 24,
-    backgroundColor: '#F8F5E8',
+    backgroundColor: "#F8F5E8",
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   logo: {
-    backgroundColor: '#FFD500',
+    backgroundColor: "#FFD500",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 4,
   },
+  loteriaImage: {
+    width: 125,
+    height: 55,
+  },
   logoText: {
-    color: '#000',
+    color: "#000",
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   pagination: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginTop: 22,
   },
@@ -96,59 +107,59 @@ const styles = StyleSheet.create({
     width: 24,
     height: 4,
     borderRadius: 4,
-    backgroundColor: '#FFD500',
+    backgroundColor: "#FFD500",
   },
   dot: {
     width: 5,
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
   },
   card: {
-    backgroundColor: '#FFFFF5',
+    backgroundColor: "#FFFFF5",
     borderRadius: 24,
     paddingHorizontal: 24,
     paddingVertical: 24,
-    alignItems: 'center',
+    alignItems: "center",
   },
   title: {
-    color: '#171717',
+    color: "#171717",
     fontSize: 27,
-    fontWeight: '800',
-    textAlign: 'center',
+    fontWeight: "800",
+    textAlign: "center",
     marginBottom: 14,
   },
   description: {
-    color: '#686868',
+    color: "#686868",
     fontSize: 14,
     lineHeight: 21,
-    textAlign: 'center',
+    textAlign: "center",
   },
   footer: {
     gap: 12,
   },
   skipButton: {
     minHeight: 48,
-    backgroundColor: '#FFFFF5',
+    backgroundColor: "#FFFFF5",
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   skipText: {
-    color: '#171717',
+    color: "#171717",
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   continueButton: {
     minHeight: 48,
-    backgroundColor: '#FFD500',
+    backgroundColor: "#FFD500",
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   continueText: {
-    color: '#000',
+    color: "#000",
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });

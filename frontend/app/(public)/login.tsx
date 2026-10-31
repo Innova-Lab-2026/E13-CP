@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Image } from "react-native";
 import { useRouter } from "expo-router";
-import AppInput from "../src/components/AppInput";
-import AppButton from "../src/components/AppButton";
-import AppAlert from "../src/components/AppAlert";
-import { loginResponsible } from "../src/services/auth";
+import AppInput from "../../src/components/AppInput";
+import AppButton from "../../src/components/AppButton";
+import AppAlert from "../../src/components/AppAlert";
+import { loginResponsible } from "../../src/services/auth";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -43,9 +43,25 @@ export default function LoginScreen() {
     if (!isValid || isSubmitting) {
       return;
     }
-    //Usamos router.replace en lugar de router.push para limpiar la pila de navegación, evitando que el usuario pueda presionar el botón "Atrás" en su celular y regresar a la pantalla de login una vez que ya inició sesión.
-    router.replace("/tutor/dashboard");
-    console.log("Validación correcta");
+
+    setIsSubmitting(true);
+    try {
+      const result = await loginResponsible({ email: email.trim(), password });
+      router.replace({
+        pathname: "/(main)/(tabs)/(dashboard)",
+        params: { name: result.responsible.name },
+      });
+    } catch (error) {
+      setFeedback({
+        message:
+          error instanceof Error
+            ? error.message
+            : "No se pudo iniciar sesión. Inténtalo nuevamente.",
+        variant: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -53,7 +69,7 @@ export default function LoginScreen() {
       {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
-          source={require("../assets/protege-01.png")}
+          source={require("../../assets/protege-01.png")}
           style={styles.loteriaImage}
           resizeMode="contain"
         />

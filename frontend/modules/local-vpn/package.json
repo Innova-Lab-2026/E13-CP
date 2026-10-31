@@ -1,0 +1,8 @@
+
+{
+  "name": "local-vpn",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "browser": "index.web.ts",
+  "private": true
+}

@@ -1,6 +1,5 @@
-// src/components/DeviceItem.tsx
-import React from 'react';
 import { Pressable, Text, View, StyleSheet } from 'react-native';
+import type { DeviceStatus } from '../services/deviceService';
 
 /**
  * Tipos de estado sincronizados con el Backend.
@@ -8,11 +7,12 @@ import { Pressable, Text, View, StyleSheet } from 'react-native';
  * - 'pending': El dispositivo está en proceso de vinculación (esperando PIN).
  * - 'disabled': El dispositivo fue desvinculado, pausado o desinstaló la app.
  */
-export type DeviceStatus = 'active' | 'pending' | 'disabled';
+export type { DeviceStatus } from '../services/deviceService';
 
 interface DeviceItemProps {
   name: string;
   status: DeviceStatus;
+  birthDate?: string;
   statusText?: string;
   onPress?: () => void;
 }
@@ -20,6 +20,7 @@ interface DeviceItemProps {
 export default function DeviceItem({
   name,
   status,
+  birthDate,
   statusText,
   onPress,
 }: DeviceItemProps) {
@@ -42,6 +43,8 @@ export default function DeviceItem({
     <Pressable
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
     >
       <View style={styles.leftContainer}>
         {/* Avatar / Inicial del menor o dispositivo dinámico */}
@@ -58,6 +61,9 @@ export default function DeviceItem({
 
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{name}</Text>
+          {birthDate && (
+            <Text style={styles.birthDate}>Nacimiento: {birthDate}</Text>
+          )}
           <View style={styles.statusRow}>
             {/* Badge de estado con color dinámico (Verde, Amarillo o Rojo según corresponda) */}
             <View
@@ -83,8 +89,7 @@ export default function DeviceItem({
         </View>
       </View>
 
-      {/* Flecha indicadora de navegación al detalle */}
-      <Text style={styles.arrow}>›</Text>
+      {onPress && <Text style={styles.arrow}>›</Text>}
     </Pressable>
   );
 }
@@ -139,6 +144,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1F2937',
     marginBottom: 2,
+  },
+  birthDate: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
   },
   statusRow: {
     flexDirection: 'row',

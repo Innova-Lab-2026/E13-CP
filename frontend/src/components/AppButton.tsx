@@ -1,4 +1,3 @@
-
 import {
   Pressable,
   Text,
@@ -8,27 +7,26 @@ import {
 type AppButtonProps = {
   title: string;
   onPress: () => void;
-  variant?: "primary" |
-           "secondary"|
-           "tertiary";
-           disabled?: boolean;
+  disabled?: boolean;
+  variant?: "primary" | "secondary" | "tertiary";
 };
 
 export default function AppButton({
   title,
   onPress,
-  variant = "primary",
   disabled = false,
+  variant = "primary",
 }: AppButtonProps) {
   return (
     <Pressable
       style={[
         styles.button,
         styles[variant],
-        disabled && styles.disabled
+        disabled && styles.disabled,
       ]}
       onPress={onPress}
       disabled={disabled}
+      accessibilityState={{ disabled }}
     >
       <Text
         style={[
@@ -51,6 +49,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
   },
+  disabled: {
+    opacity: 0.5,
+    backgroundColor: "#CCCCCC",
+  },
   primary: {
     backgroundColor: "#FACC15",
   },
@@ -69,8 +71,5 @@ const styles = StyleSheet.create({
   },
   secondaryText: {
     color: "#1F2937",
-  },
-  disabled: {
-    backgroundColor: "#CCCCCC",
   },
 });

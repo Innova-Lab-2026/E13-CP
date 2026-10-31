@@ -13,13 +13,13 @@ export default function WelcomeScreen() {
       {/* Logotipos */}
       <View style={styles.logosContainer}>
         <Image
-          source={require("../assets/protege-01.png")}
+          source={require("../../assets/protege-01.png")}
           style={styles.loteriaImage}
           resizeMode="contain"
         />
 
         <Image
-          source={require("../assets/logo-loteria-01.png")}
+          source={require("../../assets/logo-loteria-01.png")}
           style={styles.loteriaImage}
           resizeMode="contain"
         />

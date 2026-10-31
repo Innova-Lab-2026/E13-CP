@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 export type AuthResponse = {
   message: string;
   token: string;
@@ -9,7 +11,8 @@ export type AuthResponse = {
 };
 
 const API_BASE_URL = (
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000"
+  process.env.EXPO_PUBLIC_API_URL ||
+  (Platform.OS === "android" ? "http://10.0.2.2:3000" : "http://localhost:3000")
 ).replace(/\/+$/, "");
 
 async function sendAuthRequest(

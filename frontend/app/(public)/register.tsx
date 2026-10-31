@@ -8,10 +8,10 @@ import {
   Image,
 } from "react-native";
 import { useRouter } from "expo-router";
-import AppInput from "../src/components/AppInput";
-import AppButton from "../src/components/AppButton";
-import AppAlert from "../src/components/AppAlert";
-import { registerResponsible } from "../src/services/auth";
+import AppInput from "../../src/components/AppInput";
+import AppButton from "../../src/components/AppButton";
+import AppAlert from "../../src/components/AppAlert";
+import { registerResponsible } from "../../src/services/auth";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -115,7 +115,7 @@ export default function RegisterScreen() {
       {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
-          source={require("../assets/protege-01.png")}
+          source={require("../../assets/protege-01.png")}
           style={styles.loteriaImage}
           resizeMode="contain"
         />

@@ -80,6 +80,34 @@ Se abrirá una dirección local, normalmente `http://localhost:8081`.
 
 Dejá abierta la terminal mientras trabajás. Para detener el servidor, presioná `Ctrl + C`.
 
+## Backend local en Android
+
+El backend y Expo deben ejecutarse en terminales separadas. Desde la raíz del
+repositorio, iniciá el backend con:
+
+```bash
+cd backend
+npm run dev
+```
+
+Dejá esa terminal abierta y, desde otra, iniciá la aplicación:
+
+```bash
+cd frontend
+npm run android
+```
+
+En el emulador de Android Studio, la aplicación usa `10.0.2.2:3000` para
+conectarse al backend de la computadora. En un teléfono físico, configurá
+`EXPO_PUBLIC_API_URL` en `frontend/.env` con la IP local de la computadora
+(por ejemplo, `http://192.168.1.20:3000`); ambos dispositivos deben estar en
+la misma red Wi-Fi y el firewall debe permitir conexiones al puerto `3000`.
+Después de cambiar la URL, reiniciá Expo para que cargue la configuración.
+
+El backend de desarrollo guarda los usuarios en memoria: mantenelo en ejecución
+entre el registro y el inicio de sesión. Si se reinicia, las cuentas creadas se
+pierden y hay que registrarlas de nuevo.
+
 ## 5. Comandos disponibles
 
 | Comando | Función |

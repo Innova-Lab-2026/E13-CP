@@ -1,12 +1,12 @@
 import { StatusBar } from "expo-status-bar";
-import AppButton from "../src/components/AppButton";
+import AppButton from "../../src/components/AppButton";
 import { router } from "expo-router";
 
 import {
   ImageBackground,
   StyleSheet,
-  Image,
   Text,
+  Image,
   View,
   Pressable,
 } from "react-native";
@@ -14,7 +14,7 @@ import {
 export default function Onboarding() {
   return (
     <ImageBackground
-      source={require("../assets/onboarding-bg-00.png")} // ← Ruta de tu imagen
+      source={require("../../assets/onboarding-bg-01.png")} // ← Ruta de tu imagen
       style={styles.container}
       resizeMode="cover"
     >
@@ -23,7 +23,7 @@ export default function Onboarding() {
       {/* Logo */}
       <View style={styles.header}>
         <Image
-          source={require("../assets/protege-01.png")}
+          source={require("../../assets/protege-01.png")}
           style={styles.loteriaImage}
           resizeMode="contain"
         />
@@ -38,14 +38,12 @@ export default function Onboarding() {
 
       {/* Tarjeta informativa */}
       <View style={styles.card}>
-        <Text style={styles.title}>
-          Protege a tu familia de las apuestas online
-        </Text>
+        <Text style={styles.title}>Las apuestas online no son un juego</Text>
 
         <Text style={styles.description}>
-          En esta aplicación podrás bloquear páginas de apuestas online en el
-          dispositivo para acompañar y proteger a tu familia en el mundo
-          digital.
+          Apostar por internet implica arriesgar dinero y puede generar
+          pérdidas. BA Protege+ bloquea estas páginas para ayudarte a evitar
+          esos riesgos.
         </Text>
       </View>
 
@@ -55,15 +53,12 @@ export default function Onboarding() {
           <AppButton
             variant="tertiary"
             title="Omitir"
-            onPress={() => router.replace("/login")}
+            onPress={() => router.replace("/")}
           />
         </Pressable>
 
         <Pressable>
-          <AppButton
-            title="Continuar"
-            onPress={() => router.push("/onboarding2")}
-          />
+          <AppButton title="Continuar" onPress={() => router.push("/login")} />
         </Pressable>
       </View>
     </ImageBackground>

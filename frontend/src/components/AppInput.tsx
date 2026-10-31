@@ -1,12 +1,15 @@
 
+import { useState } from "react";
 import {
   View,
   Text,
   TextInput,
+  Pressable,
   StyleSheet,
   KeyboardTypeOptions,
   
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 type AppInputProps = {
   label: string;
@@ -27,22 +30,41 @@ export default function AppInput({
   keyboardType = "default",
   error,
 }: AppInputProps) {
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
 
-      <TextInput
-        style={[
-          styles.input,
-          error ? styles.inputError : null,
-        ]}
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-        autoCapitalize="none"
-      />
+      <View style={[styles.inputContainer, error ? styles.inputError : null]}>
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={secureTextEntry && !passwordVisible}
+          keyboardType={keyboardType}
+          autoCapitalize="none"
+        />
+
+        {secureTextEntry ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              passwordVisible ? "Ocultar contraseña" : "Mostrar contraseña"
+            }
+            onPress={() => setPasswordVisible((visible) => !visible)}
+            hitSlop={8}
+            style={styles.visibilityButton}
+          >
+            <MaterialCommunityIcons
+              name={passwordVisible ? "eye-off-outline" : "eye-outline"}
+              size={22}
+              color="#64748B"
+            />
+          </Pressable>
+        ) : null}
+      </View>
 
       {error ? (
         <Text style={styles.error}>{error}</Text>
@@ -61,11 +83,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
   },
-  input: {
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: "#CBD5E1",
     borderRadius: 10,
-    paddingHorizontal: 14,
+    paddingLeft: 14,
+    paddingRight: 12,
+  },
+  input: {
+    flex: 1,
     paddingVertical: 12,
     fontSize: 16,
   },
@@ -75,5 +103,8 @@ const styles = StyleSheet.create({
   error: {
     color: "#DC2626",
     fontSize: 13,
+  },
+  visibilityButton: {
+    padding: 4,
   },
 });
