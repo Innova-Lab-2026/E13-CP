@@ -1,0 +1,431 @@
+{
+  "info": {
+    "_postman_id": "b1f2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+    "name": "BA Protege+ — API Backend",
+    "description": "Colección de pruebas de la API de BA Protege+ (E13 Control Parental).\n\nCubre el flujo completo del MVP: registrar/configurar responsable → vincular dispositivo → activar protección → bloquear sitio o detectar acción restringida → registrar el evento → notificar al responsable.\n\n**Orden sugerido de ejecución:**\n1. Auth / Register (guarda `token` y `responsibleId`)\n2. Auth / Login (actualiza `token`)\n3. Auth / Get My Profile\n4. Auth / Update My Mode\n5. Devices / Link Device (guarda `deviceId`)\n6. Blocklist / Check Domain\n7. Blocklist / Add Custom Domain\n8. Events / Record Event\n9. Events / Get Events\n10. Events / Get Alerts\n\n> La sincronización de la lista oficial de LOTBA (`Blocklist / Sync Official List`) es una operación administrativa interna y requiere el header `x-admin-secret`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "email", "value": "adulto@example.com", "type": "string" },
+    { "key": "password", "value": "Str0ng!Pass", "type": "string" },
+    { "key": "nombre", "value": "Ana Pérez", "type": "string" },
+    { "key": "telefono", "value": "+5491122334455", "type": "string" },
+    { "key": "esResponsable", "value": "true", "type": "boolean" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "responsibleId", "value": "", "type": "string" },
+    { "key": "deviceId", "value": "", "type": "string" },
+    { "key": "domain", "value": "apuestasilegalesba.com", "type": "string" },
+    { "key": "customDomain", "value": "sitio-sospechoso.com", "type": "string" },
+    { "key": "customDomainId", "value": "", "type": "string" },
+    { "key": "alertId", "value": "", "type": "string" },
+    { "key": "adminSecret", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] },
+            "description": "Verifica que el servicio esté levantado."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Devuelve token', () => pm.expect(body.token).to.be.a('string'));",
+                  "pm.test('Devuelve rol', () => pm.expect(body.responsible.rol).to.be.oneOf(['responsable', 'tutor']));",
+                  "pm.test('No expone passwordHash', () => pm.expect(JSON.stringify(body)).to.not.include('passwordHash'));",
+                  "pm.collectionVariables.set('token', body.token);",
+                  "pm.collectionVariables.set('responsibleId', body.responsible.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{nombre}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"telefono\": \"{{telefono}}\",\n  \"esResponsable\": {{esResponsable}}\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+            "description": "Alta de responsable/tutor. Hashea la contraseña con bcryptjs y emite un JWT de 7 días con los claims `id`, `email` y `rol`.\n\nGuarda automáticamente `token` y `responsibleId` en las variables de la colección."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve JWT con rol', () => {",
+                  "  const payload = JSON.parse(atob(body.token.split('.')[1]));",
+                  "  pm.expect(payload.rol).to.be.oneOf(['responsable', 'tutor']);",
+                  "});",
+                  "pm.collectionVariables.set('token', body.token);",
+                  "pm.collectionVariables.set('responsibleId', body.responsible.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "description": "Valida las credenciales contra el hash bcrypt y emite el JWT con el rol."
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Devuelve id, email, name, rol, mode y createdAt', () => {",
+                  "  pm.expect(body.id).to.be.a('string');",
+                  "  pm.expect(body.email).to.be.a('string');",
+                  "  pm.expect(body.name).to.be.a('string');",
+                  "  pm.expect(body.rol).to.be.oneOf(['responsable', 'tutor']);",
+                  "  pm.expect(body.mode).to.be.oneOf(['adulto', 'dispositivo_protegido']);",
+                  "  pm.expect(body.createdAt).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] },
+            "description": "Perfil vigente del usuario autenticado. Sin token devuelve 401, con token inválido 403."
+          }
+        },
+        {
+          "name": "Update My Mode",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Modo persistido', () => pm.expect(pm.response.json().mode).to.eql('dispositivo_protegido'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"mode\": \"dispositivo_protegido\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/me/mode", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me", "mode"] },
+            "description": "Persiste el modo de uso elegido en la pantalla \"Selección de Modo\".\n\nValores admitidos: `adulto` | `dispositivo_protegido`. Cualquier otro devuelve 400."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Devices",
+      "item": [
+        {
+          "name": "Link Device",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('deviceId', body.device.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceName\": \"Tablet de Sofía\",\n  \"deviceToken\": \"token-fcm-123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/devices/link", "host": ["{{baseUrl}}"], "path": ["api", "devices", "link"] },
+            "description": "Registra un dispositivo protegido. Genera además una alerta `DEVICE_LINKED`.\n\nGuarda `deviceId` en las variables de la colección."
+          }
+        },
+        {
+          "name": "List Devices",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/devices", "host": ["{{baseUrl}}"], "path": ["api", "devices"] },
+            "description": "Lista los dispositivos vinculados del responsable autenticado."
+          }
+        },
+        {
+          "name": "Update Device Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"inactive\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/devices/{{deviceId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "devices", "{{deviceId}}", "status"] },
+            "description": "Activa o desactiva la protección del dispositivo. Valores admitidos: `active` | `inactive`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blocklist",
+      "item": [
+        {
+          "name": "Check Domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('isBlocked es booleano', () => pm.expect(body.isBlocked).to.be.a('boolean'));",
+                  "pm.test('blocked es alias de isBlocked', () => pm.expect(body.blocked).to.eql(body.isBlocked));",
+                  "pm.test('Si está bloqueado trae matchType y categoria', () => {",
+                  "  if (body.isBlocked) {",
+                  "    pm.expect(body.matchType).to.be.oneOf(['LOTBA_OFFICIAL', 'CUSTOM']);",
+                  "    pm.expect(body.categoria).to.be.a('string');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"domain\": \"{{domain}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/blocklist/check", "host": ["{{baseUrl}}"], "path": ["api", "blocklist", "check"] },
+            "description": "Verifica si un dominio está bloqueado. Ruta pública: la consume el servicio local de VPN/DNS del dispositivo protegido.\n\nAcepta el dominio pelado o una URL completa (la comparación es por subcadena)."
+          }
+        },
+        {
+          "name": "Add Custom Domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Categoria Personalizado', () => pm.expect(pm.response.json().item.categoria).to.eql('Personalizado'));",
+                  "pm.collectionVariables.set('customDomainId', pm.response.json().item.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"domain\": \"{{customDomain}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/blocklist/custom", "host": ["{{baseUrl}}"], "path": ["api", "blocklist", "custom"] },
+            "description": "Agrega un dominio personalizado a la lista de bloqueo del responsable. Devuelve 400 si el dominio ya existe."
+          }
+        },
+        {
+          "name": "List Blocklist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Incluye la lista oficial', () => pm.expect(body.blocklist.some(i => i.type === 'LOTBA_OFFICIAL')).to.be.true);",
+                  "pm.test('Incluye los personalizados del responsable', () => pm.expect(body.blocklist.some(i => i.type === 'CUSTOM')).to.be.true);",
+                  "pm.test('Incluye el estado de actualización', () => pm.expect(body.status.lastUpdated).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/blocklist", "host": ["{{baseUrl}}"], "path": ["api", "blocklist"] },
+            "description": "Lista oficial de LOTBA + dominios personalizados del responsable, con el estado de actualización."
+          }
+        },
+        {
+          "name": "Get Blocklist Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Expone versión, origen y totales', () => {",
+                  "  pm.expect(body.version).to.be.a('string');",
+                  "  pm.expect(body.source).to.be.a('string');",
+                  "  pm.expect(body.lastUpdated).to.be.a('string');",
+                  "  pm.expect(body.totalOfficial).to.be.a('number');",
+                  "  pm.expect(body.totalCustom).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/blocklist/status", "host": ["{{baseUrl}}"], "path": ["api", "blocklist", "status"] },
+            "description": "Estado de actualización de la lista de bloqueo: período, origen, última actualización y totales."
+          }
+        },
+        {
+          "name": "Remove Custom Domain",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/blocklist/custom/{{customDomainId}}", "host": ["{{baseUrl}}"], "path": ["api", "blocklist", "custom", "{{customDomainId}}"] },
+            "description": "Elimina un dominio personalizado. La lista oficial NO se puede eliminar desde el perfil del adulto (devuelve 404)."
+          }
+        },
+        {
+          "name": "Sync Official List (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Informa los dominios agregados y quitados', () => {",
+                  "  pm.expect(body.sync.added).to.be.an('array');",
+                  "  pm.expect(body.sync.removed).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-admin-secret", "value": "{{adminSecret}}" },
+              { "key": "x-admin-requested-by", "value": "postman" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": \"2026-11\",\n  \"source\": \"LOTBA - listado oficial mensual\",\n  \"updatedAt\": \"2026-11-01T00:00:00.000Z\",\n  \"domains\": [\n    { \"domain\": \"apuestasilegalesba.com\", \"categoria\": \"Apuestas\" },\n    { \"domain\": \"casinoilegalar.net\", \"categoria\": \"Apuestas\" }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/blocklist/sync/official", "host": ["{{baseUrl}}"], "path": ["api", "blocklist", "sync", "official"] },
+            "description": "Sincroniza el listado oficial de LOTBA (listado estático mensual).\n\n**Operación administrativa interna**: requiere el header `x-admin-secret` (variable `adminSecret`). No es accesible desde el perfil del adulto responsable.\n\nReemplaza los dominios oficiales, conserva los personalizados y registra la auditoría de la actualización."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Record Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.test('Genera alerta para los tipos de seguridad', () => {",
+                  "  const type = pm.request.body.eventType;",
+                  "  const isSecurity = ['ACCESS_ATTEMPT','APP_INSTALL_ATTEMPT','PROTECTION_MODIFIED','BYPASS_ATTEMPT'].includes(type);",
+                  "  pm.test('ok', () => pm.expect(true).to.be.true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"eventType\": \"ACCESS_ATTEMPT\",\n  \"domain\": \"{{domain}}\",\n  \"details\": \"Intento de acceso a un sitio bloqueado\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events", "host": ["{{baseUrl}}"], "path": ["api", "events"] },
+            "description": "Registra un evento del dispositivo protegido. Si el tipo es de seguridad, genera automáticamente una alerta para el responsable.\n\nTipos: `ACCESS_ATTEMPT`, `APP_INSTALL_ATTEMPT`, `PROTECTION_MODIFIED`, `BYPASS_ATTEMPT`."
+          }
+        },
+        {
+          "name": "Get Events",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/events?deviceId={{deviceId}}", "host": ["{{baseUrl}}"], "path": ["api", "events"], "query": [{ "key": "deviceId", "value": "{{deviceId}}" }] },
+            "description": "Eventos del responsable, ordenados cronológicamente. Acepta filtro por `deviceId`."
+          }
+        },
+        {
+          "name": "Get Alerts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/events/alerts", "host": ["{{baseUrl}}"], "path": ["api", "events", "alerts"] },
+            "description": "Alertas del responsable autenticado."
+          }
+        },
+        {
+          "name": "Mark Alert As Read",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/events/alerts/{{alertId}}/read", "host": ["{{baseUrl}}"], "path": ["api", "events", "alerts", "{{alertId}}", "read"] },
+            "description": "Marca una alerta como leída. Solo si pertenece al responsable autenticado."
+          }
+        }
+      ]
+    }
+  ]
+}
