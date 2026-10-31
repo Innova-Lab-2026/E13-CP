@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { db, Responsible, UserMode, UserRole, USER_MODES } from '../config/db';
 import { AuthRequest, JWT_SECRET } from '../middleware/auth.middleware';
+import { isValidPin, PIN_LENGTH, setResponsiblePin } from '../services/device.service';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9+\s()-]{7,15}$/;
@@ -170,6 +171,38 @@ export const loginResponsible = async (req: Request, res: Response) => {
       token,
       responsible: toPublicProfile(responsible)
     });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * PATCH /api/auth/pin
+ * Configura el PIN de seguridad de 4 dígitos con el que el adulto autoriza
+ * la vinculación de dispositivos y los cambios críticos.
+ *
+ * El PIN se cifra con bcrypt y nunca se devuelve ni se almacena en texto plano.
+ * Solo puede existir un PIN activo por responsable: el nuevo sobrescribe al anterior.
+ */
+export const updateMyPin = async (req: AuthRequest, res: Response) => {
+  try {
+    const { pin } = req.body as { pin?: unknown };
+
+    if (!isValidPin(pin)) {
+      return res.status(400).json({
+        error: `El PIN debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+      });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    await setResponsiblePin(responsible, pin);
+
+    return res.status(200).json({ message: 'PIN creado con éxito' });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
