@@ -1,0 +1,146 @@
+import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
+import { db, Device, DeviceStatus, Responsible } from '../config/db';
+
+export const PIN_LENGTH = 4;
+const PIN_REGEX = /^\d{4}$/;
+const LINK_CODE_LENGTH = 8;
+const LINK_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+/**
+ * Valida el formato del PIN de seguridad.
+ * Debe tener exactamente 4 dígitos numéricos.
+ */
+export const isValidPin = (pin: unknown): pin is string =>
+  typeof pin === 'string' && PIN_REGEX.test(pin);
+
+/**
+ * Genera un código de vinculación alfanumérico único.
+ * Se excluyen caracteres ambiguos (I, O, 0, 1) para facilitar la tipeada.
+ */
+export const generateLinkCode = (): string => {
+  let code = '';
+
+  do {
+    code = Array.from(
+      { length: LINK_CODE_LENGTH },
+      () => LINK_CODE_ALPHABET[Math.floor(Math.random() * LINK_CODE_ALPHABET.length)]
+    ).join('');
+  } while (db.devices.some(device => device.linkCode === code));
+
+  return code;
+};
+
+/** Cifra el PIN con bcrypt y lo asocia al responsable. */
+export const setResponsiblePin = async (
+  responsible: Responsible,
+  pin: string
+): Promise<void> => {
+  const salt = await bcrypt.genSalt(10);
+  responsible.pinHash = await bcrypt.hash(pin, salt);
+  responsible.pinUpdatedAt = new Date().toISOString();
+};
+
+/** Verifica el PIN contra el hash del responsable. */
+export const verifyResponsiblePin = async (
+  responsible: Responsible,
+  pin: string
+): Promise<boolean> => {
+  if (!responsible.pinHash) {
+    return false;
+  }
+
+  return bcrypt.compare(pin, responsible.pinHash);
+};
+
+/** Normaliza un estado recibido a los valores canónicos del dominio. */
+export const normalizeDeviceStatus = (status: unknown): DeviceStatus | null => {
+  if (typeof status !== 'string') {
+    return null;
+  }
+
+  switch (status.toLowerCase()) {
+    case 'active':
+    case 'activo':
+      return 'active';
+    case 'inactive':
+    case 'disabled':
+    case 'inactivo':
+      return 'inactive';
+    case 'pending':
+    case 'pendiente':
+      return 'pending';
+    default:
+      return null;
+  }
+};
+
+/**
+ * Construye un dispositivo protegido en estado `pending`.
+ * El vínculo se confirma luego mediante POST /api/devices/confirm-link.
+ */
+export const buildPendingDevice = (params: {
+  responsibleId: string;
+  deviceName: string;
+  fechaNacimiento: string;
+  deviceToken?: string;
+}): Device => {
+  const now = new Date().toISOString();
+
+  return {
+    id: uuidv4(),
+    responsibleId: params.responsibleId,
+    deviceName: params.deviceName,
+    fechaNacimiento: params.fechaNacimiento,
+    linkCode: generateLinkCode(),
+    deviceToken: params.deviceToken,
+    status: 'pending',
+    lastSeen: now,
+    createdAt: now
+  };
+};
+
+/**
+ * Busca un dispositivo del responsable por id o por código de vinculación.
+ * `includeInactive` permite encontrar también los desactivados.
+ */
+export const findResponsibleDevice = (
+  responsibleId: string,
+  criteria: { deviceId?: string; linkCode?: string }
+): Device | undefined => {
+  if (criteria.deviceId) {
+    return db.devices.find(
+      device => device.id === criteria.deviceId && device.responsibleId === responsibleId
+    );
+  }
+
+  if (!criteria.linkCode) {
+    return undefined;
+  }
+
+  const linkCode = criteria.linkCode;
+
+  return db.devices.find(
+    device =>
+      device.linkCode === linkCode.toUpperCase() &&
+      device.responsibleId === responsibleId
+  );
+};
+
+/** Genera una alerta para el responsable y la deja sin leer. */
+export const createDeviceAlert = (params: {
+  responsibleId: string;
+  deviceId: string;
+  alertType: string;
+  message: string;
+}): void => {
+  db.alerts.push({
+    id: uuidv4(),
+    responsibleId: params.responsibleId,
+    deviceId: params.deviceId,
+    alertType: params.alertType,
+    message: params.message,
+    read: false,
+    createdAt: new Date().toISOString()
+  });
+};
