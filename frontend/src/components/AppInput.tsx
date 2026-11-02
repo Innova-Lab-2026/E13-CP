@@ -19,6 +19,7 @@ type AppInputProps = {
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
   error?: string;
+  maxLength?: number;
 };
 
 export default function AppInput({

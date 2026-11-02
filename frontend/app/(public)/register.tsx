@@ -45,6 +45,7 @@ export default function RegisterScreen() {
     setPhoneError("");
     setPasswordError("");
     setConfirmPasswordError("");
+    setFeedback(null);
 
     // 1. Validar Nombre
     if (!name.trim()) {
@@ -105,13 +106,42 @@ export default function RegisterScreen() {
     if (!isValid || isSubmitting) {
       return;
     }
-    router.replace("/tutor/dashboard");
-    console.log("Validación de registro exitosa");
-    // Aquí puedes enviar los datos al backend
+
+    setIsSubmitting(true);
+    try {
+      // Aquí puedes enviar los datos al backend
+      const result = await registerResponsible({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
+
+      console.log("Validación y registro en backend exitosos");
+
+      // Redirigir al dashboard llevando el nombre correcto que devolvió el backend
+      router.replace({
+        pathname: "/(main)/(tabs)/(dashboard)",
+        params: { name: result.responsible.name },
+      });
+    } catch (error) {
+      setFeedback({
+        message:
+          error instanceof Error
+            ? error.message
+            : "No se pudo registrar la cuenta. Inténtalo nuevamente.",
+        variant: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+    >
       {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
@@ -120,7 +150,6 @@ export default function RegisterScreen() {
           resizeMode="contain"
         />
       </View>
-
       {/* Encabezado */}
       <View style={styles.header}>
         <Text style={styles.title}>Crear cuenta</Text>
@@ -130,7 +159,6 @@ export default function RegisterScreen() {
           tu familia.
         </Text>
       </View>
-
       {/* Formulario */}
       <View style={styles.form}>
         {feedback && (
@@ -206,7 +234,7 @@ export default function RegisterScreen() {
 
         <Pressable
           style={styles.forgotContainer}
-          onPress={() => router.push("/login")}
+          onPress={() => router.push("/(public)/login")}
         >
           <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
         </Pressable>
@@ -222,7 +250,7 @@ export default function RegisterScreen() {
 
         <Pressable
           style={styles.forgotContainer}
-          onPress={() => router.push("/login")}
+          onPress={() => router.push("/(public)/login")}
         >
           <Text style={styles.registerPrompt}>¿Ya tienes una cuenta?</Text>
         </Pressable>
@@ -235,9 +263,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 24,
+    // paddingHorizontal: 20,
+    // paddingTop: 60,
+    // paddingBottom: 24,
   },
 
   logoContainer: {
@@ -362,5 +390,10 @@ const styles = StyleSheet.create({
     color: "#1C1C1C",
     fontSize: 14,
     fontWeight: "700",
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 60, // <- ¡Esto empuja todo hacia arriba y te deja ver y clickear el botón sin drama!
   },
 });

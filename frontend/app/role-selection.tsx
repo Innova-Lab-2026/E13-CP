@@ -37,7 +37,7 @@ export function RoleSelectionScreen() {
           {/* Tarjeta Tutor */}
           <Pressable 
             style={[styles.roleCard, styles.tutorCard]} 
-            onPress={() => router.push("/tutor/add-device")}
+            onPress={() => router.push("(main)/(tabs)/(dispositivos)/add-device")}//antes habia puesto /tutor/add-device
           >
             <Text style={styles.cardIcon}>🛡️</Text>
             <View style={styles.cardTextContainer}>
@@ -51,7 +51,9 @@ export function RoleSelectionScreen() {
           {/* Tarjeta Menor */}
           <Pressable 
             style={[styles.roleCard, styles.menorCard]} 
+            //onPress={() => router.push("(main)/(tabs)/(dispositivos)/link-device")}
             onPress={() => router.push("/menor/link")}
+
           >
             <Text style={styles.cardIcon}>📱</Text>
             <View style={styles.cardTextContainer}>
@@ -67,7 +69,7 @@ export function RoleSelectionScreen() {
         <AppButton
           title="Volver a Inicio"
           variant="tertiary"
-          onPress={() => router.push("/tutor/dashboard")}
+          onPress={() => router.push("(main)/(tabs)/(dashboard)")}
         />
       </View>
     </SafeAreaView>

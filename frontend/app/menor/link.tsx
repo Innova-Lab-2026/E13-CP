@@ -16,15 +16,20 @@ import AppInput from "../../src/components/AppInput";
 import AppButton from "../../src/components/AppButton";
 import AppAlert from "../../src/components/AppAlert";
 
+const API_BASE_URL = (
+  process.env.EXPO_PUBLIC_API_URL ||
+  (Platform.OS === "android" ? "http://10.0.2.2:3000" : "http://localhost:3000")
+).replace(/\/+$/, "");
+
 export default function LinkDeviceScreen() {
   const router = useRouter();
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Función que maneja la validación del PIN contra el Backend real
   const handleConfirmLink = async () => {
-    if (!pin || pin.length < 4) {
+    const cleanPin = pin.trim();
+    if (!cleanPin || cleanPin.length < 4) {
       setErrorMessage("Por favor, ingresa un PIN válido de 4 dígitos.");
       return;
     }
@@ -33,18 +38,13 @@ export default function LinkDeviceScreen() {
       setLoading(true);
       setErrorMessage("");
 
-      // [CONEXIÓN CON EL BACKEND] Llamamos al endpoint que armamos en Node.js
-      // Nota: Si probás en dispositivo físico, reemplazá 'localhost' por la IP local de tu PC (ej: 'http://192.168.1.50:3000')
-      const response = await fetch(
-        "http://192.168.0.131:3000/api/devices/confirm-link",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ pin }),
+      const response = await fetch(`${API_BASE_URL}/api/devices/confirm-link`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ pin: cleanPin }),
+      });
 
       const data = await response.json();
 
@@ -53,11 +53,10 @@ export default function LinkDeviceScreen() {
       }
 
       // ¡Vinculación exitosa! Redirigimos a la pantalla de modo protegido
-      // En el futuro se activará el módulo nativo de Kotlin
       router.replace("/menor/protected");
     } catch (error: any) {
       setErrorMessage(
-        error.message || "Ocurrió un error al conectar con el servidor.",
+        error.message || "Ocurrió un error al conectar con el servidor."
       );
     } finally {
       setLoading(false);
@@ -71,7 +70,6 @@ export default function LinkDeviceScreen() {
         style={styles.container}
       >
         <View style={styles.card}>
-          {/* Encabezado reutilizable con botón de retroceso automático */}
           <AppHeader title="Vinculación de Dispositivo" />
 
           <Text style={styles.instructions}>
@@ -79,11 +77,11 @@ export default function LinkDeviceScreen() {
             proteger este dispositivo.
           </Text>
 
-          {/* Componente de input reutilizable */}
           <AppInput
             label="PIN de Vinculación"
             placeholder="Ej: 4829"
             keyboardType="numeric"
+            maxLength={4}
             value={pin}
             onChangeText={(text) => {
               setPin(text);
@@ -91,12 +89,10 @@ export default function LinkDeviceScreen() {
             }}
           />
 
-          {/* Componente de alerta reutilizable para errores */}
           {errorMessage ? (
             <AppAlert message={errorMessage} variant="error" />
           ) : null}
 
-          {/* Componente de botón reutilizable */}
           <AppButton
             title={loading ? "Vinculando..." : "Vincular Dispositivo"}
             variant="primary"
@@ -112,7 +108,7 @@ export default function LinkDeviceScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#f5f6fa",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -126,15 +122,17 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     padding: 24,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 2,
   },
   instructions: {
     fontSize: 14,
-    color: "#64748b",
+    color: "#6B7280",
     textAlign: "center",
     marginBottom: 20,
     lineHeight: 20,
