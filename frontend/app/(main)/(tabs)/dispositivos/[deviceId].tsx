@@ -116,7 +116,7 @@ export default function DeviceDetailScreen() {
           <AppButton
             title="Volver a Mis dispositivos"
             variant="secondary"
-            onPress={() => router.dismissTo('/(main)/(tabs)/(dispositivos)')}
+            onPress={() => router.dismissTo('/(main)/(tabs)/dispositivos')}
           />
         </View>
       );
@@ -206,7 +206,7 @@ export default function DeviceDetailScreen() {
                 <AppButton
                   title="Ver todo en Historial"
                   variant="tertiary"
-                  onPress={() => router.push('/(main)/(tabs)/(historial)')}
+                  onPress={() => router.push('/(main)/(tabs)/historial')}
                 />
               ) : null}
             </>

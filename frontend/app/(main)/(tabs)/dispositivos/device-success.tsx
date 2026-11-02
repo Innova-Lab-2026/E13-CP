@@ -27,7 +27,7 @@ export default function DeviceSuccessScreen() {
   const initial = first(params.name)?.trim().charAt(0).toUpperCase();
 
   const goToList = () => {
-    router.dismissTo('/(main)/(tabs)/(dispositivos)');
+    router.dismissTo('/(main)/(tabs)/dispositivos');
   };
 
   const goToDevice = () => {
@@ -36,7 +36,7 @@ export default function DeviceSuccessScreen() {
       return;
     }
     router.replace({
-      pathname: '/(main)/(tabs)/(dispositivos)/[deviceId]',
+      pathname: '/(main)/(tabs)/dispositivos/[deviceId]',
       params: { deviceId },
     });
   };

@@ -63,7 +63,7 @@ export default function HistoryDetailScreen() {
   const handleViewDevice = () => {
     if (!event) return;
     router.push({
-      pathname: "/(main)/(tabs)/(dispositivos)/[deviceId]",
+      pathname: "/(main)/(tabs)/dispositivos/[deviceId]",
       params: { deviceId: event.deviceId },
     });
   };

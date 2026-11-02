@@ -103,7 +103,7 @@ export default function ConfiguracionScreen() {
             icon="person-outline"
             label="Mi cuenta"
             description="Nombre, teléfono y correo"
-            onPress={go("/(main)/(tabs)/(configuracion)/mi-cuenta")}
+            onPress={go("/(main)/(tabs)/configuracion/mi-cuenta")}
           />
           <MenuRow
             icon="keypad-outline"
@@ -119,7 +119,7 @@ export default function ConfiguracionScreen() {
             icon="shield-checkmark-outline"
             label="Sitios bloqueados"
             description="Listado oficial de LOTBA y tus sitios agregados"
-            onPress={go("/(main)/(tabs)/(configuracion)/sitios")}
+            onPress={go("/(main)/(tabs)/configuracion/sitios")}
           />
         </View>
 
@@ -128,17 +128,17 @@ export default function ConfiguracionScreen() {
           <MenuRow
             icon="help-circle-outline"
             label="Ayuda y preguntas frecuentes"
-            onPress={go("/(main)/(tabs)/(configuracion)/ayuda")}
+            onPress={go("/(main)/(tabs)/configuracion/ayuda")}
           />
           <MenuRow
             icon="document-text-outline"
             label="Términos y políticas"
-            onPress={go("/(main)/(tabs)/(configuracion)/terminos")}
+            onPress={go("/(main)/(tabs)/configuracion/terminos")}
           />
           <MenuRow
             icon="chatbubble-ellipses-outline"
             label="Ayudanos a mejorar"
-            onPress={go("/(main)/(tabs)/(configuracion)/mejorar")}
+            onPress={go("/(main)/(tabs)/configuracion/mejorar")}
           />
         </View>
 
@@ -154,7 +154,7 @@ export default function ConfiguracionScreen() {
           <MenuRow
             icon="trash-outline"
             label="Eliminar cuenta"
-            onPress={go("/(main)/(tabs)/(configuracion)/eliminar-cuenta")}
+            onPress={go("/(main)/(tabs)/configuracion/eliminar-cuenta")}
             destructive
           />
         </View>

@@ -55,7 +55,7 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="(dashboard)"
+        name="inicio"
         options={{
           title: "Inicio",
           tabBarAccessibilityLabel: "Inicio",
@@ -66,7 +66,7 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="(dispositivos)"
+        name="dispositivos"
         options={{
           title: "Dispositivos",
           tabBarAccessibilityLabel: "Dispositivos",
@@ -81,7 +81,7 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="(historial)"
+        name="historial"
         options={{
           title: "Historial",
           tabBarAccessibilityLabel: "Historial",
@@ -92,7 +92,7 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="(configuracion)"
+        name="configuracion"
         options={{
           title: "Configuración",
           tabBarAccessibilityLabel: "Configuración",

@@ -78,7 +78,7 @@ export default function ModeScreen() {
       let next: Href;
       if (selected === "adulto") {
         const hasPin = profile.hasPin ?? session.profile.hasPin;
-        next = hasPin ? "/(main)/(tabs)/(dashboard)" : "/pin-setup";
+        next = hasPin ? "/(main)/(tabs)/inicio" : "/pin-setup";
       } else {
         next = session.linkedDeviceId ? "/protected" : "/protected/link";
       }

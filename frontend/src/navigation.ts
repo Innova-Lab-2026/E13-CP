@@ -15,5 +15,5 @@ export function homeRouteFor(session: Session | null): Href {
   }
 
   if (!session.profile.hasPin) return "/pin-setup";
-  return "/(main)/(tabs)/(dashboard)";
+  return "/(main)/(tabs)/inicio";
 }

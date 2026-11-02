@@ -93,7 +93,7 @@ export default function AlertDetailScreen() {
   const handleViewHistory = () => {
     if (!alert) return;
     router.push({
-      pathname: "/(main)/(tabs)/(historial)",
+      pathname: "/(main)/(tabs)/historial",
       params: { device: alert.deviceId },
     });
   };
@@ -101,7 +101,7 @@ export default function AlertDetailScreen() {
   const handleViewDevice = () => {
     if (!alert) return;
     router.push({
-      pathname: "/(main)/(tabs)/(dispositivos)/[deviceId]",
+      pathname: "/(main)/(tabs)/dispositivos/[deviceId]",
       params: { deviceId: alert.deviceId },
     });
   };

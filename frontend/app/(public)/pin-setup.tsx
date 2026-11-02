@@ -79,7 +79,7 @@ export default function PinSetupScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace("/(main)/(tabs)/(dashboard)");
+      router.replace("/(main)/(tabs)/inicio");
     }
   }
 
@@ -144,7 +144,7 @@ export default function PinSetupScreen() {
         setIsSubmitting(false);
         backTimer.current = setTimeout(goBack, BACK_DELAY_MS);
       } else {
-        router.replace("/(main)/(tabs)/(dashboard)");
+        router.replace("/(main)/(tabs)/inicio");
       }
     } catch (error) {
       setSubmitError(

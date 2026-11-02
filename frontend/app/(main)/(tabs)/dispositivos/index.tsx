@@ -16,7 +16,7 @@ export default function DevicesScreen() {
   const { data: devices, loading, error, reload } = useAsyncResource(() => getDevices(), []);
 
   const handleAddDevice = () => {
-    router.push('/(main)/(tabs)/(dispositivos)/add-device');
+    router.push('/(main)/(tabs)/dispositivos/add-device');
   };
 
   const hasDevices = (devices?.length ?? 0) > 0;
@@ -54,7 +54,7 @@ export default function DevicesScreen() {
               birthDate={device.birthDate}
               onPress={() =>
                 router.push({
-                  pathname: '/(main)/(tabs)/(dispositivos)/[deviceId]',
+                  pathname: '/(main)/(tabs)/dispositivos/[deviceId]',
                   params: { deviceId: device.id },
                 })
               }

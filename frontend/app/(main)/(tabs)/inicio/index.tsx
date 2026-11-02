@@ -63,7 +63,7 @@ export default function DashboardScreen() {
     history.reload();
   };
 
-  const goToAddDevice = () => router.push("/(main)/(tabs)/(dispositivos)/add-device");
+  const goToAddDevice = () => router.push("/(main)/(tabs)/dispositivos/add-device");
 
   const renderStatusCard = () => {
     const total = deviceList.length;
@@ -78,7 +78,7 @@ export default function DashboardScreen() {
     return (
       <Pressable
         style={({ pressed }) => [styles.statusCard, pressed && styles.pressed]}
-        onPress={() => router.push("/(main)/(tabs)/(dispositivos)")}
+        onPress={() => router.push("/(main)/(tabs)/dispositivos")}
         accessibilityRole="button"
         accessibilityLabel={`${protectedCount} de ${total} dispositivos protegidos. ${subtitle}`}
       >
@@ -137,7 +137,7 @@ export default function DashboardScreen() {
             Mis dispositivos
           </Text>
           <Pressable
-            onPress={() => router.push("/(main)/(tabs)/(dispositivos)")}
+            onPress={() => router.push("/(main)/(tabs)/dispositivos")}
             accessibilityRole="button"
             accessibilityLabel="Ver todos los dispositivos"
             hitSlop={8}
@@ -154,7 +154,7 @@ export default function DashboardScreen() {
             birthDate={device.birthDate ? formatIsoDate(device.birthDate) : undefined}
             onPress={() =>
               router.push({
-                pathname: "/(main)/(tabs)/(dispositivos)/[deviceId]",
+                pathname: "/(main)/(tabs)/dispositivos/[deviceId]",
                 params: { deviceId: device.id },
               })
             }
@@ -179,7 +179,7 @@ export default function DashboardScreen() {
           style={({ pressed }) => [styles.attentionCard, pressed && styles.pressed]}
           onPress={() =>
             router.push({
-              pathname: "/(main)/(tabs)/(dashboard)/[alertId]",
+              pathname: "/(main)/(tabs)/inicio/[alertId]",
               params: { alertId: attentionAlert.id },
             })
           }
@@ -214,7 +214,7 @@ export default function DashboardScreen() {
             Historial
           </Text>
           <Pressable
-            onPress={() => router.push("/(main)/(tabs)/(historial)")}
+            onPress={() => router.push("/(main)/(tabs)/historial")}
             accessibilityRole="button"
             accessibilityLabel="Ver todo el historial"
             hitSlop={8}
@@ -244,7 +244,7 @@ export default function DashboardScreen() {
               device={event.device}
               onPress={() =>
                 router.push({
-                  pathname: "/(main)/(tabs)/(historial)/[historyId]",
+                  pathname: "/(main)/(tabs)/historial/[historyId]",
                   params: { historyId: event.id },
                 })
               }
@@ -275,7 +275,7 @@ export default function DashboardScreen() {
           />
           <Pressable
             style={({ pressed }) => [styles.bellButton, pressed && styles.pressed]}
-            onPress={() => router.push("/(main)/(tabs)/(dashboard)/alerts")}
+            onPress={() => router.push("/(main)/(tabs)/inicio/alerts")}
             accessibilityRole="button"
             accessibilityLabel={hasUnread ? "Alertas, tenés alertas sin leer" : "Alertas"}
             hitSlop={6}

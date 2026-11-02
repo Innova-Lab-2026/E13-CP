@@ -102,7 +102,7 @@ export default function HistorialScreen() {
 
   const openEvent = (event: HistoryEvent) =>
     router.push({
-      pathname: "/(main)/(tabs)/(historial)/[historyId]",
+      pathname: "/(main)/(tabs)/historial/[historyId]",
       params: { historyId: event.id },
     });
 

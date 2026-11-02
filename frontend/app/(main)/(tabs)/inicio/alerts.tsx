@@ -86,7 +86,7 @@ export default function AlertsScreen() {
       markAlertRead(alert.id).catch(() => undefined);
     }
     router.push({
-      pathname: "/(main)/(tabs)/(dashboard)/[alertId]",
+      pathname: "/(main)/(tabs)/inicio/[alertId]",
       params: { alertId: alert.id },
     });
   };

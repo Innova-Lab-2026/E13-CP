@@ -107,7 +107,7 @@ export default function AddDeviceScreen() {
     try {
       const { device, linkCode } = await addDevice(trimmedName, toIsoDate(parsedBirthDate));
       router.replace({
-        pathname: '/(main)/(tabs)/(dispositivos)/device-success',
+        pathname: '/(main)/(tabs)/dispositivos/device-success',
         params: { name: device.name || trimmedName, linkCode, deviceId: device.id },
       });
     } catch (error) {
