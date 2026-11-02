@@ -1,21 +1,49 @@
 import { Pressable, Text, View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import type { DeviceStatus } from '../services/deviceService';
+import { colors, radius, spacing, typography } from '../theme';
+import { formatIsoDate } from '../utils/date';
 
 /**
- * Tipos de estado sincronizados con el Backend.
- * - 'active': El dispositivo está vinculado y protegido correctamente.
- * - 'pending': El dispositivo está en proceso de vinculación (esperando PIN).
- * - 'disabled': El dispositivo fue desvinculado, pausado o desinstaló la app.
+ * Estados que devuelve el servicio de dispositivos.
+ * - 'active': vinculado y con la protección encendida.
+ * - 'pending': perfil creado, falta vincular el celular.
+ * - 'disabled': vinculado, con la protección pausada.
  */
 export type { DeviceStatus } from '../services/deviceService';
 
 interface DeviceItemProps {
   name: string;
   status: DeviceStatus;
+  /** AAAA-MM-DD (formato del backend) o un texto ya formateado. */
   birthDate?: string;
   statusText?: string;
   onPress?: () => void;
 }
+
+const STATUS_CONFIG: Record<
+  DeviceStatus,
+  { label: string; badge: string; text: string; avatar: string }
+> = {
+  active: {
+    label: 'Protección activa',
+    badge: colors.successSoft,
+    text: colors.successText,
+    avatar: colors.brandSoft,
+  },
+  pending: {
+    label: 'Pendiente de vinculación',
+    badge: colors.warningSoft,
+    text: colors.warningText,
+    avatar: colors.surfaceMuted,
+  },
+  disabled: {
+    label: 'Protección pausada',
+    badge: colors.dangerSoft,
+    text: colors.dangerText,
+    avatar: colors.dangerSoft,
+  },
+};
 
 export default function DeviceItem({
   name,
@@ -24,72 +52,40 @@ export default function DeviceItem({
   statusText,
   onPress,
 }: DeviceItemProps) {
-  // Evaluamos cada estado de manera explícita para evitar fallos visuales
-  const isActive = status === 'active';
-  const isPending = status === 'pending';
-  const isDisabled = status === 'disabled';
-
-  // Textos por defecto según el estado que reporte el backend
-  const getDefaultStatusText = () => {
-    if (isActive) return 'Protección activa';
-    if (isPending) return 'Pendiente de vinculación';
-    if (isDisabled) return 'Desprotegido / Inactivo';
-    return 'Estado desconocido';
-  };
-
-  const displayStatusText = statusText || getDefaultStatusText();
+  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
+  const label = statusText || config.label;
+  const formattedBirthDate = birthDate ? formatIsoDate(birthDate) : undefined;
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.card, pressed && onPress && styles.pressed]}
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={`${name}. ${label}`}
+      accessibilityHint={onPress ? 'Abre el detalle del dispositivo' : undefined}
     >
       <View style={styles.leftContainer}>
-        {/* Avatar / Inicial del menor o dispositivo dinámico */}
-        <View
-          style={[
-            styles.avatar,
-            isActive && styles.avatarActive,
-            isPending && styles.avatarPending,
-            isDisabled && styles.avatarDisabled,
-          ]}
-        >
+        <View style={[styles.avatar, { backgroundColor: config.avatar }]}>
           <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={styles.name}>{name}</Text>
-          {birthDate && (
-            <Text style={styles.birthDate}>Nacimiento: {birthDate}</Text>
-          )}
-          <View style={styles.statusRow}>
-            {/* Badge de estado con color dinámico (Verde, Amarillo o Rojo según corresponda) */}
-            <View
-              style={[
-                styles.statusBadge,
-                isActive && styles.badgeActive,
-                isPending && styles.badgePending,
-                isDisabled && styles.badgeDisabled,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.statusText,
-                  isActive && styles.textActive,
-                  isPending && styles.textPending,
-                  isDisabled && styles.textDisabled,
-                ]}
-              >
-                {displayStatusText}
-              </Text>
-            </View>
+          <Text style={styles.name} numberOfLines={1}>
+            {name}
+          </Text>
+          {formattedBirthDate ? (
+            <Text style={styles.birthDate}>Nacimiento: {formattedBirthDate}</Text>
+          ) : null}
+          <View style={[styles.statusBadge, { backgroundColor: config.badge }]}>
+            <Text style={[styles.statusText, { color: config.text }]}>{label}</Text>
           </View>
         </View>
       </View>
 
-      {onPress && <Text style={styles.arrow}>›</Text>}
+      {onPress ? (
+        <Ionicons name="chevron-forward" size={20} color={colors.textSubtle} />
+      ) : null}
     </Pressable>
   );
 }
@@ -99,91 +95,55 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 12,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.md,
   },
   pressed: {
     opacity: 0.8,
   },
   leftContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  avatarActive: {
-    backgroundColor: '#FEF3C7', // Tono amarillo suave del UI Kit
-  },
-  avatarPending: {
-    backgroundColor: '#F3F4F6', // Tono gris neutro
-  },
-  avatarDisabled: {
-    backgroundColor: '#FEE2E2', // Tono rojo suave para alertas/desactivados
   },
   avatarText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#374151',
+    fontSize: 17,
+    fontWeight: '800',
+    color: colors.text,
   },
   infoContainer: {
+    flex: 1,
     justifyContent: 'center',
+    gap: 2,
   },
   name: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 2,
+    ...typography.subtitle,
   },
   birthDate: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    ...typography.caption,
+    marginBottom: 2,
   },
   statusBadge: {
-    paddingHorizontal: 8,
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.sm,
     paddingVertical: 2,
-    borderRadius: 12,
-  },
-  badgeActive: {
-    backgroundColor: '#DCFCE7', // Fondo verde claro
-  },
-  badgePending: {
-    backgroundColor: '#FEF3C7', // Fondo amarillo claro
-  },
-  badgeDisabled: {
-    backgroundColor: '#FEE2E2', // Fondo rojo claro (Alerta)
+    borderRadius: radius.pill,
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '500',
-  },
-  textActive: {
-    color: '#166534', // Texto verde oscuro
-  },
-  textPending: {
-    color: '#B45309', // Texto ámbar/marrón oscuro
-  },
-  textDisabled: {
-    color: '#DC2626', // Texto rojo de advertencia/inactivo
-  },
-  arrow: {
-    fontSize: 22,
-    color: '#9CA3AF',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });

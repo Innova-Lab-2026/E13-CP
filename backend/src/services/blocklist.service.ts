@@ -83,11 +83,23 @@ export const getBlocklistStatus = (responsibleId?: string): BlocklistStatus => {
  * La comparación es por subcadena para cubrir URLs con protocolo, rutas y subdominios.
  */
 export const findMatchingBlocklistItem = (
-  domain: string
+  domain: string,
+  responsibleId?: string
 ): BlocklistItem | undefined => {
   const cleanDomain = normalizeDomain(domain);
-  return db.blocklist.find(item => cleanDomain.includes(item.domain));
+  return db.blocklist.find(
+    item =>
+      isVisibleTo(item, responsibleId) && cleanDomain.includes(item.domain)
+  );
 };
+
+/**
+ * Un ítem es visible para un responsable si es del listado oficial o si lo
+ * agregó esa misma cuenta. Sin responsable, solo cuenta el listado oficial.
+ */
+export const isVisibleTo = (item: BlocklistItem, responsibleId?: string): boolean =>
+  item.type === 'LOTBA_OFFICIAL' ||
+  (!!responsibleId && item.type === 'CUSTOM' && item.addedBy === responsibleId);
 
 /** Construye un ítem personalizado para un adulto responsable. */
 export const buildCustomBlocklistItem = (

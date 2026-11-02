@@ -1,56 +1,84 @@
-import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 import AppButton from '../../../../src/components/AppButton';
+import DeviceLinkSteps from '../../../../src/components/DeviceLinkSteps';
+import { colors, radius, spacing, typography } from '../../../../src/theme';
+
+type Params = {
+  name?: string | string[];
+  linkCode?: string | string[];
+  deviceId?: string | string[];
+};
+
+function first(value?: string | string[]): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
 
 export default function DeviceSuccessScreen() {
   const router = useRouter();
-  const { pin, name } = useLocalSearchParams<{ pin: string; name: string }>();
-  const deviceName = name || 'del dispositivo';
+  const params = useLocalSearchParams<Params>();
+  const name = first(params.name)?.trim() || 'tu hijo o hija';
+  const linkCode = first(params.linkCode);
+  const deviceId = first(params.deviceId);
+  const initial = first(params.name)?.trim().charAt(0).toUpperCase();
+
+  const goToList = () => {
+    router.dismissTo('/(main)/(tabs)/(dispositivos)');
+  };
+
+  const goToDevice = () => {
+    if (!deviceId) {
+      goToList();
+      return;
+    }
+    router.replace({
+      pathname: '/(main)/(tabs)/(dispositivos)/[deviceId]',
+      params: { deviceId },
+    });
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar style="dark" />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>¡Dispositivo creado!</Text>
-
-        {/* Ícono de éxito estilizado */}
-        <View style={styles.illustrationContainer}>
+        <View style={styles.illustration} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           <View style={styles.avatarCircle}>
-            <Text style={styles.avatarIcon}>👤</Text>
+            {initial ? (
+              <Text style={styles.avatarText}>{initial}</Text>
+            ) : (
+              <Ionicons name="person" size={40} color={colors.text} />
+            )}
           </View>
           <View style={styles.checkBadge}>
-            <Text style={styles.checkIcon}>✓</Text>
+            <Ionicons name="checkmark" size={18} color={colors.background} />
           </View>
         </View>
 
-        <Text style={styles.instructionsTitle}>Ahora, vinculá a {deviceName}:</Text>
+        <Text style={styles.title} accessibilityRole="header">
+          Perfil creado
+        </Text>
+        <Text style={styles.subtitle}>
+          Ya creamos el perfil de {name}. Para que la protección empiece a funcionar, falta
+          vincular su celular.
+        </Text>
 
-        <View style={styles.stepsContainer}>
-          <Text style={styles.step}>1. Ingresá en BA Protege+ en el dispositivo de {deviceName}.</Text>
-          <Text style={styles.step}>2. Elegí "Este dispositivo será protegido".</Text>
-          <Text style={styles.step}>3. Iniciá sesión con la cuenta de adulto responsable.</Text>
-          <Text style={styles.step}>4. Seleccioná el perfil correspondiente creado desde la app.</Text>
-          <Text style={styles.step}>5. Ingresá el PIN de 4 dígitos para confirmar:</Text>
-        </View>
+        <Text style={styles.sectionTitle}>Cómo vincularlo</Text>
+        <DeviceLinkSteps name={name} linkCode={linkCode} />
 
-        {/* PIN destacado */}
-        <View style={styles.pinContainer}>
-          <Text style={styles.pinText}>{pin || '----'}</Text>
-        </View>
-
-        <View style={styles.buttonContainer}>
+        <View style={styles.buttons}>
+          {deviceId ? <AppButton title="Ver dispositivo" onPress={goToDevice} /> : null}
           <AppButton
-            title="Volver a Mis Dispositivos"
-            onPress={() => router.replace('/(main)/(tabs)/(dispositivos)')}
+            title="Volver a Mis dispositivos"
+            onPress={goToList}
+            variant={deviceId ? 'secondary' : 'primary'}
           />
         </View>
       </ScrollView>
-
     </SafeAreaView>
   );
 }
@@ -58,100 +86,64 @@ export default function DeviceSuccessScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background,
   },
   container: {
     flexGrow: 1,
-    padding: 24,
+    padding: spacing.xxl,
     alignItems: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '800',
-    marginBottom: 20,
-    color: '#16A34A',
-    textAlign: 'center',
-  },
-  illustrationContainer: {
-    position: 'relative',
-    width: 88,
-    height: 88,
-    marginBottom: 20,
+  illustration: {
+    width: 104,
+    height: 104,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xl,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#DCFCE7',
-    borderWidth: 2,
-    borderColor: '#86EFAC',
+    width: 96,
+    height: 96,
+    borderRadius: radius.pill,
+    backgroundColor: colors.brand,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarIcon: {
-    fontSize: 38,
+  avatarText: {
+    ...typography.display,
+    color: colors.onBrand,
   },
   checkBadge: {
     position: 'absolute',
     bottom: 2,
     right: 2,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#16A34A',
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    backgroundColor: colors.success,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderWidth: 3,
+    borderColor: colors.background,
   },
-  checkIcon: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+  title: {
+    ...typography.display,
+    textAlign: 'center',
+    marginBottom: spacing.sm,
   },
-  instructionsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#1F2937',
+  subtitle: {
+    ...typography.body,
+    textAlign: 'center',
+    marginBottom: spacing.xxl,
+  },
+  sectionTitle: {
+    ...typography.subtitle,
     alignSelf: 'flex-start',
+    marginBottom: spacing.md,
   },
-  stepsContainer: {
+  buttons: {
     width: '100%',
-    backgroundColor: '#FAFAFA',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginBottom: 16,
-  },
-  step: {
-    fontSize: 14,
-    color: '#374151',
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  pinContainer: {
-    marginVertical: 12,
-    paddingHorizontal: 30,
-    paddingVertical: 14,
-    backgroundColor: '#FEF3C7',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#F59E0B',
-    alignItems: 'center',
-    width: '100%',
-  },
-  pinText: {
-    fontSize: 34,
-    fontWeight: 'bold',
-    letterSpacing: 8,
-    color: '#B45309',
-  },
-  buttonContainer: {
-    width: '100%',
-    marginTop: 16,
+    gap: spacing.sm,
+    marginTop: spacing.xxl,
   },
 });

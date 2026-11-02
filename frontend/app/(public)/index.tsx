@@ -1,133 +1,104 @@
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
-import { useRouter } from "expo-router";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
+import { Redirect, useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import AppButton from "../../src/components/AppButton";
+import { useSession } from "../../src/services/session";
+import { homeRouteFor } from "../../src/navigation";
+import { colors, spacing, typography } from "../../src/theme";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { session, loading } = useSession();
 
-  const handleContinue = () => {
-    router.push("/onboarding");
-  };
+  // Con sesión guardada se salta la bienvenida y se va a la pantalla que corresponde.
+  if (!loading && session) {
+    return <Redirect href={homeRouteFor(session)} />;
+  }
 
   return (
-    <View style={styles.container}>
-      {/* Logotipos */}
-      <View style={styles.logosContainer}>
-        <Image
-          source={require("../../assets/protege-01.png")}
-          style={styles.loteriaImage}
-          resizeMode="contain"
-        />
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <View style={styles.content}>
+        <View style={styles.logos}>
+          <Image
+            source={require("../../assets/protege-01.png")}
+            style={styles.logo}
+            resizeMode="contain"
+            accessibilityLabel="BA Protege+"
+          />
+          <Image
+            source={require("../../assets/logo-loteria-01.png")}
+            style={styles.logo}
+            resizeMode="contain"
+            accessibilityLabel="Lotería de la Ciudad de Buenos Aires"
+          />
+        </View>
 
-        <Image
-          source={require("../../assets/logo-loteria-01.png")}
-          style={styles.loteriaImage}
-          resizeMode="contain"
-        />
+        <Text style={styles.title} accessibilityRole="header">
+          Bienvenido/a
+        </Text>
+        <Text style={styles.description}>
+          Acompañá y protegé a tu familia{"\n"}en el mundo digital.
+        </Text>
       </View>
 
-      {/* Área interactiva de bienvenida */}
-      <Pressable
-        onPress={handleContinue}
-        accessibilityRole="button"
-        accessibilityLabel="Continuar al primer onboarding"
-        style={({ pressed }) => [
-          styles.welcomeContainer,
-          pressed && styles.pressed,
-        ]}
-      >
-        <Text style={styles.title}>¡Bienvenido/a!</Text>
-
-        <Text style={styles.description}>
-          Acompañá y protegé a tu familia{"\n"}
-          en el mundo digital.
-        </Text>
-      </Pressable>
-    </View>
+      <View style={styles.footer}>
+        {loading ? (
+          <ActivityIndicator color={colors.text} accessibilityLabel="Cargando" />
+        ) : (
+          <>
+            <AppButton
+              title="Comenzar"
+              accessibilityLabel="Comenzar y conocer la aplicación"
+              onPress={() => router.push("/onboarding")}
+            />
+            <AppButton
+              variant="secondary"
+              title="Ya tengo una cuenta"
+              accessibilityLabel="Ya tengo una cuenta, ir a iniciar sesión"
+              onPress={() => router.push("/login")}
+            />
+          </>
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.xxl,
+    paddingBottom: spacing.xxl,
   },
-
-  logosContainer: {
+  content: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logos: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 28,
-    marginBottom: 68,
+    marginBottom: 64,
   },
-
-  baLogo: {
-    backgroundColor: "#FFD900",
-    paddingHorizontal: 13,
-    paddingVertical: 10,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 0,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+  logo: {
+    width: 125,
+    height: 55,
   },
-
-  baLogoText: {
-    color: "#000000",
-    fontSize: 17,
-    fontWeight: "800",
-  },
-
-  loteriaImage: {
-  width: 125,
-  height: 55,
-},
-
-  loteriaLogo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-
-  pin: {
-    color: "#292929",
-    fontSize: 28,
-  },
-
-  loteriaTitle: {
-    color: "#292929",
-    fontSize: 18,
-    fontWeight: "800",
-  },
-
-  loteriaSubtitle: {
-    color: "#292929",
-    fontSize: 10,
-  },
-
-  welcomeContainer: {
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 12,
-  },
-
-  pressed: {
-    opacity: 0.65,
-  },
-
   title: {
-    color: "#1C1C1C",
-    fontSize: 28,
-    fontWeight: "800",
-    marginBottom: 12,
+    ...typography.display,
+    textAlign: "center",
+    marginBottom: spacing.md,
+  },
+  description: {
+    ...typography.body,
     textAlign: "center",
   },
-
-  description: {
-    color: "#888888",
-    fontSize: 14,
-    lineHeight: 21,
-    textAlign: "center",
+  footer: {
+    gap: spacing.md,
+    minHeight: 108,
+    justifyContent: "flex-end",
   },
 });

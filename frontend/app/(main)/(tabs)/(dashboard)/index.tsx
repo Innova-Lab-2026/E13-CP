@@ -1,287 +1,296 @@
-// app/tutor/dashboard.tsx
-import React, { useCallback, useState } from "react";
+// Home del adulto responsable (Figma "Home").
+import React, { useMemo } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Pressable,
   Image,
-  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
-// Componentes reutilizables reales del proyecto
 import DeviceItem from "../../../../src/components/DeviceItem";
 import AddDeviceButton from "../../../../src/components/AddDeviceButton";
 import GreetingHeader from "../../../../src/components/GreetingHeader";
-import { getDevices, type Device } from "../../../../src/services/deviceService";
+import ScreenState from "../../../../src/components/ScreenState";
 import HistoryCard from "../../../../src/components/historial/HistoryCard";
+import { useAsyncResource } from "../../../../src/hooks/useAsyncResource";
+import { useSession } from "../../../../src/services/session";
+import { getDevices } from "../../../../src/services/deviceService";
+import { getAlerts, type Alert } from "../../../../src/services/alertService";
 import { getHistoryEvents } from "../../../../src/services/historyService";
-
-// TODO BACKEND: Estructura esperada para el modelo de notificaciones de la API
-interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-}
+import { formatIsoDate } from "../../../../src/utils/date";
+import { colors, radius, shadow, spacing, typography } from "../../../../src/theme";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { name } = useLocalSearchParams<{ name?: string | string[] }>();
-  const userName = (Array.isArray(name) ? name[0] : name)?.trim() || "tutor";
+  const { session } = useSession();
+  const firstName = session?.profile.name?.trim().split(/\s+/)[0] || "";
 
-  // --- ESTADOS Y DATOS MOCK (MOCK DATA) ---
-  // Estado para controlar la visibilidad del panel/modal de notificaciones
-  const [isNotificationModalVisible, setIsNotificationModalVisible] = useState(false);
-
-  // TODO BACKEND: Reemplazar este estado inicial por un fetch a GET /api/v1/notifications
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      id: "1",
-      title: "Desinstalación detectada",
-      message: "Paula desinstaló la aplicación de control parental.",
-      time: "13:00",
-      read: false,
-    },
-    {
-      id: "2",
-      title: "Intento de sitio bloqueado",
-      message: "Ramiro intentó acceder a un sitio de apuestas.",
-      time: "14:25",
-      read: true,
-    },
-  ]);
-
-  const [devices, setDevices] = useState(getDevices);
-
-  useFocusEffect(
-    useCallback(() => {
-      setDevices(getDevices());
-    }, []),
+  const devices = useAsyncResource(() => getDevices(), []);
+  const alerts = useAsyncResource(() => getAlerts(), []);
+  const history = useAsyncResource(
+    async () => (await getHistoryEvents()).slice(0, 2),
+    [],
   );
 
-  const historyLogs = getHistoryEvents().slice(0, 2);
+  const deviceList = devices.data ?? [];
+  const protectedCount = deviceList.filter((device) => device.status === "active").length;
+  const hasUnread = (alerts.data ?? []).some((alert) => !alert.read);
 
-  const handleLogout = () => {
-    router.replace("/(public)/login");
+  // La alerta sin leer más reciente que pide intervención (las alertas vienen ordenadas de la más nueva a la más vieja).
+  const attentionAlert = useMemo<Alert | undefined>(
+    () =>
+      (alerts.data ?? []).find(
+        (alert) => !alert.read && (alert.type === "danger" || alert.type === "blocked"),
+      ),
+    [alerts.data],
+  );
+
+  const refreshing =
+    (devices.loading && devices.data !== undefined) ||
+    (alerts.loading && alerts.data !== undefined) ||
+    (history.loading && history.data !== undefined);
+
+  const reloadAll = () => {
+    devices.reload();
+    alerts.reload();
+    history.reload();
   };
 
-  // TODO BACKEND: Función para marcar notificación como leída en la API (PATCH /api/v1/notifications/:id)
-  const handleMarkAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(item => (item.id === id ? { ...item, read: true } : item))
+  const goToAddDevice = () => router.push("/(main)/(tabs)/(dispositivos)/add-device");
+
+  const renderStatusCard = () => {
+    const total = deviceList.length;
+    const allProtected = total > 0 && protectedCount === total;
+    const subtitle =
+      total === 0
+        ? "Todavía no agregaste dispositivos."
+        : allProtected
+          ? "La protección está activa en todos."
+          : "Revisá los que todavía no están protegidos.";
+
+    return (
+      <Pressable
+        style={({ pressed }) => [styles.statusCard, pressed && styles.pressed]}
+        onPress={() => router.push("/(main)/(tabs)/(dispositivos)")}
+        accessibilityRole="button"
+        accessibilityLabel={`${protectedCount} de ${total} dispositivos protegidos. ${subtitle}`}
+      >
+        <View
+          style={[
+            styles.statusIcon,
+            { backgroundColor: allProtected ? colors.successSoft : colors.brandSoft },
+          ]}
+        >
+          <Ionicons
+            name={allProtected ? "shield-checkmark" : "shield-outline"}
+            size={22}
+            color={allProtected ? colors.successText : colors.text}
+          />
+        </View>
+        <View style={styles.flex}>
+          <Text style={styles.statusTitle}>
+            {protectedCount} de {total} dispositivos protegidos
+          </Text>
+          <Text style={styles.statusSubtitle}>{subtitle}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+      </Pressable>
     );
   };
 
-  // --- CABECERA DE LA LISTA PRINCIPAL ---
-  const renderListHeader = () => (
-    <View>
-      {/* Top Bar: Isologotipo de la App y Alerta de Notificaciones */}
-      <View style={styles.topBar}>
-        <View style={styles.logoContainer}>
-          <Image
-            source={require("../../../../assets/protege-01.png")}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
+  const renderDevices = () => {
+    if (devices.loading && devices.data === undefined) {
+      return <ScreenState loading />;
+    }
+    if (devices.error && devices.data === undefined) {
+      return <ScreenState error={devices.error} onRetry={devices.reload} />;
+    }
+    if (deviceList.length === 0) {
+      return (
+        <View style={styles.emptyDevices}>
+          <View style={styles.emptyIcon}>
+            <Ionicons name="phone-portrait-outline" size={26} color={colors.text} />
+          </View>
+          <Text style={styles.emptyTitle}>Agregá el primer dispositivo</Text>
+          <Text style={styles.emptyText}>
+            Sumá el celular de tu hijo o hija para bloquear los sitios de apuestas del
+            listado oficial de LOTBA.
+          </Text>
+          <AddDeviceButton onPress={goToAddDevice} />
         </View>
+      );
+    }
 
-        <View style={styles.topBarActions}>
+    return (
+      <>
+        {renderStatusCard()}
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle} accessibilityRole="header">
+            Mis dispositivos
+          </Text>
           <Pressable
-            style={styles.notificationBadge}
-            onPress={() => router.push("/(main)/(tabs)/(dashboard)/alerts")}
+            onPress={() => router.push("/(main)/(tabs)/(dispositivos)")}
             accessibilityRole="button"
-            accessibilityLabel="Abrir alertas"
+            accessibilityLabel="Ver todos los dispositivos"
+            hitSlop={8}
           >
-            <Text style={styles.bellIcon}>🔔</Text>
-            {notifications.some(n => !n.read) && (
-              <View style={styles.notificationDot} />
-            )}
-          </Pressable>
-          <Pressable
-            style={styles.logoutButton}
-            onPress={handleLogout}
-            accessibilityRole="button"
-            accessibilityLabel="Cerrar sesión"
-          >
-            <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
+            <Text style={styles.linkText}>Ver todo</Text>
           </Pressable>
         </View>
-      </View>
 
-      {/* Saludo componente */}
-      <GreetingHeader
-        name={userName}
-        subtitle="¡Qué bueno tenerte de vuelta!"
-      />
-
-      {/* Tarjeta resumen de estado general */}
-      <View style={styles.statusCard}>
-        <View style={styles.statusIconContainer}>
-          <Text style={styles.shieldIcon}>🛡️</Text>
-        </View>
-        <View style={styles.statusTextContainer}>
-          <Text style={styles.statusTitle}>
-            Dispositivos protegidos
-          </Text>
-          <Text style={styles.statusSubtitle}>
-            {devices.filter((device) => device.status === "active").length} de{" "}
-            {devices.length} dispositivos activos
-          </Text>
-        </View>
-        <Text style={styles.arrowIcon}>›</Text>
-      </View>
-
-      {/* Encabezado sección Mis Dispositivos */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Mis Dispositivos</Text>
-        <Pressable
-          onPress={() => router.push("/(main)/(tabs)/(dispositivos)")}
-        >
-          <Text style={styles.linkText}>Ver todo ›</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-
-  // --- PIE DE PÁGINA DE LA LISTA PRINCIPAL ---
-  const renderListFooter = () => (
-    <View>
-      {/* Botón para agregar dispositivo */}
-      <AddDeviceButton
-        onPress={() =>
-          router.push("/(main)/(tabs)/(dispositivos)/add-device")
-        }
-      />
-
-      {/* Sección Alerta / Requiere atención */}
-      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
-        Requiere tu atención
-      </Text>
-
-      {/* TODO BACKEND: Dinamizar esta tarjeta con la alerta crítica o no leída de GET /api/v1/alerts */}
-      <Pressable
-        style={styles.alertCard}
-        onPress={() =>
-          router.push({
-            pathname: "/(main)/(tabs)/(dashboard)/[alertId]",
-            params: { alertId: "1" },
-          })
-        }
-      >
-        <View style={styles.alertIconContainer}>
-          <Text style={styles.alertIcon}>⚠️</Text>
-        </View>
-        <View style={styles.alertTextContainer}>
-          <Text style={styles.alertTitle}>¡Requiere tu atención!</Text>
-          <Text style={styles.alertSubtitle}>
-            Paula desinstaló la aplicación
-          </Text>
-          <Text style={styles.alertTime}>13:00</Text>
-        </View>
-        <Text style={styles.alertArrow}>›</Text>
-      </Pressable>
-
-      {/* Encabezado sección Historial */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Historial</Text>
-        <Pressable onPress={() => router.push("/(main)/(tabs)/(historial)")}>
-          <Text style={styles.linkText}>Ver todo ›</Text>
-        </Pressable>
-      </View>
-
-      {historyLogs.map((event) => (
-        <HistoryCard
-          key={event.id}
-          variant={event.variant}
-          title={event.title}
-          description={event.description}
-          time={`${event.date} · ${event.time}`}
-          device={event.device}
-          onPress={() =>
-            router.push({
-              pathname: "/(main)/(tabs)/(historial)/[historyId]",
-              params: { historyId: event.id },
-            })
-          }
-        />
-      ))}
-    </View>
-  );
-
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" />
-
-      {/* FlatList principal */}
-      <FlatList
-        data={devices}
-        keyExtractor={(item) => item.id}
-        ListHeaderComponent={renderListHeader}
-        ListFooterComponent={renderListFooter}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
+        {deviceList.map((device) => (
           <DeviceItem
-            name={item.name}
-            status={item.status}
-            birthDate={item.birthDate}
+            key={device.id}
+            name={device.name}
+            status={device.status}
+            birthDate={device.birthDate ? formatIsoDate(device.birthDate) : undefined}
             onPress={() =>
               router.push({
                 pathname: "/(main)/(tabs)/(dispositivos)/[deviceId]",
-                params: { deviceId: item.id },
+                params: { deviceId: device.id },
               })
             }
           />
-        )}
-      />
+        ))}
 
-      {/* --- PANEL / MODAL DE NOTIFICACIONES --- */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isNotificationModalVisible}
-        onRequestClose={() => setIsNotificationModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Notificaciones</Text>
-              <Pressable onPress={() => setIsNotificationModalVisible(false)}>
-                <Text style={styles.closeButton}>✕</Text>
-              </Pressable>
-            </View>
+        <AddDeviceButton onPress={goToAddDevice} />
+      </>
+    );
+  };
 
-            {/* Lista de Notificaciones (Mock / Backend Ready) */}
-            <FlatList
-              data={notifications}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <Pressable
-                  style={[styles.notificationItem, !item.read && styles.unreadNotification]}
-                  onPress={() => handleMarkAsRead(item.id)}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.notifTitle}>{item.title}</Text>
-                    <Text style={styles.notifMessage}>{item.message}</Text>
-                    <Text style={styles.notifTime}>{item.time}</Text>
-                  </View>
-                  {!item.read && <View style={styles.blueDot} />}
-                </Pressable>
-              )}
-              ListEmptyComponent={
-                <Text style={styles.emptyText}>No tenés notificaciones nuevas.</Text>
+  const renderAttention = () => {
+    if (!attentionAlert) return null;
+    const isDanger = attentionAlert.type === "danger";
+
+    return (
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle} accessibilityRole="header">
+          Requiere tu atención
+        </Text>
+        <Pressable
+          style={({ pressed }) => [styles.attentionCard, pressed && styles.pressed]}
+          onPress={() =>
+            router.push({
+              pathname: "/(main)/(tabs)/(dashboard)/[alertId]",
+              params: { alertId: attentionAlert.id },
+            })
+          }
+          accessibilityRole="button"
+          accessibilityLabel={`${attentionAlert.title}. ${attentionAlert.subtitle}. Ver detalle`}
+        >
+          <View style={styles.attentionIcon}>
+            <Ionicons name={isDanger ? "alert-circle" : "ban"} size={22} color={colors.danger} />
+          </View>
+          <View style={styles.flex}>
+            <Text style={styles.attentionTitle}>{attentionAlert.title}</Text>
+            <Text style={styles.attentionSubtitle} numberOfLines={2}>
+              {attentionAlert.subtitle}
+            </Text>
+            <Text style={styles.caption}>
+              {attentionAlert.date} · {attentionAlert.time}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+        </Pressable>
+      </View>
+    );
+  };
+
+  const renderHistory = () => {
+    const events = history.data ?? [];
+
+    return (
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle} accessibilityRole="header">
+            Historial
+          </Text>
+          <Pressable
+            onPress={() => router.push("/(main)/(tabs)/(historial)")}
+            accessibilityRole="button"
+            accessibilityLabel="Ver todo el historial"
+            hitSlop={8}
+          >
+            <Text style={styles.linkText}>Ver todo</Text>
+          </Pressable>
+        </View>
+
+        {history.loading && history.data === undefined ? (
+          <ScreenState loading />
+        ) : history.error && history.data === undefined ? (
+          <ScreenState error={history.error} onRetry={history.reload} />
+        ) : events.length === 0 ? (
+          <ScreenState
+            isEmpty
+            emptyTitle="Sin actividad por ahora"
+            emptyText="Cuando haya bloqueos o cambios en la protección, los vas a ver acá."
+          />
+        ) : (
+          events.map((event) => (
+            <HistoryCard
+              key={event.id}
+              variant={event.variant}
+              title={event.title}
+              description={event.description}
+              time={`${event.date} · ${event.time}`}
+              device={event.device}
+              onPress={() =>
+                router.push({
+                  pathname: "/(main)/(tabs)/(historial)/[historyId]",
+                  params: { historyId: event.id },
+                })
               }
             />
-          </View>
-        </View>
-      </Modal>
+          ))
+        )}
+      </View>
+    );
+  };
 
+  return (
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      <StatusBar style="dark" />
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={reloadAll} tintColor={colors.text} />
+        }
+      >
+        <View style={styles.topBar}>
+          <Image
+            source={require("../../../../assets/protege-01.png")}
+            style={styles.logo}
+            resizeMode="contain"
+            accessibilityLabel="BA Protege+"
+          />
+          <Pressable
+            style={({ pressed }) => [styles.bellButton, pressed && styles.pressed]}
+            onPress={() => router.push("/(main)/(tabs)/(dashboard)/alerts")}
+            accessibilityRole="button"
+            accessibilityLabel={hasUnread ? "Alertas, tenés alertas sin leer" : "Alertas"}
+            hitSlop={6}
+          >
+            <Ionicons name="notifications-outline" size={22} color={colors.text} />
+            {hasUnread ? <View style={styles.bellDot} /> : null}
+          </Pressable>
+        </View>
+
+        <GreetingHeader name={firstName} subtitle="Qué bueno tenerte de vuelta." />
+
+        {renderDevices()}
+        {renderAttention()}
+        {renderHistory()}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -289,228 +298,152 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xxxl,
+  },
+  flex: {
+    flex: 1,
+  },
+  pressed: {
+    opacity: 0.85,
   },
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 8,
-    marginBottom: 16,
+    marginTop: spacing.sm,
+    marginBottom: spacing.lg,
   },
-  logoContainer: {
-    justifyContent: "center",
-  },
-  logoImage: {
+  logo: {
     width: 120,
     height: 40,
   },
-  topBarActions: {
-    flexDirection: "row",
+  bellButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
-    gap: 8,
-  },
-  notificationBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F3F4F6",
     justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
   },
-  logoutButton: {
-    minHeight: 36,
-    justifyContent: "center",
-    paddingHorizontal: 10,
-    borderRadius: 18,
-    backgroundColor: "#F3F4F6",
-  },
-  logoutButtonText: {
-    color: "#374151",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  bellIcon: {
-    fontSize: 18,
-  },
-  notificationDot: {
+  bellDot: {
     position: "absolute",
-    top: 4,
-    right: 4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#DC2626",
+    top: 8,
+    right: 9,
+    width: 9,
+    height: 9,
+    borderRadius: radius.pill,
+    backgroundColor: colors.danger,
+    borderWidth: 1.5,
+    borderColor: colors.surface,
   },
   statusCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ECFDF5",
-    borderColor: "#A7F3D0",
+    gap: spacing.md,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 24,
-    gap: 12,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    marginBottom: spacing.xxl,
+    ...shadow.card,
   },
-  statusIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#D1FAE5",
-    justifyContent: "center",
+  statusIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
     alignItems: "center",
-  },
-  shieldIcon: {
-    fontSize: 20,
-  },
-  statusTextContainer: {
-    flex: 1,
+    justifyContent: "center",
   },
   statusTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#065F46",
+    ...typography.subtitle,
   },
   statusSubtitle: {
-    fontSize: 12,
-    color: "#047857",
+    ...typography.body,
     marginTop: 2,
   },
-  arrowIcon: {
-    fontSize: 18,
-    color: "#047857",
-    fontWeight: "bold",
+  section: {
+    marginTop: spacing.xxl,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1F2937",
+    ...typography.subtitle,
+    marginBottom: spacing.xs,
   },
   linkText: {
-    fontSize: 14,
-    color: "#1C1C1C",
-    fontWeight: "600",
+    ...typography.label,
+    textDecorationLine: "underline",
   },
-  alertCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FEF2F2",
-    borderColor: "#FCA5A5",
+  emptyDevices: {
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    padding: 14,
-    borderRadius: 16,
-    marginBottom: 24,
-    gap: 12,
+    borderColor: colors.border,
+    borderRadius: radius.xxl,
+    padding: spacing.xl,
+    alignItems: "stretch",
+    gap: spacing.sm,
   },
-  alertIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#FEE2E2",
+  emptyIcon: {
+    alignSelf: "center",
+    width: 52,
+    height: 52,
+    borderRadius: radius.pill,
+    backgroundColor: colors.brandSoft,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center",
+    marginBottom: spacing.xs,
   },
-  alertIcon: {
-    fontSize: 18,
-  },
-  alertTextContainer: {
-    flex: 1,
-  },
-  alertTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#DC2626",
-  },
-  alertSubtitle: {
-    fontSize: 13,
-    color: "#374151",
-    marginTop: 2,
-  },
-  alertTime: {
-    fontSize: 11,
-    color: "#9CA3AF",
-    marginTop: 2,
-  },
-  alertArrow: {
-    fontSize: 18,
-    color: "#9CA3AF",
-  },
-  // Estilos del Modal de Notificaciones
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 20,
-    maxHeight: "70%",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1F2937",
-  },
-  closeButton: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#6B7280",
-    padding: 4,
-  },
-  notificationItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
-  },
-  unreadNotification: {
-    backgroundColor: "#F9FAFB",
-  },
-  notifTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#1F2937",
-  },
-  notifMessage: {
-    fontSize: 13,
-    color: "#4B5563",
-    marginTop: 2,
-  },
-  notifTime: {
-    fontSize: 11,
-    color: "#9CA3AF",
-    marginTop: 4,
-  },
-  blueDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#2563EB",
+  emptyTitle: {
+    ...typography.subtitle,
+    textAlign: "center",
   },
   emptyText: {
+    ...typography.body,
     textAlign: "center",
-    color: "#9CA3AF",
-    paddingVertical: 20,
+    marginBottom: spacing.sm,
+  },
+  attentionCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.dangerSoft,
+    borderWidth: 1,
+    borderColor: colors.danger,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginTop: spacing.sm,
+  },
+  attentionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  attentionTitle: {
+    ...typography.label,
+    color: colors.dangerText,
+    fontWeight: "800",
+  },
+  attentionSubtitle: {
+    ...typography.body,
+    color: colors.text,
+    marginTop: 2,
+  },
+  caption: {
+    ...typography.caption,
+    marginTop: 2,
   },
 });

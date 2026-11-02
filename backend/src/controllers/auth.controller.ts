@@ -12,7 +12,14 @@ import {
 } from '../services/device.service';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[0-9+\s()-]{7,15}$/;
+/** Caracteres permitidos en un teléfono (dígitos, +, espacios, paréntesis y guiones). */
+const PHONE_CHARS_REGEX = /^[0-9+\s()-]{7,20}$/;
+/** Un teléfono válido tiene entre 7 y 15 dígitos (E.164), sin contar los separadores. */
+const isValidPhone = (phone: string): boolean => {
+  if (!PHONE_CHARS_REGEX.test(phone)) return false;
+  const digits = phone.replace(/\D/g, '').length;
+  return digits >= 7 && digits <= 15;
+};
 const MIN_PASSWORD_LENGTH = 6;
 
 interface RegisterRequest {
@@ -95,7 +102,7 @@ export const registerResponsible = async (req: Request, res: Response) => {
       });
     }
 
-    if (cleanPhone !== undefined && cleanPhone !== '' && !PHONE_REGEX.test(cleanPhone)) {
+    if (cleanPhone !== undefined && cleanPhone !== '' && !isValidPhone(cleanPhone)) {
       return res.status(400).json({ error: 'El teléfono no tiene un formato válido' });
     }
 
@@ -324,7 +331,7 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
     }
 
     const cleanPhone = typeof telefono === 'string' ? telefono.trim() : undefined;
-    if (cleanPhone && !PHONE_REGEX.test(cleanPhone)) {
+    if (cleanPhone && !isValidPhone(cleanPhone)) {
       return res.status(400).json({ error: 'El teléfono no tiene un formato válido' });
     }
 

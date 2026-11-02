@@ -1,60 +1,137 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+// Detalle de una alerta. Se marca como leída al abrirse.
+import React, { useEffect, useRef } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
-// Componentes reutilizables del proyecto
 import AppHeader from "../../../../src/components/AppHeader";
 import AppButton from "../../../../src/components/AppButton";
+import ScreenState from "../../../../src/components/ScreenState";
+import { useAsyncResource } from "../../../../src/hooks/useAsyncResource";
 import {
   getAlertById,
+  markAlertRead,
   type AlertType,
 } from "../../../../src/services/alertService";
+import { colors, radius, shadow, spacing, typography } from "../../../../src/theme";
+
+type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
+
+type Presentation = {
+  icon: IoniconName;
+  status: string;
+  guidance: string;
+  color: string;
+  textColor: string;
+  background: string;
+};
+
+const PRESENTATIONS: Record<AlertType, Presentation> = {
+  danger: {
+    icon: "alert-circle",
+    status: "Requiere tu atención",
+    guidance:
+      "Detectamos un intento de desactivar o saltear la protección. Te sugerimos revisar el dispositivo y conversar con calma sobre por qué la protección está activa.",
+    color: colors.danger,
+    textColor: colors.dangerText,
+    background: colors.dangerSoft,
+  },
+  blocked: {
+    icon: "ban",
+    status: "Acceso bloqueado",
+    guidance:
+      "El sitio figura en el listado oficial de LOTBA y no se abrió. Puede ser un buen momento para hablar sobre los riesgos de las apuestas online, sin retos y con escucha.",
+    color: colors.danger,
+    textColor: colors.dangerText,
+    background: colors.dangerSoft,
+  },
+  warning: {
+    icon: "warning",
+    status: "Revisá esta actividad",
+    guidance:
+      "Hubo un intento de instalar una aplicación o de cambiar la configuración. Mirá el historial del dispositivo para entender el contexto.",
+    color: colors.warning,
+    textColor: colors.warningText,
+    background: colors.warningSoft,
+  },
+  info: {
+    icon: "information-circle",
+    status: "Aviso informativo",
+    guidance:
+      "Es un aviso sobre el estado de la protección. No hace falta que hagas nada.",
+    color: colors.text,
+    textColor: colors.text,
+    background: colors.brandSoft,
+  },
+};
 
 export default function AlertDetailScreen() {
   const router = useRouter();
   const { alertId: routeAlertId } = useLocalSearchParams<{
     alertId?: string | string[];
   }>();
-  const alertId = Array.isArray(routeAlertId)
-    ? routeAlertId[0]
-    : routeAlertId;
-  const alert = alertId ? getAlertById(alertId) : undefined;
-  const alertPresentation = alertPresentations[alert?.type ?? "danger"];
+  const alertId = (Array.isArray(routeAlertId) ? routeAlertId[0] : routeAlertId) ?? "";
+
+  const { data: alert, loading, error, reload } = useAsyncResource(
+    () => getAlertById(alertId),
+    [alertId],
+  );
+
+  // Marcarla como leída una sola vez por alerta abierta.
+  const markedId = useRef<string | null>(null);
+  useEffect(() => {
+    if (alert && !alert.read && markedId.current !== alert.id) {
+      markedId.current = alert.id;
+      markAlertRead(alert.id).catch(() => {
+        markedId.current = null;
+      });
+    }
+  }, [alert]);
 
   const handleViewHistory = () => {
+    if (!alert) return;
     router.push({
       pathname: "/(main)/(tabs)/(historial)",
-      params: alert ? { device: alert.device } : undefined,
+      params: { device: alert.deviceId },
     });
   };
 
+  const handleViewDevice = () => {
+    if (!alert) return;
+    router.push({
+      pathname: "/(main)/(tabs)/(dispositivos)/[deviceId]",
+      params: { deviceId: alert.deviceId },
+    });
+  };
+
+  const look = alert ? (PRESENTATIONS[alert.type] ?? PRESENTATIONS.warning) : PRESENTATIONS.info;
+
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar style="dark" />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <AppHeader title="Detalle de alerta" onBackPress={() => router.back()} />
+        <AppHeader title="Detalle de alerta" />
 
-        {alert ? (
+        {!alert ? (
+          <ScreenState
+            loading={loading}
+            error={error}
+            onRetry={reload}
+            isEmpty={!loading && !error && !alert}
+            emptyTitle="No encontramos esta alerta"
+            emptyText="Puede que ya no esté disponible. Volvé a Mis alertas para ver las más recientes."
+          />
+        ) : (
           <>
             <View style={styles.incidentHeader}>
-              <View
-                style={[
-                  styles.largeIconContainer,
-                  { backgroundColor: alertPresentation.backgroundColor },
-                ]}
-              >
-                <Text style={styles.largeIcon}>{alertPresentation.icon}</Text>
+              <View style={[styles.largeIcon, { backgroundColor: look.background }]}>
+                <Ionicons name={look.icon} size={28} color={look.color} />
               </View>
-              <View style={styles.incidentTextContainer}>
-                <Text
-                  style={[
-                    styles.incidentTitle,
-                    { color: alertPresentation.color },
-                  ]}
-                >
+              <View style={styles.flex}>
+                <Text style={[styles.incidentTitle, { color: look.textColor }]}>
                   {alert.title}
                 </Text>
                 <Text style={styles.incidentSubtitle}>{alert.subtitle}</Text>
@@ -62,214 +139,163 @@ export default function AlertDetailScreen() {
             </View>
 
             <View style={styles.detailCard}>
-              <View style={styles.detailRow}>
-                <Text style={styles.rowIcon}>👤</Text>
-                <Text style={styles.rowLabel}>
-                  Dispositivo de <Text style={styles.boldText}>{alert.device}</Text>
-                </Text>
-              </View>
+              <DetailRow icon="person-outline" label="Dispositivo" value={alert.device} />
 
               {alert.site ? (
                 <>
                   <View style={styles.separator} />
-                  <View style={styles.detailRow}>
-                    <Text style={styles.rowIcon}>🔗</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.rowSubLabel}>Sitio web</Text>
-                      <Text style={styles.rowValue}>{alert.site}</Text>
-                    </View>
-                  </View>
+                  <DetailRow icon="link-outline" label="Sitio web" value={alert.site} />
                 </>
               ) : null}
 
               <View style={styles.separator} />
-              <View style={styles.detailRow}>
-                <Text style={styles.rowIcon}>📅</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.rowSubLabel}>Fecha y hora</Text>
-                  <Text style={styles.rowValue}>{alert.date} · {alert.time}</Text>
-                </View>
-              </View>
+              <DetailRow
+                icon="calendar-outline"
+                label="Fecha y hora"
+                value={`${alert.date} · ${alert.time}`}
+              />
 
               <View style={styles.separator} />
-              <View style={styles.detailRow}>
-                <Text style={styles.rowIcon}>🛡️</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.rowSubLabel}>Estado</Text>
-                  <Text
-                    style={[
-                      styles.statusBlockedText,
-                      { color: alertPresentation.color },
-                    ]}
-                  >
-                    {alertPresentation.icon} {alertPresentation.status}
-                  </Text>
-                </View>
-              </View>
+              <DetailRow
+                icon="shield-outline"
+                label="Estado"
+                value={look.status}
+                valueColor={look.textColor}
+              />
             </View>
 
             <View style={styles.infoSection}>
-              <Text style={styles.infoTitle}>DETALLE DE LA ALERTA</Text>
-              <Text style={styles.infoDescription}>{alert.description}</Text>
+              <Text style={styles.infoTitle} accessibilityRole="header">
+                Qué pasó
+              </Text>
+              <Text style={styles.infoText}>{alert.description}</Text>
             </View>
 
-            <View style={styles.buttonContainer}>
+            <View style={[styles.guidanceCard, { backgroundColor: look.background }]}>
+              <Text style={styles.infoTitle}>Qué podés hacer</Text>
+              <Text style={[styles.infoText, { color: colors.text }]}>{look.guidance}</Text>
+            </View>
+
+            <View style={styles.buttons}>
+              <AppButton title={`Ver historial de ${alert.device}`} onPress={handleViewHistory} />
               <AppButton
-                title={`Ver historial de ${alert.device}`}
-                onPress={handleViewHistory}
+                title="Ver dispositivo"
+                variant="secondary"
+                onPress={handleViewDevice}
+                accessibilityLabel={`Ver dispositivo de ${alert.device}`}
               />
             </View>
           </>
-        ) : (
-          <View style={styles.infoSection}>
-            <Text style={styles.infoTitle}>No encontramos esta alerta</Text>
-            <Text style={styles.infoDescription}>
-              Volvé a Mis alertas y seleccioná una alerta disponible.
-            </Text>
-          </View>
         )}
       </ScrollView>
-
     </SafeAreaView>
   );
 }
 
-const alertPresentations: Record<
-  AlertType,
-  {
-    icon: string;
-    status: string;
-    color: string;
-    backgroundColor: string;
-  }
-> = {
-  danger: {
-    icon: "⚠️",
-    status: "Requiere atención",
-    color: "#DC2626",
-    backgroundColor: "#FEE2E2",
-  },
-  blocked: {
-    icon: "🚫",
-    status: "Acceso bloqueado",
-    color: "#DC2626",
-    backgroundColor: "#FEE2E2",
-  },
-  warning: {
-    icon: "⚙️",
-    status: "Intento de modificación",
-    color: "#D97706",
-    backgroundColor: "#FEF3C7",
-  },
-};
+function DetailRow({
+  icon,
+  label,
+  value,
+  valueColor,
+}: {
+  icon: IoniconName;
+  label: string;
+  value: string;
+  valueColor?: string;
+}) {
+  return (
+    <View style={styles.detailRow} accessible accessibilityLabel={`${label}: ${value}`}>
+      <Ionicons name={icon} size={20} color={colors.textMuted} />
+      <View style={styles.flex}>
+        <Text style={styles.rowLabel}>{label}</Text>
+        <Text style={[styles.rowValue, valueColor ? { color: valueColor, fontWeight: "800" } : null]}>
+          {value}
+        </Text>
+      </View>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
   },
   container: {
     flexGrow: 1,
-    padding: 20,
-    paddingBottom: 30,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xxxl,
+  },
+  flex: {
+    flex: 1,
   },
   incidentHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 12,
-    marginBottom: 24,
-    gap: 16,
-  },
-  largeIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: "center",
-    alignItems: "center",
+    gap: spacing.lg,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xxl,
   },
   largeIcon: {
-    fontSize: 24,
-  },
-  incidentTextContainer: {
-    flex: 1,
+    width: 56,
+    height: 56,
+    borderRadius: radius.pill,
+    alignItems: "center",
+    justifyContent: "center",
   },
   incidentTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
+    ...typography.subtitle,
+    fontWeight: "800",
   },
   incidentSubtitle: {
-    fontSize: 13,
-    color: "#4B5563",
-    marginTop: 4,
-    lineHeight: 18,
+    ...typography.body,
+    marginTop: spacing.xs,
   },
   detailCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.xxl,
+    ...shadow.card,
   },
   detailRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    gap: 12,
-  },
-  rowIcon: {
-    fontSize: 18,
-    width: 24,
-    textAlign: "center",
+    gap: spacing.md,
+    paddingVertical: spacing.md,
   },
   rowLabel: {
-    fontSize: 14,
-    color: "#1F2937",
-  },
-  boldText: {
-    fontWeight: "bold",
-  },
-  rowSubLabel: {
-    fontSize: 11,
-    color: "#9CA3AF",
+    ...typography.caption,
   },
   rowValue: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#1F2937",
-    marginTop: 2,
-  },
-  statusBlockedText: {
-    fontSize: 14,
-    fontWeight: "bold",
+    ...typography.label,
     marginTop: 2,
   },
   separator: {
     height: 1,
-    backgroundColor: "#F3F4F6",
-    marginVertical: 4,
+    backgroundColor: colors.border,
   },
   infoSection: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   infoTitle: {
-    fontSize: 12,
+    ...typography.label,
     fontWeight: "800",
-    color: "#1F2937",
-    letterSpacing: 0.5,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
-  infoDescription: {
-    fontSize: 13,
-    color: "#4B5563",
-    lineHeight: 20,
+  infoText: {
+    ...typography.body,
   },
-  buttonContainer: {
-    marginTop: 8,
+  guidanceCard: {
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.xxl,
+  },
+  buttons: {
+    gap: spacing.md,
   },
 });

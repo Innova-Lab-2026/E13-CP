@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { db } from '../config/db';
-import { AuthRequest } from '../middleware/auth.middleware';
+import { AuthRequest, JWT_SECRET } from '../middleware/auth.middleware';
 import {
   buildCustomBlocklistItem,
   findMatchingBlocklistItem,
   getBlocklistStatus,
+  isVisibleTo,
   normalizeDomain,
   syncOfficialBlocklist
 } from '../services/blocklist.service';
@@ -50,7 +52,11 @@ export const addCustomBlocklistItem = async (req: AuthRequest, res: Response) =>
 
     const cleanDomain = normalizeDomain(domain);
 
-    const existing = db.blocklist.find(item => item.domain === cleanDomain);
+    // Solo cuenta como duplicado si ya está en el listado oficial o en los
+    // sitios propios de esta cuenta: los personalizados de otras cuentas no se ven acá.
+    const existing = db.blocklist.find(
+      item => item.domain === cleanDomain && isVisibleTo(item, responsibleId)
+    );
     if (existing) {
       return res.status(400).json({ error: 'Domain is already in the blocklist' });
     }
@@ -99,6 +105,23 @@ export const removeCustomBlocklistItem = async (req: AuthRequest, res: Response)
 };
 
 /**
+ * La ruta de verificación es pública, pero si llega un token válido se suman
+ * los sitios personalizados de esa cuenta (los de otras cuentas nunca cuentan).
+ */
+const optionalResponsibleId = (req: Request): string | undefined => {
+  const header = req.headers['authorization'];
+  const token = typeof header === 'string' ? header.split(' ')[1] : undefined;
+  if (!token) return undefined;
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as { id?: unknown };
+    const id = typeof payload?.id === 'string' ? payload.id : undefined;
+    return id && db.responsables.some(r => r.id === id) ? id : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
  * POST /api/blocklist/check
  * Verifica si un dominio está bloqueado. Es la ruta que consume el servicio
  * local de VPN/DNS del dispositivo protegido.
@@ -112,7 +135,7 @@ export const checkDomain = async (req: Request, res: Response) => {
     }
 
     const cleanDomain = normalizeDomain(domain);
-    const matchedItem = findMatchingBlocklistItem(cleanDomain);
+    const matchedItem = findMatchingBlocklistItem(cleanDomain, optionalResponsibleId(req));
 
     return res.status(200).json({
       domain: cleanDomain,

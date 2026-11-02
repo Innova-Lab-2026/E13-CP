@@ -1,74 +1,168 @@
-import React from "react";
-import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
+// Mis alertas (Figma "Alertas"): agrupadas por día, de la más nueva a la más vieja.
+import React, { useMemo } from "react";
+import {
+  Pressable,
+  RefreshControl,
+  SectionList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
-// Componentes reutilizables del proyecto
 import AppHeader from "../../../../src/components/AppHeader";
-import { getAlerts, type Alert } from "../../../../src/services/alertService";
+import ScreenState from "../../../../src/components/ScreenState";
+import { useAsyncResource } from "../../../../src/hooks/useAsyncResource";
+import {
+  getAlerts,
+  markAlertRead,
+  type Alert,
+  type AlertType,
+} from "../../../../src/services/alertService";
+import { colors, radius, shadow, spacing, typography } from "../../../../src/theme";
+
+type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
+
+const ALERT_ICONS: Record<
+  AlertType,
+  { icon: IoniconName; color: string; background: string; titleColor: string }
+> = {
+  danger: {
+    icon: "alert-circle",
+    color: colors.danger,
+    background: colors.dangerSoft,
+    titleColor: colors.dangerText,
+  },
+  blocked: {
+    icon: "ban",
+    color: colors.danger,
+    background: colors.dangerSoft,
+    titleColor: colors.dangerText,
+  },
+  warning: {
+    icon: "warning",
+    color: colors.warning,
+    background: colors.warningSoft,
+    titleColor: colors.warningText,
+  },
+  info: {
+    icon: "information-circle",
+    color: colors.text,
+    background: colors.brandSoft,
+    titleColor: colors.text,
+  },
+};
+
+type AlertSection = { title: string; data: Alert[] };
+
+/** Agrupa respetando el orden recibido (ya viene de más nueva a más vieja). */
+function groupByDate(alerts: Alert[]): AlertSection[] {
+  const sections: AlertSection[] = [];
+  const byTitle = new Map<string, AlertSection>();
+  for (const alert of alerts) {
+    const title = alert.date || "Sin fecha";
+    let section = byTitle.get(title);
+    if (!section) {
+      section = { title, data: [] };
+      byTitle.set(title, section);
+      sections.push(section);
+    }
+    section.data.push(alert);
+  }
+  return sections;
+}
 
 export default function AlertsScreen() {
   const router = useRouter();
-  const alerts = getAlerts();
+  const { data, loading, error, reload } = useAsyncResource(() => getAlerts(), []);
+  const sections = useMemo(() => groupByDate(data ?? []), [data]);
 
   const handleAlertPress = (alert: Alert) => {
+    if (!alert.read) {
+      // El detalle también la marca al abrirse; si esta llamada falla no frenamos la navegación.
+      markAlertRead(alert.id).catch(() => undefined);
+    }
     router.push({
       pathname: "/(main)/(tabs)/(dashboard)/[alertId]",
       params: { alertId: alert.id },
     });
   };
 
-  const renderIcon = (type: string) => {
-    if (type === "danger") return <Text style={styles.iconText}>⚠️</Text>;
-    if (type === "blocked") return <Text style={styles.iconText}>🚫</Text>;
-    return <Text style={styles.iconText}>⚠️</Text>;
-  };
+  const firstLoad = data === undefined;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar style="dark" />
 
       <View style={styles.container}>
-        {/* Cabecera reutilizable del UI Kit */}
-        <AppHeader title="Mis alertas" onBackPress={() => router.back()} />
+        <AppHeader title="Mis alertas" />
 
-        <Text style={styles.dateHeader}>Alertas recientes</Text>
+        {firstLoad || sections.length === 0 ? (
+          <ScreenState
+            loading={loading && firstLoad}
+            error={firstLoad ? error : null}
+            onRetry={reload}
+            isEmpty={!firstLoad && sections.length === 0}
+            emptyTitle="No tenés alertas"
+            emptyText="Te vamos a avisar acá si hay un intento de acceso a un sitio de apuestas o un cambio en la protección."
+          />
+        ) : null}
 
-        <FlatList
-          data={alerts}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <Pressable 
-              style={[
-                styles.alertCard, 
-                item.type === "warning" ? styles.warningCard : null
-              ]} 
-              onPress={() => handleAlertPress(item)}
-            >
-              <View style={[
-                styles.iconContainer,
-                item.type === "warning" ? styles.yellowIconBg : styles.redIconBg
-              ]}>
-                {renderIcon(item.type)}
-              </View>
-              <View style={styles.textContainer}>
-                <Text style={[
-                  styles.alertTitle,
-                  item.type === "warning" ? styles.warningTitleText : styles.dangerTitleText
-                ]}>
-                  {item.title}
-                </Text>
-                <Text style={styles.alertSubtitle}>{item.subtitle}</Text>
-                <Text style={styles.alertTime}>{item.time}</Text>
-              </View>
-              <Text style={styles.arrow}>›</Text>
-            </Pressable>
-          )}
-        />
+        {!firstLoad && sections.length > 0 ? (
+          <SectionList
+            sections={sections}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            stickySectionHeadersEnabled={false}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={loading}
+                onRefresh={reload}
+                tintColor={colors.text}
+              />
+            }
+            renderSectionHeader={({ section }) => (
+              <Text style={styles.dateHeader} accessibilityRole="header">
+                {section.title}
+              </Text>
+            )}
+            renderItem={({ item }) => {
+              const look = ALERT_ICONS[item.type] ?? ALERT_ICONS.warning;
+              return (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.alertCard,
+                    !item.read && styles.unreadCard,
+                    pressed && styles.pressed,
+                  ]}
+                  onPress={() => handleAlertPress(item)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.read ? "" : "Sin leer. "}${item.title}. ${item.subtitle}. ${item.time}`}
+                >
+                  <View style={[styles.iconContainer, { backgroundColor: look.background }]}>
+                    <Ionicons name={look.icon} size={22} color={look.color} />
+                  </View>
+                  <View style={styles.textContainer}>
+                    <Text style={[styles.alertTitle, { color: look.titleColor }]}>
+                      {item.title}
+                    </Text>
+                    <Text style={styles.alertSubtitle} numberOfLines={2}>
+                      {item.subtitle}
+                    </Text>
+                    <Text style={styles.alertTime}>{item.time}</Text>
+                  </View>
+                  {!item.read ? <View style={styles.unreadDot} /> : null}
+                  <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+                </Pressable>
+              );
+            }}
+          />
+        ) : null}
       </View>
-
     </SafeAreaView>
   );
 }
@@ -76,81 +170,67 @@ export default function AlertsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.sm,
+  },
+  listContent: {
+    paddingBottom: spacing.xxxl,
   },
   dateHeader: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#4B5563",
-    marginBottom: 16,
-    marginTop: 8,
+    ...typography.label,
+    color: colors.textMuted,
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
   },
   alertCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    gap: spacing.md,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    padding: 14,
-    borderRadius: 16,
-    marginBottom: 12,
-    gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    ...shadow.card,
   },
-  warningCard: {
-    borderColor: "#E5E7EB",
+  unreadCard: {
+    backgroundColor: colors.surface,
+  },
+  pressed: {
+    opacity: 0.85,
   },
   iconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
+    borderRadius: radius.pill,
     alignItems: "center",
-  },
-  redIconBg: {
-    backgroundColor: "#FEE2E2",
-  },
-  yellowIconBg: {
-    backgroundColor: "#FEF3C7",
-  },
-  iconText: {
-    fontSize: 18,
+    justifyContent: "center",
   },
   textContainer: {
     flex: 1,
   },
   alertTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  dangerTitleText: {
-    color: "#DC2626",
-  },
-  warningTitleText: {
-    color: "#D97706",
+    ...typography.label,
+    fontWeight: "800",
   },
   alertSubtitle: {
-    fontSize: 13,
-    color: "#374151",
+    ...typography.body,
+    color: colors.text,
     marginTop: 2,
   },
   alertTime: {
-    fontSize: 11,
-    color: "#9CA3AF",
+    ...typography.caption,
     marginTop: 2,
   },
-  arrow: {
-    fontSize: 20,
-    color: "#9CA3AF",
-    fontWeight: "bold",
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: radius.pill,
+    backgroundColor: colors.danger,
   },
 });

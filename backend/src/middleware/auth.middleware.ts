@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { UserRole } from '../config/db';
+import { db, UserRole } from '../config/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ba-protege-secret-key-2026';
 
@@ -21,6 +21,8 @@ export interface AuthRequest extends Request {
  * Exige un Bearer token válido e inyecta los claims del usuario en `req`.
  * - Token ausente            -> 401
  * - Token inválido o vencido -> 403
+ * - Cuenta inexistente (por ejemplo, tras reiniciar el servidor con la base en
+ *   memoria) -> 403, para que la app cierre la sesión en vez de mostrar listas vacías.
  */
 export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
@@ -32,6 +34,9 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
 
   jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
     if (err) {
+      return res.status(403).json({ error: 'Token expired or invalid' });
+    }
+    if (!user || !db.responsables.some(r => r.id === user.id)) {
       return res.status(403).json({ error: 'Token expired or invalid' });
     }
     req.responsibleId = user.id;

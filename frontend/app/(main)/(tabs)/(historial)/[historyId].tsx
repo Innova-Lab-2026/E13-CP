@@ -1,10 +1,50 @@
+import { Fragment } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../../../src/components/AppHeader";
 import AppButton from "../../../../src/components/AppButton";
+import ScreenState from "../../../../src/components/ScreenState";
+import type { HistoryVariant } from "../../../../src/components/historial/HistoryCard";
+import { useAsyncResource } from "../../../../src/hooks/useAsyncResource";
 import { getHistoryEventById } from "../../../../src/services/historyService";
+import { colors, radius, shadow, spacing, typography } from "../../../../src/theme";
+
+type IconName = keyof typeof Ionicons.glyphMap;
+
+const eventPresentations: Record<
+  HistoryVariant,
+  { icon: IconName; color: string; backgroundColor: string }
+> = {
+  blocked: {
+    icon: "ban",
+    color: colors.danger,
+    backgroundColor: colors.dangerSoft,
+  },
+  alert: {
+    icon: "alert-circle",
+    color: colors.warning,
+    backgroundColor: colors.warningSoft,
+  },
+  settings: {
+    icon: "settings",
+    color: colors.textMuted,
+    backgroundColor: colors.surfaceMuted,
+  },
+  protected: {
+    icon: "shield-checkmark",
+    color: colors.success,
+    backgroundColor: colors.successSoft,
+  },
+};
+
+const categoryLabels = {
+  blocked: "Bloqueos",
+  security: "Seguridad",
+  settings: "Configuración",
+} as const;
 
 export default function HistoryDetailScreen() {
   const router = useRouter();
@@ -14,7 +54,11 @@ export default function HistoryDetailScreen() {
   const historyId = Array.isArray(routeHistoryId)
     ? routeHistoryId[0]
     : routeHistoryId;
-  const event = historyId ? getHistoryEventById(historyId) : undefined;
+
+  const { data: event, loading, error, reload } = useAsyncResource(
+    async () => (historyId ? getHistoryEventById(historyId) : undefined),
+    [historyId],
+  );
 
   const handleViewDevice = () => {
     if (!event) return;
@@ -24,12 +68,31 @@ export default function HistoryDetailScreen() {
     });
   };
 
-  const eventPresentation = event
-    ? eventPresentations[event.variant]
-    : eventPresentations.alert;
+  const presentation = event
+    ? eventPresentations[event.variant] ?? eventPresentations.settings
+    : eventPresentations.settings;
+
+  const rows: { icon: IconName; label: string; value: string }[] = event
+    ? [
+        { icon: "person-outline", label: "Perfil", value: event.device },
+        {
+          icon: "pricetag-outline",
+          label: "Categoría",
+          value: categoryLabels[event.category] ?? "Actividad",
+        },
+        {
+          icon: "time-outline",
+          label: "Fecha y hora",
+          value: `${event.date} · ${event.time}`,
+        },
+        ...(event.domain
+          ? [{ icon: "globe-outline" as IconName, label: "Sitio", value: event.domain }]
+          : []),
+      ]
+    : [];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={styles.container}
@@ -40,212 +103,163 @@ export default function HistoryDetailScreen() {
           onBackPress={() => router.back()}
         />
 
-        {event ? (
+        {event === undefined ? (
+          <ScreenState
+            loading={loading}
+            error={error}
+            onRetry={reload}
+            isEmpty
+            emptyTitle="No encontramos esta actividad"
+            emptyText="Volvé al historial y elegí otro evento."
+          />
+        ) : (
           <>
+            <ScreenState error={error} onRetry={reload} />
+
             <View style={styles.eventHeader}>
               <View
                 style={[
                   styles.iconContainer,
-                  { backgroundColor: eventPresentation.backgroundColor },
+                  { backgroundColor: presentation.backgroundColor },
                 ]}
               >
-                <Text style={styles.icon}>{eventPresentation.icon}</Text>
+                <Ionicons
+                  name={presentation.icon}
+                  size={26}
+                  color={presentation.color}
+                />
               </View>
               <View style={styles.eventHeaderText}>
-                <Text
-                  style={[
-                    styles.title,
-                    { color: eventPresentation.color },
-                  ]}
-                >
+                <Text style={styles.title} accessibilityRole="header">
                   {event.title}
                 </Text>
-                <Text style={styles.subtitle}>{event.date} · {event.time}</Text>
+                <Text style={styles.subtitle}>
+                  {event.date} · {event.time}
+                </Text>
               </View>
             </View>
 
             <View style={styles.detailCard}>
-              <View style={styles.detailRow}>
-                <Text style={styles.rowIcon}>👤</Text>
-                <Text style={styles.rowText}>
-                  Perfil de <Text style={styles.bold}>{event.device}</Text>
-                </Text>
-              </View>
-              <View style={styles.separator} />
-              <View style={styles.detailRow}>
-                <Text style={styles.rowIcon}>🏷️</Text>
-                <View style={styles.rowContent}>
-                  <Text style={styles.rowLabel}>Categoría</Text>
-                  <Text style={styles.rowText}>
-                    {eventPresentation.category}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.separator} />
-              <View style={styles.detailRow}>
-                <Text style={styles.rowIcon}>🕒</Text>
-                <View style={styles.rowContent}>
-                  <Text style={styles.rowLabel}>Fecha y hora</Text>
-                  <Text style={styles.rowText}>
-                    {event.date} · {event.time}
-                  </Text>
-                </View>
-              </View>
+              {rows.map((row, index) => (
+                <Fragment key={row.label}>
+                  {index > 0 ? <View style={styles.separator} /> : null}
+                  <View
+                    style={styles.detailRow}
+                    accessible
+                    accessibilityLabel={`${row.label}: ${row.value}`}
+                  >
+                    <Ionicons
+                      name={row.icon}
+                      size={20}
+                      color={colors.textMuted}
+                      style={styles.rowIcon}
+                    />
+                    <View style={styles.rowContent}>
+                      <Text style={styles.rowLabel}>{row.label}</Text>
+                      <Text style={styles.rowText}>{row.value}</Text>
+                    </View>
+                  </View>
+                </Fragment>
+              ))}
             </View>
 
             <View style={styles.descriptionSection}>
-              <Text style={styles.sectionTitle}>DETALLE DE LA ACTIVIDAD</Text>
+              <Text style={styles.sectionTitle}>Qué pasó</Text>
               <Text style={styles.description}>{event.description}</Text>
             </View>
 
             <AppButton
               title={`Ver dispositivo de ${event.device}`}
               onPress={handleViewDevice}
+              accessibilityLabel={`Ver dispositivo de ${event.device}`}
             />
           </>
-        ) : (
-          <View style={styles.emptyState}>
-            <Text style={styles.title}>No encontramos esta actividad</Text>
-            <Text style={styles.description}>
-              Volvé al historial y seleccioná un evento disponible.
-            </Text>
-          </View>
         )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const eventPresentations = {
-  blocked: {
-    icon: "🚫",
-    category: "Bloqueos",
-    color: "#DC2626",
-    backgroundColor: "#FEE2E2",
-  },
-  alert: {
-    icon: "⚠️",
-    category: "Seguridad",
-    color: "#DC2626",
-    backgroundColor: "#FEE2E2",
-  },
-  settings: {
-    icon: "⚙️",
-    category: "Configuración",
-    color: "#475569",
-    backgroundColor: "#E5E7EB",
-  },
-  protected: {
-    icon: "🛡️",
-    category: "Seguridad",
-    color: "#16A34A",
-    backgroundColor: "#DCFCE7",
-  },
-} as const;
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFDF2",
+    backgroundColor: colors.background,
   },
   container: {
     flexGrow: 1,
-    padding: 20,
-    paddingBottom: 30,
+    padding: spacing.xl,
+    paddingBottom: spacing.xxxl,
   },
   eventHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    marginTop: 16,
-    marginBottom: 24,
+    gap: spacing.md + 2,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xxl,
   },
   iconContainer: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
-  },
-  icon: {
-    fontSize: 24,
   },
   eventHeaderText: {
     flex: 1,
   },
   title: {
-    color: "#1F2937",
+    ...typography.subtitle,
     fontSize: 17,
-    fontWeight: "700",
   },
   subtitle: {
-    color: "#6B7280",
+    ...typography.caption,
     fontSize: 13,
-    marginTop: 5,
+    marginTop: spacing.xs,
   },
   detailCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    elevation: 2,
-    shadowColor: "#000000",
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.xxl,
+    ...shadow.card,
   },
   detailRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    paddingVertical: 8,
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
   },
   rowIcon: {
     width: 24,
-    fontSize: 18,
     textAlign: "center",
   },
   rowContent: {
     flex: 1,
   },
   rowLabel: {
-    color: "#9CA3AF",
+    ...typography.caption,
     fontSize: 11,
     marginBottom: 3,
   },
   rowText: {
-    color: "#1F2937",
+    color: colors.text,
     fontSize: 14,
-  },
-  bold: {
-    fontWeight: "700",
   },
   separator: {
     height: 1,
-    backgroundColor: "#F3F4F6",
-    marginVertical: 4,
+    backgroundColor: colors.border,
+    marginVertical: spacing.xs,
   },
   descriptionSection: {
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   sectionTitle: {
-    color: "#1F2937",
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-    marginBottom: 8,
+    ...typography.label,
+    marginBottom: spacing.sm,
   },
   description: {
-    color: "#4B5563",
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  emptyState: {
-    alignItems: "center",
-    marginTop: 48,
-    paddingHorizontal: 12,
-    gap: 8,
+    ...typography.body,
   },
 });

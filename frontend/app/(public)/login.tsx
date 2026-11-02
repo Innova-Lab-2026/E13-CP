@@ -1,299 +1,289 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, Pressable, Image } from "react-native";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import AppInput from "../../src/components/AppInput";
 import AppButton from "../../src/components/AppButton";
 import AppAlert from "../../src/components/AppAlert";
 import { loginResponsible } from "../../src/services/auth";
+import { loadSession } from "../../src/services/session";
+import { errorMessage } from "../../src/services/api";
+import { homeRouteFor } from "../../src/navigation";
+import { colors, radius, spacing, typography } from "../../src/theme";
+
+type Feedback = { message: string; variant: "error" | "info" };
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState<{
-    message: string;
-    variant: "success" | "error";
-  } | null>(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
 
   async function handleLogin() {
-    let isValid = true;
+    if (isSubmitting) return;
 
+    const trimmedEmail = email.trim();
+    let isValid = true;
     setEmailError("");
     setPasswordError("");
     setFeedback(null);
 
-    if (!email.trim()) {
-      setEmailError("El correo electrónico es obligatorio.");
+    if (!trimmedEmail) {
+      setEmailError("Ingresá tu correo electrónico.");
       isValid = false;
-    } else if (!email.includes("@")) {
+    } else if (!EMAIL_REGEX.test(trimmedEmail)) {
       setEmailError("Ingresá un correo electrónico válido.");
       isValid = false;
     }
 
-    if (!password.trim()) {
-      setPasswordError("La contraseña es obligatoria.");
+    if (!password) {
+      setPasswordError("Ingresá tu contraseña.");
       isValid = false;
     }
 
-    if (!isValid || isSubmitting) {
-      return;
-    }
+    if (!isValid) return;
 
     setIsSubmitting(true);
     try {
-      const result = await loginResponsible({ email: email.trim(), password });
-      router.replace({
-        pathname: "/(main)/(tabs)/(dashboard)",
-        params: { name: result.responsible.name },
-      });
+      await loginResponsible({ email: trimmedEmail, password });
+      router.replace(homeRouteFor(await loadSession()));
     } catch (error) {
       setFeedback({
-        message:
-          error instanceof Error
-            ? error.message
-            : "No se pudo iniciar sesión. Inténtalo nuevamente.",
+        message: errorMessage(
+          error,
+          "No pudimos iniciar sesión. Revisá tu conexión e intentá de nuevo.",
+        ),
         variant: "error",
       });
-    } finally {
       setIsSubmitting(false);
     }
   }
 
+  function handleForgotPassword() {
+    setFeedback({
+      message:
+        "La recuperación de contraseña todavía no está disponible en la app. Estamos trabajando para sumarla.",
+      variant: "info",
+    });
+  }
+
   return (
-    <View style={styles.container}>
-      {/* Logo */}
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../../assets/protege-01.png")}
-          style={styles.loteriaImage}
-          resizeMode="contain"
-        />
-      </View>
-
-      {/* Encabezado */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Te damos la bienvenida</Text>
-
-        <Text style={styles.subtitle}>
-          Iniciá sesión para acompañar y proteger{"\n"}a tu familia en el mundo
-          digital.
-        </Text>
-      </View>
-
-      {/* Formulario */}
-      <View style={styles.form}>
-        {feedback && (
-          <AppAlert message={feedback.message} variant={feedback.variant} />
-        )}
-        <AppInput
-          label="Correo electrónico"
-          placeholder="Ingresa tu correo electrónico"
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            setEmailError("");
-          }}
-          keyboardType="email-address"
-          error={emailError}
-        />
-
-        <AppInput
-          label="Contraseña"
-          placeholder="Ingresa tu contraseña"
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            setPasswordError("");
-          }}
-          secureTextEntry
-          error={passwordError}
-        />
-
-        <Pressable
-          style={styles.forgotContainer}
-          onPress={() => {
-            console.log("Recuperar contraseña");
-          }}
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
-        </Pressable>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("../../assets/protege-01.png")}
+              style={styles.logo}
+              resizeMode="contain"
+              accessibilityLabel="BA Protege+"
+            />
+          </View>
 
-        <View style={styles.loginButton}>
-          <AppButton
-            title={isSubmitting ? "Ingresando..." : "Iniciar sesión"}
-            onPress={handleLogin}
+          <View style={styles.header}>
+            <Text style={styles.title} accessibilityRole="header">
+              Te damos la bienvenida
+            </Text>
+            <Text style={styles.subtitle}>
+              Iniciá sesión para acompañar y proteger{"\n"}a tu familia en el
+              mundo digital.
+            </Text>
+          </View>
+
+          {feedback ? (
+            <AppAlert message={feedback.message} variant={feedback.variant} />
+          ) : null}
+
+          <AppInput
+            label="Correo electrónico"
+            placeholder="Ingresá tu correo electrónico"
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              setEmailError("");
+            }}
+            keyboardType="email-address"
+            error={emailError}
           />
-        </View>
 
-        {/* Separador */}
-        <View style={styles.separator}>
-          <View style={styles.separatorLine} />
-          <Text style={styles.separatorText}>o</Text>
-          <View style={styles.separatorLine} />
-        </View>
+          <AppInput
+            label="Contraseña"
+            placeholder="Ingresá tu contraseña"
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              setPasswordError("");
+            }}
+            secureTextEntry
+            error={passwordError}
+          />
 
-        {/* Google */}
-        <Pressable
-          style={styles.googleButton}
-          onPress={() => {
-            console.log("Continuar con Google");
-          }}
-        >
-          <Text style={styles.googleIcon}>G</Text>
-          <Text style={styles.googleText}>Continuar con Google</Text>
-        </Pressable>
+          <Pressable
+            style={styles.forgot}
+            onPress={handleForgotPassword}
+            accessibilityRole="button"
+            accessibilityLabel="¿Olvidaste tu contraseña?"
+            hitSlop={8}
+          >
+            <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
+          </Pressable>
 
-        {/* Registro */}
-        <Text style={styles.registerPrompt}>
-          ¿Todavía no tienes una cuenta?
-        </Text>
+          <View style={styles.actions}>
+            <AppButton
+              title="Iniciar sesión"
+              onPress={handleLogin}
+              loading={isSubmitting}
+            />
 
-        <Pressable
-          style={styles.registerButton}
-          onPress={() => router.push("/register")}
-        >
-          <Text style={styles.registerText}>Crear cuenta</Text>
-        </Pressable>
-      </View>
-    </View>
+            <View style={styles.separator}>
+              <View style={styles.separatorLine} />
+              <Text style={styles.separatorText}>o</Text>
+              <View style={styles.separatorLine} />
+            </View>
+
+            {/* Sin backend de Google todavía: se muestra deshabilitado para respetar el diseño. */}
+            <View
+              style={styles.googleButton}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Continuar con Google, próximamente"
+              accessibilityState={{ disabled: true }}
+            >
+              <Ionicons name="logo-google" size={20} color={colors.textMuted} />
+              <Text style={styles.googleText}>Continuar con Google</Text>
+              <View style={styles.soonBadge}>
+                <Text style={styles.soonText}>Próximamente</Text>
+              </View>
+            </View>
+
+            <Text style={styles.registerPrompt}>¿Todavía no tenés una cuenta?</Text>
+            <AppButton
+              variant="secondary"
+              title="Crear cuenta"
+              onPress={() => router.push("/register")}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 24,
+    backgroundColor: colors.backgroundWarm,
   },
-
+  flex: {
+    flex: 1,
+  },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxxl,
+    paddingBottom: spacing.xxl,
+  },
   logoContainer: {
     alignItems: "center",
-    marginBottom: 52,
+    marginBottom: 40,
   },
-
   logo: {
-    backgroundColor: "#FFD900",
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderTopLeftRadius: 12,
-  },
-  loteriaImage: {
     width: 125,
     height: 55,
   },
-
-  logoText: {
-    color: "#000000",
-    fontSize: 17,
-    fontWeight: "800",
-  },
-
   header: {
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
-
   title: {
-    color: "#1C1C1C",
-    fontSize: 27,
-    fontWeight: "800",
+    ...typography.display,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
-
   subtitle: {
-    color: "#777777",
-    fontSize: 14,
-    lineHeight: 21,
+    ...typography.body,
     textAlign: "center",
   },
-
-  form: {
-    width: "100%",
+  forgot: {
+    alignSelf: "flex-end",
+    marginTop: -spacing.xs,
+    marginBottom: spacing.xxl,
   },
-
-  forgotContainer: {
-    alignItems: "flex-end",
-    marginTop: -8,
-    marginBottom: 28,
-  },
-
   forgotText: {
-    color: "#292929",
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
+    color: colors.text,
   },
-
-  loginButton: {
-    marginBottom: 20,
+  actions: {
+    marginTop: "auto",
+    gap: spacing.lg,
   },
-
   separator: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 22,
+    gap: spacing.md,
   },
-
   separatorLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#D1D1D1",
+    backgroundColor: colors.border,
   },
-
   separatorText: {
-    color: "#777777",
-    fontSize: 13,
+    ...typography.caption,
   },
-
   googleButton: {
     minHeight: 48,
-    backgroundColor: "#F7F7F2",
-    borderRadius: 11,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
-    marginBottom: 18,
+    gap: spacing.sm,
+    opacity: 0.6,
   },
-
-  googleIcon: {
-    color: "#4285F4",
-    fontSize: 21,
-    fontWeight: "800",
-  },
-
   googleText: {
-    color: "#1C1C1C",
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "700",
+    color: colors.textMuted,
   },
-
+  soonBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+    backgroundColor: colors.brandSoft,
+  },
+  soonText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.text,
+  },
   registerPrompt: {
-    color: "#777777",
-    fontSize: 14,
+    ...typography.body,
     textAlign: "center",
-    marginBottom: 12,
-  },
-
-  registerButton: {
-    minHeight: 48,
-    backgroundColor: "#F7F7F2",
-    borderRadius: 11,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  registerText: {
-    color: "#1C1C1C",
-    fontSize: 14,
-    fontWeight: "700",
+    marginBottom: -spacing.sm,
   },
 });

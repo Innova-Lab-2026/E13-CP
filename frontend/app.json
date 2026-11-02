@@ -23,7 +23,17 @@
       "package": "com.anonymous.frontend"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "BA Protege+",
+      "shortName": "BA Protege+",
+      "themeColor": "#FFD500",
+      "backgroundColor": "#FFFFFF",
+      "lang": "es",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "experiments": {
+      "baseUrl": "/app"
     },
     "plugins": ["expo-router", "expo-font"]
   }
