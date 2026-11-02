@@ -4,7 +4,12 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { db, Responsible, UserMode, UserRole, USER_MODES } from '../config/db';
 import { AuthRequest, JWT_SECRET } from '../middleware/auth.middleware';
-import { isValidPin, PIN_LENGTH, setResponsiblePin } from '../services/device.service';
+import {
+  isValidPin,
+  PIN_LENGTH,
+  setResponsiblePin,
+  verifyResponsiblePin
+} from '../services/device.service';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9+\s()-]{7,15}$/;
@@ -37,6 +42,8 @@ const toPublicProfile = (responsible: Responsible) => ({
   rol: responsible.rol,
   mode: responsible.mode,
   telefono: responsible.telefono,
+  /** Indica si el adulto ya configuró su PIN de seguridad (nunca expone el hash). */
+  hasPin: Boolean(responsible.pinHash),
   createdAt: responsible.createdAt
 });
 
@@ -253,6 +260,131 @@ export const updateMyMode = async (req: AuthRequest, res: Response) => {
     responsible.mode = mode as UserMode;
 
     return res.status(200).json(toPublicProfile(responsible));
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * POST /api/auth/pin/verify
+ * Verifica el PIN del adulto sin modificarlo. Lo usa el dispositivo protegido
+ * para autorizar acciones críticas (por ejemplo, salir del modo protegido).
+ */
+export const verifyMyPin = async (req: AuthRequest, res: Response) => {
+  try {
+    const { pin } = req.body as { pin?: unknown };
+
+    if (!isValidPin(pin)) {
+      return res.status(400).json({
+        error: `El PIN debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+      });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    if (!responsible.pinHash) {
+      return res.status(409).json({
+        error: 'El responsable todavía no configuró un PIN de seguridad'
+      });
+    }
+
+    const isValid = await verifyResponsiblePin(responsible, pin);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid PIN' });
+    }
+
+    return res.status(200).json({ message: 'PIN válido', valid: true });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * PATCH /api/auth/me
+ * Actualiza los datos editables de "Mi cuenta": nombre y teléfono.
+ */
+export const updateMyProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, telefono } = req.body as { name?: unknown; telefono?: unknown };
+
+    if (name === undefined && telefono === undefined) {
+      return res.status(400).json({ error: 'Enviá al menos un campo para actualizar' });
+    }
+
+    if (name !== undefined && (typeof name !== 'string' || !name.trim())) {
+      return res.status(400).json({ error: 'El nombre debe ser un texto' });
+    }
+
+    if (telefono !== undefined && typeof telefono !== 'string') {
+      return res.status(400).json({ error: 'El teléfono debe ser un texto' });
+    }
+
+    const cleanPhone = typeof telefono === 'string' ? telefono.trim() : undefined;
+    if (cleanPhone && !PHONE_REGEX.test(cleanPhone)) {
+      return res.status(400).json({ error: 'El teléfono no tiene un formato válido' });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    if (typeof name === 'string') {
+      responsible.name = name.trim();
+    }
+
+    if (cleanPhone !== undefined) {
+      responsible.telefono = cleanPhone || undefined;
+    }
+
+    return res.status(200).json(toPublicProfile(responsible));
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * DELETE /api/auth/me
+ * Elimina la cuenta del adulto y todo lo asociado: dispositivos, eventos,
+ * alertas y dominios personalizados. Exige la contraseña como confirmación.
+ */
+export const deleteMyAccount = async (req: AuthRequest, res: Response) => {
+  try {
+    const { password } = req.body as { password?: unknown };
+
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({ error: 'La contraseña es obligatoria para eliminar la cuenta' });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    const isMatch = await bcrypt.compare(password, responsible.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'La contraseña es incorrecta' });
+    }
+
+    const deviceIds = new Set(
+      db.devices.filter(d => d.responsibleId === responsible.id).map(d => d.id)
+    );
+
+    db.devices = db.devices.filter(d => d.responsibleId !== responsible.id);
+    db.events = db.events.filter(e => !deviceIds.has(e.deviceId));
+    db.alerts = db.alerts.filter(a => a.responsibleId !== responsible.id);
+    db.blocklist = db.blocklist.filter(
+      item => item.type === 'LOTBA_OFFICIAL' || item.addedBy !== responsible.id
+    );
+    db.responsables = db.responsables.filter(r => r.id !== responsible.id);
+
+    return res.status(200).json({ message: 'Cuenta eliminada' });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }

@@ -25,7 +25,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', service: 'BA Protege+ Backend' });
 });
 
-if (process.env.NODE_ENV !== 'test') {
+// En Vercel la app corre como función serverless (ver api/index.js): no escucha un puerto.
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`BA Protege+ Backend running on port ${PORT}`);
   });
