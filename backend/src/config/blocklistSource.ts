@@ -11,6 +11,8 @@
  * contenido de `CURRENT_OFFICIAL_BLOCKLIST` por la respuesta del servicio externo.
  */
 
+import { LOTBA_DOMAINS, LOTBA_PERIOD, LOTBA_SOURCE, LOTBA_UPDATED_AT } from './lotbaDomains';
+
 export interface OfficialDomain {
   /** Dominio bloqueado, sin protocolo ni ruta. */
   domain: string;
@@ -29,21 +31,15 @@ export interface OfficialBlocklistSnapshot {
 }
 
 /**
- * Listado oficial vigente.
- *
- * ⚠️ MOCK: dominios ficticios que simulan el listado real de LOTBA.
- * Deben reemplazarse por los dominios oficiales al recibir el primer listado.
+ * Listado oficial vigente: el último archivo de LOTBA, limpio y deduplicado.
+ * Se genera con "Data Analytics/lista-lotba/limpiar_lista.py" (issue #9) en
+ * `lotbaDomains.ts`; para cargar un período nuevo hay que regenerar ese archivo.
  */
 export const CURRENT_OFFICIAL_BLOCKLIST: OfficialBlocklistSnapshot = {
-  version: '2026-10',
-  source: 'LOTBA - listado oficial mensual (simulado)',
-  updatedAt: '2026-10-01T00:00:00.000Z',
-  domains: [
-    { domain: 'apuestasilegalesba.com', categoria: 'Apuestas' },
-    { domain: 'casinoilegalar.net', categoria: 'Apuestas' },
-    { domain: 'ruletasin18.com', categoria: 'Apuestas' },
-    { domain: 'betnoregulated.org', categoria: 'Apuestas' }
-  ]
+  version: LOTBA_PERIOD,
+  source: LOTBA_SOURCE,
+  updatedAt: LOTBA_UPDATED_AT,
+  domains: LOTBA_DOMAINS
 };
 
 /** Categoría asignada a los dominios agregados por el adulto responsable. */
