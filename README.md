@@ -71,7 +71,15 @@ Capturas de la web app, tomadas con el recorrido automático de [`docs/e2e`](doc
 |---|---|
 | <img src="docs/screenshots/22-configuracion.png" width="190"> | <img src="docs/screenshots/23-ayuda.png" width="190"> |
 
-El recorrido automático cubre el flujo completo con dos navegadores, uno para el adulto y otro para el celular del menor:
+### En Android (APK, emulador con Android 15)
+
+| Vinculación con PIN | Permiso de VPN del sistema | Celular protegido |
+|---|---|---|
+| <img src="docs/screenshots/android/04-vinculacion-pin.png" width="190"> | <img src="docs/screenshots/android/07-permiso-vpn.png" width="190"> | <img src="docs/screenshots/android/08-protegido-vpn-activa.png" width="190"> |
+
+Con la VPN activa, `bplay.bet.ar` (listado de LOTBA) deja de resolver en todo el celular y `google.com` sigue funcionando. Lo verifica [`docs/e2e/android_e2e.py`](docs/e2e/android_e2e.py) con adb sobre el emulador.
+
+El recorrido automático de la web cubre el flujo completo con dos navegadores, uno para el adulto y otro para el celular del menor:
 
 ```bash
 cd docs/e2e && npm i playwright && npx playwright install chromium
