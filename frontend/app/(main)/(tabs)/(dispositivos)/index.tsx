@@ -1,3 +1,4 @@
+// app/(main)/(tabs)/(dispositivos)/index.tsx
 import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';

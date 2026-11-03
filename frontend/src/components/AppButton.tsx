@@ -1,4 +1,3 @@
-
 import {
   Pressable,
   Text,
@@ -9,9 +8,7 @@ type AppButtonProps = {
   title: string;
   onPress: () => void;
   disabled?: boolean;
-  variant?: "primary" |
-           "secondary"|
-           "tertiary";
+  variant?: "primary" | "secondary" | "tertiary";
 };
 
 export default function AppButton({
@@ -54,6 +51,7 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
+    backgroundColor: "#CCCCCC",
   },
   primary: {
     backgroundColor: "#FACC15",

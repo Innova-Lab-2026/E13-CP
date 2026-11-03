@@ -9,75 +9,86 @@ import {
   Text,
   View,
   Pressable,
+  ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Onboarding() {
   return (
     <ImageBackground
       source={require("../../assets/onboarding-bg-00.png")} // ← Ruta de tu imagen
-      style={styles.container}
+      style={styles.backgroundImage}
       resizeMode="cover"
     >
       <StatusBar style="dark" />
 
-      {/* Logo */}
-      <View style={styles.header}>
-        <Image
-          source={require("../../assets/protege-01.png")}
-          style={styles.loteriaImage}
-          resizeMode="contain"
-        />
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Logo */}
+          <View style={styles.header}>
+            <Image
+              source={require("../../assets/protege-01.png")}
+              style={styles.loteriaImage}
+              resizeMode="contain"
+            />
 
-        {/* Indicadores del onboarding */}
-        <View style={styles.pagination}>
-          <View style={styles.activeDot} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-        </View>
-      </View>
+            {/* Indicadores del onboarding */}
+            <View style={styles.pagination}>
+              <View style={styles.activeDot} />
+              <View style={styles.dot} />
+              <View style={styles.dot} />
+            </View>
+          </View>
 
-      {/* Tarjeta informativa */}
-      <View style={styles.card}>
-        <Text style={styles.title}>
-          Protege a tu familia de las apuestas online
-        </Text>
+          {/* Tarjeta informativa */}
+          <View style={styles.card}>
+            <Text style={styles.title}>
+              Protege a tu familia de las apuestas online
+            </Text>
 
-        <Text style={styles.description}>
-          En esta aplicación podrás bloquear páginas de apuestas online en el
-          dispositivo para acompañar y proteger a tu familia en el mundo
-          digital.
-        </Text>
-      </View>
+            <Text style={styles.description}>
+              En esta aplicación podrás bloquear páginas de apuestas online en el
+              dispositivo para acompañar y proteger a tu familia en el mundo
+              digital.
+            </Text>
+          </View>
 
-      {/* Botones */}
-      <View style={styles.footer}>
-        <Pressable>
-          <AppButton
-            variant="tertiary"
-            title="Omitir"
-            onPress={() => router.replace("/")}
-          />
-        </Pressable>
+          {/* Botones */}
+          <View style={styles.footer}>
+            <AppButton
+              variant="tertiary"
+              title="Omitir"
+              onPress={() => router.replace("/login")}
+            />
 
-        <Pressable>
-          <AppButton
-            title="Continuar"
-            onPress={() => router.push("/onboarding2")}
-          />
-        </Pressable>
-      </View>
+            <AppButton
+              title="Continuar"
+              onPress={() => router.push("/onboarding2")}
+            />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  backgroundImage: {
     flex: 1,
+    backgroundColor: "#F8F5E8",
+  },
+  safeArea: {
+    flex: 1,
+  },
+  container: {
+    flexGrow: 1,
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 65,
+    paddingTop: 45,
     paddingBottom: 24,
-    backgroundColor: "#F8F5E8",
   },
   header: {
     alignItems: "center",
@@ -121,6 +132,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 24,
     alignItems: "center",
+    marginVertical: 20,
   },
   title: {
     color: "#171717",
@@ -137,6 +149,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     gap: 12,
+    width: "100%",
   },
   skipButton: {
     minHeight: 48,

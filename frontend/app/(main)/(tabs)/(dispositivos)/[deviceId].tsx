@@ -1,3 +1,5 @@
+// app/(main)/(tabs)/(dispositivos)/[deviceId].tsx
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -16,19 +18,22 @@ export default function DeviceDetailScreen() {
   const { deviceId: routeDeviceId } = useLocalSearchParams<{
     deviceId?: string | string[];
   }>();
+  
   const deviceId = Array.isArray(routeDeviceId)
     ? routeDeviceId[0]
     : routeDeviceId;
+
   const device = deviceId ? getDeviceById(deviceId) : undefined;
   const activities = deviceId ? getDeviceActivities(deviceId) : [];
 
-  const statusText = device
-    ? {
-        active: 'Protección activa',
-        pending: 'Pendiente de vinculación',
-        disabled: 'Desprotegido / Inactivo',
-      }[device.status]
-    : '';
+  // Mapeo seguro de estados con fallback para 'pending' o nuevos registros
+  const statusMap: Record<string, string> = {
+    active: 'Protección activa',
+    pending: 'Pendiente de vinculación',
+    disabled: 'Desprotegido / Inactivo',
+  };
+
+  const statusText = device ? (statusMap[device.status] || 'Pendiente de vinculación') : '';
   const isProtected = device?.status === 'active';
   const birthDate = device?.birthDate
     ? formatBirthDate(device.birthDate)
@@ -49,7 +54,7 @@ export default function DeviceDetailScreen() {
             <View style={styles.profileHeader}>
               <View style={styles.avatarContainer}>
                 <Text style={styles.avatarText}>
-                  {device.name.charAt(0).toUpperCase()}
+                  {device.name ? device.name.charAt(0).toUpperCase() : 'D'}
                 </Text>
               </View>
               <Text style={styles.title}>Dispositivo de {device.name}</Text>
@@ -118,9 +123,14 @@ export default function DeviceDetailScreen() {
 }
 
 function formatBirthDate(value: string): string {
-  const [year, month, day] = value.split('-');
-  if (!year || !month || !day) return value;
-  return `${day}/${month}/${year}`;
+  if (!value) return 'No especificada';
+  // Si viene en formato YYYY-MM-DD
+  if (value.includes('-')) {
+    const [year, month, day] = value.split('-');
+    if (!year || !month || !day) return value;
+    return `${day}/${month}/${year}`;
+  }
+  return value;
 }
 
 const styles = StyleSheet.create({
@@ -163,6 +173,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     borderRadius: 16,
     padding: 18,
+    marginTop: 16,
   },
   infoTitle: {
     fontSize: 16,

@@ -1,3 +1,4 @@
+// app/(main)/(tabs)/(dispositivos)/add-device.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -95,34 +96,28 @@ export default function AddDeviceScreen() {
       "Pronto podrás subir o cambiar la foto de perfil del dispositivo.",
       [{ text: "Entendido" }]
     );
-
-    /* 
-      TODO BACKEND / NATIVO: 
-      Estructura lista para implementar expo-image-picker y envío al servidor cuando se habilite el módulo:
-      
-      async function pickImageFromDevice() {
-        let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [1, 1],
-          quality: 0.8,
-        });
-
-        if (!result.canceled) {
-          setProfileImage(result.assets[0].uri);
-          // TODO BACKEND: Adjuntar la imagen en el FormData de registro del dispositivo
-        }
-      }
-      pickImageFromDevice();
-    */
   };
 
   const handleAgregar = async () => {
-    if (!deviceName.trim()) return;
+    setBirthDateError("");
+    const trimmedName = deviceName.trim();
 
-    const parsedBirthDate = birthDateString
-      ? parseBirthDate(birthDateString)
-      : null;
+    // Validación robusta
+    if (!trimmedName) {
+      setBirthDateError("El nombre es obligatorio.");
+      return;
+    }
+    if (trimmedName.length < 2) {
+      setBirthDateError("El nombre debe tener al menos 2 caracteres.");
+      return;
+    }
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nameRegex.test(trimmedName)) {
+      setBirthDateError("El nombre no debe contener números ni caracteres especiales.");
+      return;
+    }
+
+    const parsedBirthDate = birthDateString ? parseBirthDate(birthDateString) : null;
     if (birthDateString && !parsedBirthDate) {
       setBirthDateError('Ingresá una fecha válida en formato dd/mm/aaaa.');
       return;
@@ -130,23 +125,16 @@ export default function AddDeviceScreen() {
 
     setLoading(true);
     try {
-      /*
-        TODO BACKEND: Enviar datos completos del perfil (incluyendo imagen/avatar si aplica)
-        const formData = new FormData();
-        formData.append('deviceName', deviceName);
-        formData.append('birthDate', birthDateString);
-        if (profileImage) {
-          formData.append('profileImage', { uri: profileImage, name: 'avatar.jpg', type: 'image/jpeg' } as any);
-        }
-      */
-
-      const trimmedName = deviceName.trim();
+      // Llamada real al servicio conectado al backend de Node.js
       const res = await requestLinkingPin(trimmedName, 'Android');
+      
       const savedBirthDate = parsedBirthDate
         ? `${parsedBirthDate.getFullYear()}-${String(parsedBirthDate.getMonth() + 1).padStart(2, '0')}-${String(parsedBirthDate.getDate()).padStart(2, '0')}`
         : undefined;
+      
       addDevice(trimmedName, savedBirthDate);
       
+      // Navegación exitosa hacia la pantalla con el PIN generado
       router.push({
         pathname: '/(main)/(tabs)/(dispositivos)/device-success',
         params: { pin: res.pin, name: trimmedName },

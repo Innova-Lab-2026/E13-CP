@@ -1,5 +1,11 @@
-//Creamos esta carpeta y archivo para dejar aislada la llamada a la API. Hoy devuelve datos de prueba. Cuando backend en Node.js tenga listo el endpoint POST /api/devices/link, cambiamos este archivo.
 // src/services/deviceService.ts
+import { Platform } from 'react-native';
+
+// Lee la URL de tu .env del frontend o usa un fallback seguro según la plataforma
+const API_BASE_URL = (
+  process.env.EXPO_PUBLIC_API_URL ||
+  (Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000')
+).replace(/\/+$/, '');
 
 export type DeviceStatus = 'active' | 'pending' | 'disabled';
 
@@ -10,15 +16,9 @@ export interface Device {
   birthDate?: string;
 }
 
-export type DeviceActivityVariant =
-  | 'blocked'
-  | 'alert'
-  | 'settings'
-  | 'protected';
-
 export interface DeviceActivity {
   id: string;
-  variant: DeviceActivityVariant;
+  variant: 'blocked' | 'alert' | 'settings' | 'protected';
   title: string;
   description: string;
   time: string;
@@ -36,74 +36,17 @@ const devicesInMemory: Device[] = [
   { id: '3', name: 'Lorena', status: 'pending' },
 ];
 
-const deviceActivities: Record<string, DeviceActivity[]> = {
-  '1': [
-    {
-      id: 'paula-1',
-      variant: 'blocked',
-      title: 'Sitio web bloqueado',
-      description: 'Se bloqueó el acceso a un sitio restringido.',
-      time: '10:42',
-      date: 'Hoy',
-    },
-    {
-      id: 'paula-2',
-      variant: 'alert',
-      title: 'Intento de acceso bloqueado',
-      description: 'Se detectó un intento de acceso a contenido restringido.',
-      time: '10:15',
-      date: 'Hoy',
-    },
-    {
-      id: 'paula-3',
-      variant: 'protected',
-      title: 'Protección activada',
-      description: 'La protección está activa en este dispositivo.',
-      time: '18:20',
-      date: 'Ayer',
-    },
-  ],
-  '2': [
-    {
-      id: 'ramiro-1',
-      variant: 'blocked',
-      title: 'Sitio web bloqueado',
-      description: 'Se bloqueó el acceso a un sitio restringido.',
-      time: '14:25',
-      date: 'Hoy',
-    },
-    {
-      id: 'ramiro-2',
-      variant: 'settings',
-      title: 'Configuración actualizada',
-      description: 'Se actualizaron los ajustes de protección.',
-      time: '12:30',
-      date: 'Ayer',
-    },
-  ],
-  '3': [
-    {
-      id: 'lorena-1',
-      variant: 'protected',
-      title: 'Perfil creado',
-      description: 'El perfil está pendiente de vinculación con un dispositivo.',
-      time: '09:30',
-      date: 'Hoy',
-    },
-  ],
-};
-
 export function getDevices(): Device[] {
   return devicesInMemory.map((device) => ({ ...device }));
-}
-
-export function getDeviceActivities(deviceId: string): DeviceActivity[] {
-  return (deviceActivities[deviceId] ?? []).map((activity) => ({ ...activity }));
 }
 
 export function getDeviceById(deviceId: string): Device | undefined {
   const device = devicesInMemory.find((item) => item.id === deviceId);
   return device ? { ...device } : undefined;
+}
+
+export function getDeviceActivities(deviceId: string): DeviceActivity[] {
+  return [];
 }
 
 export function addDevice(name: string, birthDate?: string): Device {
@@ -122,27 +65,35 @@ export function addDevice(name: string, birthDate?: string): Device {
   return { ...device };
 }
 
+/**
+ * Llama de forma real al backend de Node.js para generar el PIN de vinculación
+ */
 export const requestLinkingPin = async (deviceName: string, deviceType: string): Promise<LinkInitResponse> => {
-  // Simulamos la respuesta del backend Node.js
-  console.log('Enviando datos al backend:', { deviceName, deviceType });
+  try {
+    // Token de sesión del tutor compatible con la clave secreta por defecto del backend
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY3OGFjYTY0LWNmZmUtNDRhZC1iYWRhLWZiNDgzZDY3YTNlOSIsImVtYWlsIjoiYW5hbGlhQHRlc3QuY29tIiwiaWF0IjoxNzkzMjI5MzYyLCJleHAiOjE3OTM4MzQxNjJ9.QiCYgRQjWh1eB05MR8AlvAniK8QNNxwRjeM-ZzHAMY0";
 
+    const response = await fetch(`${API_BASE_URL}/api/devices/generate-pin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ deviceName }),
+    });
 
-// Luego se reemplazaria para hacer una llamada real al backend usando fetch o axios, por ejemplo:
-// const response = await fetch('/api/devices/link', {
-//   method: 'POST',
-//   headers: { 'Content-Type': 'application/json' },
-//   body: JSON.stringify({ deviceName, deviceType }),
-// });
-// const data = await response.json();
-// return data;
+    const data = await response.json();
 
-  // Retornamos un PIN de 4 dígitos de prueba
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        pin: '4829',
-        tempDeviceId: 'dev_temp_001',
-      });
-    }, 1000);
-  });
+    if (!response.ok) {
+      throw new Error(data.error || 'Error al generar el PIN de vinculación.');
+    }
+
+    return {
+      pin: data.pairingPin,        // El PIN de 4 dígitos devuelto por tu backend
+      tempDeviceId: data.deviceId,   // El ID del dispositivo registrado
+    };
+  } catch (error: any) {
+    console.error('Error al conectar con el backend:', error);
+    throw error;
+  }
 };

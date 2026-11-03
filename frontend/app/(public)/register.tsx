@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { View, ScrollView, Text, StyleSheet, Pressable, Image } from "react-native";
+import {
+  View,
+  ScrollView,
+  Text,
+  StyleSheet,
+  Pressable,
+  Image,
+} from "react-native";
 import { useRouter } from "expo-router";
 import AppInput from "../../src/components/AppInput";
 import AppButton from "../../src/components/AppButton";
@@ -37,9 +44,8 @@ export default function RegisterScreen() {
     setEmailError("");
     setPhoneError("");
     setPasswordError("");
-    setConfirmPasswordError(""); 
+    setConfirmPasswordError("");
     setFeedback(null);
-
 
     // 1. Validar Nombre
     if (!name.trim()) {
@@ -103,21 +109,26 @@ export default function RegisterScreen() {
 
     setIsSubmitting(true);
     try {
-      await registerResponsible({
-        name: `${name.trim()} ${lastName.trim()}`,
+      // Aquí puedes enviar los datos al backend
+      const result = await registerResponsible({
+        name: name.trim(),
         email: email.trim(),
         password,
       });
-      setFeedback({
-        message: "Cuenta creada correctamente. Ya puedes iniciar sesión.",
-        variant: "success",
+
+      console.log("Validación y registro en backend exitosos");
+
+      // Redirigir al dashboard llevando el nombre correcto que devolvió el backend
+      router.replace({
+        pathname: "/(main)/(tabs)/(dashboard)",
+        params: { name: result.responsible.name },
       });
     } catch (error) {
       setFeedback({
         message:
           error instanceof Error
             ? error.message
-            : "No se pudo crear la cuenta. Inténtalo nuevamente.",
+            : "No se pudo registrar la cuenta. Inténtalo nuevamente.",
         variant: "error",
       });
     } finally {
@@ -126,7 +137,11 @@ export default function RegisterScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+    >
       {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
@@ -135,7 +150,6 @@ export default function RegisterScreen() {
           resizeMode="contain"
         />
       </View>
-
       {/* Encabezado */}
       <View style={styles.header}>
         <Text style={styles.title}>Crear cuenta</Text>
@@ -145,7 +159,6 @@ export default function RegisterScreen() {
           tu familia.
         </Text>
       </View>
-
       {/* Formulario */}
       <View style={styles.form}>
         {feedback && (
@@ -221,7 +234,7 @@ export default function RegisterScreen() {
 
         <Pressable
           style={styles.forgotContainer}
-         onPress={() => router.push("/login")}
+          onPress={() => router.push("/(public)/login")}
         >
           <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
         </Pressable>
@@ -233,18 +246,14 @@ export default function RegisterScreen() {
           />
         </View>
 
-
         {/* Registro */}
-        
-      
+
         <Pressable
           style={styles.forgotContainer}
-         onPress={() => router.push("/login")}
+          onPress={() => router.push("/(public)/login")}
         >
           <Text style={styles.registerPrompt}>¿Ya tienes una cuenta?</Text>
         </Pressable>
-
-        
       </View>
     </ScrollView>
   );
@@ -254,9 +263,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 24,
+    // paddingHorizontal: 20,
+    // paddingTop: 60,
+    // paddingBottom: 24,
   },
 
   logoContainer: {
@@ -381,5 +390,10 @@ const styles = StyleSheet.create({
     color: "#1C1C1C",
     fontSize: 14,
     fontWeight: "700",
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 60, // <- ¡Esto empuja todo hacia arriba y te deja ver y clickear el botón sin drama!
   },
 });

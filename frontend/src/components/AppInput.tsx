@@ -6,6 +6,8 @@ import {
   TextInput,
   Pressable,
   StyleSheet,
+  KeyboardTypeOptions,
+  
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -15,8 +17,9 @@ type AppInputProps = {
   value: string;
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
-  keyboardType?: "default" | "email-address";
+  keyboardType?: KeyboardTypeOptions;
   error?: string;
+  maxLength?: number;
 };
 
 export default function AppInput({
