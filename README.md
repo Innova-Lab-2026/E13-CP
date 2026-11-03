@@ -59,7 +59,24 @@ Capturas de la web app, tomadas con el recorrido automático de [`docs/e2e`](doc
 |---|---|---|
 | <img src="docs/screenshots/11-agregar-dispositivo.png" width="190"> | <img src="docs/screenshots/12-dispositivo-creado.png" width="190"> | <img src="docs/screenshots/13-vinculacion-elegir-perfil.png" width="190"> |
 
-<!-- PANTALLAS-PROTEGIDO -->
+| PIN incorrecto | Vinculación exitosa | Celular protegido | Sitio bloqueado |
+|---|---|---|---|
+| <img src="docs/screenshots/14-vinculacion-pin-incorrecto.png" width="190"> | <img src="docs/screenshots/15-vinculacion-exito.png" width="190"> | <img src="docs/screenshots/16-home-protegido.png" width="190"> | <img src="docs/screenshots/17-sitio-bloqueado.png" width="190"> |
+
+| Inicio con dispositivo | Alertas | Detalle de alerta | Historial |
+|---|---|---|---|
+| <img src="docs/screenshots/18-home-con-dispositivo.png" width="190"> | <img src="docs/screenshots/19-alertas.png" width="190"> | <img src="docs/screenshots/20-detalle-alerta.png" width="190"> | <img src="docs/screenshots/21-historial.png" width="190"> |
+
+| Configuración | Ayuda |
+|---|---|
+| <img src="docs/screenshots/22-configuracion.png" width="190"> | <img src="docs/screenshots/23-ayuda.png" width="190"> |
+
+El recorrido automático cubre el flujo completo con dos navegadores, uno para el adulto y otro para el celular del menor:
+
+```bash
+cd docs/e2e && npm i playwright && npx playwright install chromium
+node flujo.mjs https://baprotege.vercel.app
+```
 
 ## Arquitectura
 
@@ -79,7 +96,7 @@ E13-Control-Parental/
 ```
 
 - **Frontend:** React Native con Expo Router. Las mismas pantallas se compilan a APK y a web (`expo export -p web`, servida en `/app`). Los colores, la tipografía y los radios salen del UI Kit del Figma (`frontend/src/theme.ts`).
-- **Backend:** Express con JWT y bcrypt para la contraseña y el PIN. En Vercel corre como función serverless y guarda el estado en Upstash Redis cuando están definidas `KV_REST_API_URL` y `KV_REST_API_TOKEN`. En desarrollo usa la memoria.
+- **Backend:** Express con JWT y bcrypt para la contraseña y el PIN. En Vercel corre como función serverless. Como cada pedido puede caer en una instancia distinta, el estado se guarda en un blob privado de Vercel Blob (`BLOB_READ_WRITE_TOKEN`), o en Upstash Redis si están `KV_REST_API_URL` y `KV_REST_API_TOKEN`. En desarrollo usa la memoria. Ver `backend/src/config/persistence.ts`.
 - **Bloqueo:** el celular protegido baja el listado (`GET /api/blocklist`) y se lo pasa a la VPN local, que responde NXDOMAIN a esos dominios y a sus subdominios.
 
 ## Desarrollo local
