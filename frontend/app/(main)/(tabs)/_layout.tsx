@@ -44,13 +44,15 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
-          height: 64 + insets.bottom,
+          // Ícono en píldora (30) + etiqueta + paddings: con 64 la etiqueta quedaba cortada.
+          height: 74 + insets.bottom,
           paddingTop: spacing.sm,
           paddingBottom: Math.max(insets.bottom, spacing.sm),
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "600",
+          lineHeight: 14,
         },
       }}
     >
