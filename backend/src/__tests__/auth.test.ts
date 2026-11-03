@@ -62,7 +62,7 @@ describe('BK-1.1 - POST /api/auth/register', () => {
     expect(stored).toBeDefined();
     expect(stored!.passwordHash).not.toBe(VALID_USER.password);
     expect(stored!.passwordHash).not.toContain(VALID_USER.password);
-    expect(await bcrypt.compare(VALID_USER.password, stored!.passwordHash)).toBe(true);
+    expect(await bcrypt.compare(VALID_USER.password, stored!.passwordHash!)).toBe(true);
   });
 
   test('el JWT contiene id, email y rol, con vigencia de 7 días', async () => {

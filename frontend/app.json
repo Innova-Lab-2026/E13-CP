@@ -3,6 +3,7 @@
     "name": "BA Protege+",
     "slug": "frontend",
     "version": "1.0.0",
+    "scheme": "baprotege",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -45,7 +46,8 @@
           "imageWidth": 220,
           "backgroundColor": "#FFFFFF"
         }
-      ]
+      ],
+      "expo-web-browser"
     ]
   }
 }

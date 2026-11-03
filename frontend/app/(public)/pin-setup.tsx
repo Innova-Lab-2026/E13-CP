@@ -138,7 +138,8 @@ export default function PinSetupScreen() {
 
     setIsSubmitting(true);
     try {
-      await setSecurityPin(pin);
+      // Al cambiarlo se reenvía el PIN actual: el servidor lo vuelve a verificar.
+      await setSecurityPin(pin, currentVerified ? currentPin : undefined);
       if (isChange) {
         setPhase("done");
         setIsSubmitting(false);

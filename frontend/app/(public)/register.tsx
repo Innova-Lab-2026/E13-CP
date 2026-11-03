@@ -9,12 +9,19 @@ import {
   Text,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppInput from "../../src/components/AppInput";
 import AppButton from "../../src/components/AppButton";
 import AppAlert from "../../src/components/AppAlert";
+import GoogleButton from "../../src/components/GoogleButton";
 import { registerResponsible } from "../../src/services/auth";
+import {
+  startGoogleLogin,
+  useResetOnBackForwardRestore,
+} from "../../src/services/googleAuth";
+import { loadSession } from "../../src/services/session";
+import { homeRouteFor } from "../../src/navigation";
 import { errorMessage } from "../../src/services/api";
 import { isValidPhone } from "../../src/utils/phone";
 import { colors, spacing, typography } from "../../src/theme";
@@ -28,6 +35,7 @@ type Errors = Partial<
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
 
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -37,7 +45,10 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useResetOnBackForwardRestore(() => setIsGoogleSubmitting(false));
 
   function clearError(field: keyof Errors) {
     setErrors((current) => ({ ...current, [field]: undefined }));
@@ -80,8 +91,35 @@ export default function RegisterScreen() {
     return next;
   }
 
+  async function handleGoogleLogin() {
+    if (isSubmitting || isGoogleSubmitting) return;
+
+    setSubmitError(null);
+    setIsGoogleSubmitting(true);
+    try {
+      const result = await startGoogleLogin();
+      // En la web la página ya se está yendo a Google: el botón sigue cargando.
+      if (result.type === "redirect") return;
+      // En Android la vuelta también puede abrir la ruta /auth/google encima de
+      // esta pantalla; en ese caso es esa ruta la que sigue la navegación.
+      if (result.type === "success" && navigation.isFocused()) {
+        router.replace(homeRouteFor(await loadSession()));
+        return;
+      }
+      setIsGoogleSubmitting(false);
+    } catch (error) {
+      setSubmitError(
+        errorMessage(
+          error,
+          "No pudimos continuar con Google. Revisá tu conexión e intentá de nuevo.",
+        ),
+      );
+      setIsGoogleSubmitting(false);
+    }
+  }
+
   async function handleRegister() {
-    if (isSubmitting) return;
+    if (isSubmitting || isGoogleSubmitting) return;
 
     setSubmitError(null);
     const nextErrors = validate();
@@ -211,6 +249,14 @@ export default function RegisterScreen() {
               title="Crear cuenta"
               onPress={handleRegister}
               loading={isSubmitting}
+              disabled={isGoogleSubmitting}
+            />
+
+            <GoogleButton
+              withSeparator
+              onPress={handleGoogleLogin}
+              loading={isGoogleSubmitting}
+              disabled={isSubmitting}
             />
 
             <Pressable

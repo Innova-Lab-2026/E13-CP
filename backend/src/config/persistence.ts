@@ -21,6 +21,14 @@ import { db } from './db';
 
 const MUTATING = new Set(['POST', 'PATCH', 'PUT', 'DELETE']);
 
+/**
+ * Marca un pedido para que su cambio de estado se guarde aunque responda con
+ * error (por ejemplo, el contador de intentos fallidos del PIN, que responde 401).
+ */
+export const keepStateOnError = (res: Response): void => {
+  res.locals.keepStateOnError = true;
+};
+
 // Se leen en cada uso (y no al importar) para respetar el .env que carga index.ts.
 const redisUrl = () => process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = () => process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -181,7 +189,10 @@ export const persistState = async (req: Request, res: Response, next: NextFuncti
       originalEnd(...args);
       releaseOnce();
     };
-    if (!MUTATING.has(req.method) || res.statusCode >= 400) {
+    if (
+      !MUTATING.has(req.method) ||
+      (res.statusCode >= 400 && res.locals.keepStateOnError !== true)
+    ) {
       done();
     } else {
       saveState()

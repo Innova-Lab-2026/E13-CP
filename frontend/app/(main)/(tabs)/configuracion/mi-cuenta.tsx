@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 import AppHeader from "../../../../src/components/AppHeader";
 import AppInput from "../../../../src/components/AppInput";
@@ -121,6 +122,12 @@ export default function MiCuentaScreen() {
                   onChangeText={() => {}}
                   editable={false}
                 />
+                {profile.authProviders?.includes("google") ? (
+                  <View style={styles.provider}>
+                    <Ionicons name="logo-google" size={16} color={colors.textMuted} />
+                    <Text style={styles.providerText}>Cuenta vinculada con Google</Text>
+                  </View>
+                ) : null}
               </View>
 
               {saveError ? <AppAlert message={saveError} variant="error" /> : null}
@@ -170,5 +177,16 @@ const styles = StyleSheet.create({
   },
   actions: {
     marginTop: spacing.md,
+  },
+  provider: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginTop: -spacing.xs,
+    marginBottom: spacing.lg,
+  },
+  providerText: {
+    ...typography.caption,
+    color: colors.textMuted,
   },
 });

@@ -9,17 +9,21 @@ import {
   Text,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import AppInput from "../../src/components/AppInput";
 import AppButton from "../../src/components/AppButton";
 import AppAlert from "../../src/components/AppAlert";
+import GoogleButton from "../../src/components/GoogleButton";
 import { loginResponsible } from "../../src/services/auth";
+import {
+  startGoogleLogin,
+  useResetOnBackForwardRestore,
+} from "../../src/services/googleAuth";
 import { loadSession } from "../../src/services/session";
 import { errorMessage } from "../../src/services/api";
 import { homeRouteFor } from "../../src/navigation";
-import { colors, radius, spacing, typography } from "../../src/theme";
+import { colors, spacing, typography } from "../../src/theme";
 
 type Feedback = { message: string; variant: "error" | "info" };
 
@@ -27,16 +31,48 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
 
+  useResetOnBackForwardRestore(() => setIsGoogleSubmitting(false));
+
+  async function handleGoogleLogin() {
+    if (isSubmitting || isGoogleSubmitting) return;
+
+    setFeedback(null);
+    setIsGoogleSubmitting(true);
+    try {
+      const result = await startGoogleLogin();
+      // En la web la página ya se está yendo a Google: el botón sigue cargando.
+      if (result.type === "redirect") return;
+      // En Android la vuelta también puede abrir la ruta /auth/google encima de
+      // esta pantalla; en ese caso es esa ruta la que sigue la navegación.
+      if (result.type === "success" && navigation.isFocused()) {
+        router.replace(homeRouteFor(await loadSession()));
+        return;
+      }
+      setIsGoogleSubmitting(false);
+    } catch (error) {
+      setFeedback({
+        message: errorMessage(
+          error,
+          "No pudimos iniciar sesión con Google. Revisá tu conexión e intentá de nuevo.",
+        ),
+        variant: "error",
+      });
+      setIsGoogleSubmitting(false);
+    }
+  }
+
   async function handleLogin() {
-    if (isSubmitting) return;
+    if (isSubmitting || isGoogleSubmitting) return;
 
     const trimmedEmail = email.trim();
     let isValid = true;
@@ -155,28 +191,15 @@ export default function LoginScreen() {
               title="Iniciar sesión"
               onPress={handleLogin}
               loading={isSubmitting}
+              disabled={isGoogleSubmitting}
             />
 
-            <View style={styles.separator}>
-              <View style={styles.separatorLine} />
-              <Text style={styles.separatorText}>o</Text>
-              <View style={styles.separatorLine} />
-            </View>
-
-            {/* Sin backend de Google todavía: se muestra deshabilitado para respetar el diseño. */}
-            <View
-              style={styles.googleButton}
-              accessible
-              accessibilityRole="button"
-              accessibilityLabel="Continuar con Google, próximamente"
-              accessibilityState={{ disabled: true }}
-            >
-              <Ionicons name="logo-google" size={20} color={colors.textMuted} />
-              <Text style={styles.googleText}>Continuar con Google</Text>
-              <View style={styles.soonBadge}>
-                <Text style={styles.soonText}>Próximamente</Text>
-              </View>
-            </View>
+            <GoogleButton
+              withSeparator
+              onPress={handleGoogleLogin}
+              loading={isGoogleSubmitting}
+              disabled={isSubmitting}
+            />
 
             <Text style={styles.registerPrompt}>¿Todavía no tenés una cuenta?</Text>
             <AppButton
@@ -239,47 +262,6 @@ const styles = StyleSheet.create({
   actions: {
     marginTop: "auto",
     gap: spacing.lg,
-  },
-  separator: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-  },
-  separatorLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  separatorText: {
-    ...typography.caption,
-  },
-  googleButton: {
-    minHeight: 48,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-    opacity: 0.6,
-  },
-  googleText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.textMuted,
-  },
-  soonBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: radius.pill,
-    backgroundColor: colors.brandSoft,
-  },
-  soonText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: colors.text,
   },
   registerPrompt: {
     ...typography.body,

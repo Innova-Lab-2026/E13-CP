@@ -33,7 +33,16 @@ export const USER_MODES: UserMode[] = ['adulto', 'dispositivo_protegido'];
 export interface Responsible {
   id: string;
   email: string;
-  passwordHash: string;
+  /**
+   * Hash bcrypt de la contraseña. Falta en las cuentas creadas con
+   * "Continuar con Google", que no tienen contraseña propia.
+   */
+  passwordHash?: string;
+  /**
+   * Identificador estable de la cuenta de Google vinculada (claim `sub` del
+   * id_token). Nunca se expone en las respuestas de la API.
+   */
+  googleSub?: string;
   name: string;
   telefono?: string;
   /** Perfil asociado al usuario. Se deriva de `esResponsable` al registrarse. */
@@ -47,6 +56,10 @@ export interface Responsible {
   pinHash?: string;
   /** Fecha en que se configuró el PIN vigente. */
   pinUpdatedAt?: string;
+  /** Intentos fallidos seguidos con el PIN (se reinicia al acertar o al bloquear). */
+  pinFailedAttempts?: number;
+  /** Hasta cuándo el PIN queda bloqueado por demasiados intentos fallidos (ISO). */
+  pinLockedUntil?: string;
   createdAt: string;
 }
 

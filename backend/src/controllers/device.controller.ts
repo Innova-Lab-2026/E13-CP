@@ -1,12 +1,14 @@
 import { Response } from 'express';
 import { db, DeviceStatus } from '../config/db';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { keepStateOnError } from '../config/persistence';
 import {
   buildPendingDevice,
+  checkResponsiblePin,
   createDeviceAlert,
   findResponsibleDevice,
   normalizeDeviceStatus,
-  verifyResponsiblePin
+  pinLockedMessage
 } from '../services/device.service';
 
 const BIRTH_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -108,9 +110,12 @@ export const confirmDeviceLink = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const isValid = await verifyResponsiblePin(responsible, pin);
-    if (!isValid) {
-      return res.status(401).json({ error: 'Invalid PIN' });
+    keepStateOnError(res);
+    const check = await checkResponsiblePin(responsible, pin);
+    if (!check.ok) {
+      return check.lockedMinutes > 0
+        ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+        : res.status(401).json({ error: 'Invalid PIN' });
     }
 
     device.status = 'active';

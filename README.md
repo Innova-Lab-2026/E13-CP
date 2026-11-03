@@ -14,7 +14,7 @@ Aplicación para que madres, padres y personas adultas a cargo **bloqueen los si
 
 La misma app tiene dos modos. Cada celular elige el suyo la primera vez que se usa:
 
-- **Modo adulto responsable.** En tu celular o en la web app creás tu cuenta y un PIN de 4 dígitos, cargás el perfil de cada hijo o hija y recibís las alertas y el historial.
+- **Modo adulto responsable.** En tu celular o en la web app creás tu cuenta (con correo y contraseña o con **Continuar con Google**) y un PIN de 4 dígitos, cargás el perfil de cada hijo o hija y recibís las alertas y el historial.
 - **Modo dispositivo protegido.** En el celular del menor iniciás sesión con **tu** cuenta, elegís su perfil y confirmás con tu PIN. A partir de ahí, una VPN local de Android filtra por DNS los dominios del listado. La navegación no pasa por ningún servidor nuestro.
 
 ```mermaid
@@ -139,6 +139,27 @@ npm run android        # emulador o celular con depuración USB
 En el emulador de Android la app llega al backend por `10.0.2.2:3000`. En un celular físico, definí `EXPO_PUBLIC_API_URL` en `frontend/.env` con la IP local de tu computadora (por ejemplo, `http://192.168.1.20:3000`). Los dos dispositivos tienen que estar en la misma red.
 
 > La VPN local es código nativo: **no funciona en Expo Go**. Para probar el bloqueo hace falta un build de desarrollo (`npm run android`) o el APK.
+
+### Iniciar sesión con Google
+
+"Continuar con Google" usa OAuth 2.0 con código de autorización y PKCE. El backend es el cliente confidencial de un único cliente OAuth tipo **Aplicación web**: no hay SDK de Google en la app ni cliente de Android.
+
+1. La app genera el `code_verifier`, su `code_challenge` (S256) y un `state`, y abre `GET /api/auth/google/start?return_to=…&code_challenge=…&state=…`.
+2. El backend valida `return_to` contra una lista de prefijos permitidos, firma su propio `state` (JWT de 10 minutos) y redirige a Google.
+3. Google vuelve a `GET /api/auth/google/callback`. El backend verifica el `state` y reenvía el código a la app: `https://baprotege.vercel.app/app/auth/google` en la web y `baprotege://auth/google` en Android.
+4. La app manda `POST /api/auth/google { code, codeVerifier }`. El backend canjea el código, verifica el `id_token` y exige el correo verificado. Entra a la cuenta vinculada a ese usuario de Google o crea una nueva sin contraseña. Devuelve el mismo JWT que el login con contraseña. Si ya hay una cuenta con contraseña con ese correo, responde 409 y pide entrar con la contraseña: el registro no verifica el correo, así que esa cuenta no se vincula sola (alguien pudo crearla antes que la persona dueña del correo).
+
+Las cuentas creadas con Google no tienen contraseña: para eliminarlas se confirma con el PIN de seguridad, y para cambiar ese PIN hay que ingresar el actual. Después de 5 PIN incorrectos seguidos, el PIN queda bloqueado 15 minutos en todas las pantallas que lo piden.
+
+Variables del backend (detalle en `backend/.env.example`):
+
+| Variable | Valor |
+|---|---|
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | ID y secreto del cliente OAuth web |
+| `GOOGLE_REDIRECT_URI` | `https://baprotege-api.vercel.app/api/auth/google/callback` (en local, `http://localhost:3000/api/auth/google/callback`) |
+| `GOOGLE_RETURN_URL_PREFIXES` | Opcional. Por defecto `baprotege://auth/google,https://baprotege.vercel.app/app/auth/google`; fuera de producción también `http://localhost:8081/` |
+
+Para crear el cliente: en Google Cloud Console configurá la pantalla de consentimiento (scopes `openid`, `email` y `profile`). Después, en **Credenciales → Crear credenciales → ID de cliente de OAuth**, elegí el tipo **Aplicación web** y registrá las dos URIs de redireccionamiento de la tabla. Sin estas variables, `GET /api/auth/google/config` responde `{ "enabled": false }` y la app oculta el botón.
 
 ### Compilar el APK
 

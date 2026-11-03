@@ -5,6 +5,7 @@ import {
   loadSession,
   saveSession,
   updateSession,
+  type AuthMethod,
 } from "./session";
 
 /** Perfil del usuario devuelto por la API. */
@@ -22,8 +23,17 @@ export type ResponsibleProfile = {
   telefono?: string;
   /** true si el adulto ya configuró su PIN de seguridad. */
   hasPin?: boolean;
+  /**
+   * false si la cuenta se creó con Google y no tiene contraseña. Si falta
+   * (servidor anterior), se asume que tiene contraseña.
+   */
+  hasPassword?: boolean;
+  /** Formas de ingresar vinculadas a la cuenta. */
+  authProviders?: AuthProvider[];
   createdAt?: string;
 };
+
+export type AuthProvider = "password" | "google";
 
 export type AuthResponse = {
   message: string;
@@ -31,7 +41,7 @@ export type AuthResponse = {
   responsible: ResponsibleProfile;
 };
 
-function assertAuthResponse(data: unknown): AuthResponse {
+export function assertAuthResponse(data: unknown): AuthResponse {
   const body = data as Partial<AuthResponse> | null;
   const responsible = body?.responsible as Partial<ResponsibleProfile> | undefined;
   if (
@@ -50,8 +60,12 @@ function assertAuthResponse(data: unknown): AuthResponse {
 /**
  * Guarda la sesión del adulto. El modo y el perfil vinculado son propios de este
  * dispositivo, así que se conservan si la misma cuenta vuelve a iniciar sesión.
+ * La usan el ingreso con contraseña y el ingreso con Google.
  */
-async function startSession(result: AuthResponse): Promise<AuthResponse> {
+export async function startSession<T extends AuthResponse>(
+  result: T,
+  authMethod: AuthMethod,
+): Promise<T> {
   const previous = await loadSession();
   // Si la sesión anterior venció, el vínculo del celular protegido quedó guardado aparte.
   const local = previous
@@ -69,6 +83,7 @@ async function startSession(result: AuthResponse): Promise<AuthResponse> {
     mode: sameAccount ? local?.mode : undefined,
     linkedDeviceId: sameAccount ? local?.linkedDeviceId : undefined,
     linkedDeviceName: sameAccount ? local?.linkedDeviceName : undefined,
+    authMethod,
   });
   return result;
 }
@@ -85,7 +100,7 @@ export async function registerResponsible(payload: {
     body: payload,
     auth: false,
   });
-  return startSession(assertAuthResponse(data));
+  return startSession(assertAuthResponse(data), "password");
 }
 
 export async function loginResponsible(payload: {
@@ -97,7 +112,7 @@ export async function loginResponsible(payload: {
     body: payload,
     auth: false,
   });
-  return startSession(assertAuthResponse(data));
+  return startSession(assertAuthResponse(data), "password");
 }
 
 export async function logout(): Promise<void> {
@@ -134,9 +149,15 @@ export async function updateMyProfile(payload: {
   return profile;
 }
 
-/** Crea o reemplaza el PIN de seguridad de 4 dígitos del adulto. */
-export async function setSecurityPin(pin: string): Promise<void> {
-  await apiRequest("/api/auth/pin", { method: "PATCH", body: { pin } });
+/**
+ * Crea o reemplaza el PIN de seguridad de 4 dígitos del adulto. Para reemplazar
+ * uno existente se envía el actual (obligatorio en las cuentas creadas con Google).
+ */
+export async function setSecurityPin(pin: string, currentPin?: string): Promise<void> {
+  await apiRequest("/api/auth/pin", {
+    method: "PATCH",
+    body: currentPin ? { pin, currentPin } : { pin },
+  });
   const session = await loadSession();
   if (session) {
     await updateSession({ profile: { ...session.profile, hasPin: true } });
@@ -156,8 +177,13 @@ export async function verifySecurityPin(pin: string): Promise<boolean> {
   }
 }
 
-/** Elimina la cuenta en el servidor y cierra la sesión local. */
-export async function deleteMyAccount(password: string): Promise<void> {
-  await apiRequest("/api/auth/me", { method: "DELETE", body: { password } });
+/**
+ * Elimina la cuenta en el servidor y cierra la sesión local. Las cuentas con
+ * contraseña la confirman con la contraseña; las que solo usan Google, con el PIN.
+ */
+export async function deleteMyAccount(
+  credentials: { password: string } | { pin: string },
+): Promise<void> {
+  await apiRequest("/api/auth/me", { method: "DELETE", body: credentials });
   await clearSession();
 }

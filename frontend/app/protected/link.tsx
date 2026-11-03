@@ -16,17 +16,23 @@ import {
   type Device,
 } from "../../src/services/deviceService";
 import { verifySecurityPin } from "../../src/services/auth";
-import { updateSession } from "../../src/services/session";
+import { updateSession, useSession } from "../../src/services/session";
 import { ApiError, errorMessage } from "../../src/services/api";
 import { formatIsoDate } from "../../src/utils/date";
 import { colors, radius, shadow, spacing, typography } from "../../src/theme";
 
 type Step = "choose" | "pin" | "success";
 
+/** La sesión de Google queda abierta en el navegador del celular del menor. */
+const GOOGLE_SESSION_NOTICE =
+  "Iniciaste sesión con Google en este celular. Cuando termines, cerrá tu sesión de Google en el navegador para que el menor no pueda usar tu cuenta.";
+
 /** Vinculación: este celular se asocia a un perfil protegido creado por la persona adulta. */
 export default function LinkDeviceScreen() {
   const router = useRouter();
   const { data: devices, loading, error, reload } = useAsyncResource(getDevices, []);
+  const { session } = useSession();
+  const signedInWithGoogle = session?.authMethod === "google";
 
   const [step, setStep] = useState<Step>("choose");
   const [selected, setSelected] = useState<Device | null>(null);
@@ -109,6 +115,11 @@ export default function LinkDeviceScreen() {
               ? `Este celular ya está vinculado al perfil de ${name}. Desde ahora te acompañamos para que navegue sin sitios de apuestas.`
               : "Este celular ya está vinculado. Desde ahora te acompañamos para navegar sin sitios de apuestas."}
           </Text>
+          {signedInWithGoogle ? (
+            <View style={styles.fullWidth}>
+              <AppAlert message={GOOGLE_SESSION_NOTICE} variant="info" />
+            </View>
+          ) : null}
           <View style={styles.fullWidth}>
             <AppButton title="Continuar" onPress={() => router.replace("/protected")} />
           </View>
@@ -138,6 +149,10 @@ export default function LinkDeviceScreen() {
             <Text style={styles.subtitle}>
               Elegí el perfil que la persona adulta creó para este celular.
             </Text>
+
+            {signedInWithGoogle ? (
+              <AppAlert message={GOOGLE_SESSION_NOTICE} variant="info" />
+            ) : null}
 
             <ScreenState
               loading={loading && !devices}

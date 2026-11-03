@@ -4,11 +4,13 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { db, Responsible, UserMode, UserRole, USER_MODES } from '../config/db';
 import { AuthRequest, JWT_SECRET } from '../middleware/auth.middleware';
+import { keepStateOnError } from '../config/persistence';
 import {
+  checkResponsiblePin,
   isValidPin,
   PIN_LENGTH,
-  setResponsiblePin,
-  verifyResponsiblePin
+  pinLockedMessage,
+  setResponsiblePin
 } from '../services/device.service';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,8 +43,24 @@ interface UpdateModeRequest {
   mode?: string;
 }
 
-/** Perfil público del usuario: nunca incluye el hash de la contraseña. */
-const toPublicProfile = (responsible: Responsible) => ({
+/** Formas de iniciar sesión que tiene habilitadas una cuenta. */
+export type AuthProvider = 'password' | 'google';
+
+/** Mensaje para quien intenta entrar con contraseña a una cuenta creada con Google. */
+export const GOOGLE_ONLY_LOGIN_ERROR = 'Esta cuenta usa Google. Entrá con "Continuar con Google".';
+
+const authProvidersOf = (responsible: Responsible): AuthProvider[] => {
+  const providers: AuthProvider[] = [];
+  if (responsible.passwordHash) providers.push('password');
+  if (responsible.googleSub) providers.push('google');
+  return providers;
+};
+
+/**
+ * Perfil público del usuario: nunca incluye el hash de la contraseña ni del PIN,
+ * ni el identificador de la cuenta de Google.
+ */
+export const toPublicProfile = (responsible: Responsible) => ({
   id: responsible.id,
   email: responsible.email,
   name: responsible.name,
@@ -51,8 +69,22 @@ const toPublicProfile = (responsible: Responsible) => ({
   telefono: responsible.telefono,
   /** Indica si el adulto ya configuró su PIN de seguridad (nunca expone el hash). */
   hasPin: Boolean(responsible.pinHash),
+  /** `false` en las cuentas creadas con Google, que no tienen contraseña propia. */
+  hasPassword: Boolean(responsible.passwordHash),
+  authProviders: authProvidersOf(responsible),
   createdAt: responsible.createdAt
 });
+
+/**
+ * JWT de sesión (id, email y rol, vigente 7 días). Lo emiten el login con
+ * contraseña, el registro y el inicio de sesión con Google.
+ */
+export const signSessionToken = (responsible: Responsible): string =>
+  jwt.sign(
+    { id: responsible.id, email: responsible.email, rol: responsible.rol },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
 
 /**
  * POST /api/auth/register
@@ -134,11 +166,7 @@ export const registerResponsible = async (req: Request, res: Response) => {
 
     db.responsables.push(newResponsible);
 
-    const token = jwt.sign(
-      { id: newResponsible.id, email: newResponsible.email, rol: newResponsible.rol },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = signSessionToken(newResponsible);
 
     return res.status(201).json({
       message: 'Responsible registered successfully',
@@ -169,16 +197,17 @@ export const loginResponsible = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    // Cuenta creada con Google: no tiene contraseña con la que comparar.
+    if (!responsible.passwordHash) {
+      return res.status(401).json({ error: GOOGLE_ONLY_LOGIN_ERROR });
+    }
+
     const isMatch = await bcrypt.compare(password, responsible.passwordHash);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const token = jwt.sign(
-      { id: responsible.id, email: responsible.email, rol: responsible.rol },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = signSessionToken(responsible);
 
     return res.status(200).json({
       message: 'Login successful',
@@ -197,10 +226,14 @@ export const loginResponsible = async (req: Request, res: Response) => {
  *
  * El PIN se cifra con bcrypt y nunca se devuelve ni se almacena en texto plano.
  * Solo puede existir un PIN activo por responsable: el nuevo sobrescribe al anterior.
+ *
+ * Para reemplazar un PIN existente se puede enviar `currentPin`, que se verifica.
+ * En las cuentas creadas con Google es obligatorio: ahí el PIN es lo único que
+ * confirma la eliminación de la cuenta, así que no se puede pisar solo con la sesión.
  */
 export const updateMyPin = async (req: AuthRequest, res: Response) => {
   try {
-    const { pin } = req.body as { pin?: unknown };
+    const { pin, currentPin } = (req.body ?? {}) as { pin?: unknown; currentPin?: unknown };
 
     if (!isValidPin(pin)) {
       return res.status(400).json({
@@ -212,6 +245,28 @@ export const updateMyPin = async (req: AuthRequest, res: Response) => {
 
     if (!responsible) {
       return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    if (responsible.pinHash) {
+      if (currentPin === undefined && !responsible.passwordHash) {
+        return res.status(400).json({ error: 'Ingresá tu PIN actual para cambiarlo' });
+      }
+
+      if (currentPin !== undefined) {
+        if (!isValidPin(currentPin)) {
+          return res.status(400).json({
+            error: `El PIN actual debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+          });
+        }
+
+        keepStateOnError(res);
+        const check = await checkResponsiblePin(responsible, currentPin);
+        if (!check.ok) {
+          return check.lockedMinutes > 0
+            ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+            : res.status(401).json({ error: 'El PIN actual es incorrecto' });
+        }
+      }
     }
 
     await setResponsiblePin(responsible, pin);
@@ -299,9 +354,12 @@ export const verifyMyPin = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const isValid = await verifyResponsiblePin(responsible, pin);
-    if (!isValid) {
-      return res.status(401).json({ error: 'Invalid PIN' });
+    keepStateOnError(res);
+    const check = await checkResponsiblePin(responsible, pin);
+    if (!check.ok) {
+      return check.lockedMinutes > 0
+        ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+        : res.status(401).json({ error: 'Invalid PIN' });
     }
 
     return res.status(200).json({ message: 'PIN válido', valid: true });
@@ -358,15 +416,14 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
 /**
  * DELETE /api/auth/me
  * Elimina la cuenta del adulto y todo lo asociado: dispositivos, eventos,
- * alertas y dominios personalizados. Exige la contraseña como confirmación.
+ * alertas y dominios personalizados.
+ *
+ * Como confirmación exige la contraseña o, en las cuentas creadas con Google
+ * (que no tienen contraseña), el PIN de seguridad del adulto.
  */
 export const deleteMyAccount = async (req: AuthRequest, res: Response) => {
   try {
-    const { password } = req.body as { password?: unknown };
-
-    if (!password || typeof password !== 'string') {
-      return res.status(400).json({ error: 'La contraseña es obligatoria para eliminar la cuenta' });
-    }
+    const { password, pin } = (req.body ?? {}) as { password?: unknown; pin?: unknown };
 
     const responsible = db.responsables.find(r => r.id === req.responsibleId);
 
@@ -374,9 +431,48 @@ export const deleteMyAccount = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Responsible not found' });
     }
 
-    const isMatch = await bcrypt.compare(password, responsible.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'La contraseña es incorrecta' });
+    if (responsible.passwordHash) {
+      if (!password || typeof password !== 'string') {
+        return res.status(400).json({ error: 'La contraseña es obligatoria para eliminar la cuenta' });
+      }
+
+      const isMatch = await bcrypt.compare(password, responsible.passwordHash);
+      if (!isMatch) {
+        return res.status(401).json({ error: 'La contraseña es incorrecta' });
+      }
+    } else {
+      // Cuenta solo con Google: se confirma con el PIN de seguridad.
+      if (password !== undefined) {
+        return res.status(400).json({
+          error: 'Tu cuenta usa Google y no tiene contraseña: confirmá con tu PIN de seguridad'
+        });
+      }
+
+      if (!responsible.pinHash) {
+        return res.status(409).json({
+          error: 'Configurá tu PIN de seguridad para poder eliminar la cuenta'
+        });
+      }
+
+      if (pin === undefined) {
+        return res.status(400).json({
+          error: 'El PIN de seguridad es obligatorio para eliminar la cuenta'
+        });
+      }
+
+      if (!isValidPin(pin)) {
+        return res.status(400).json({
+          error: `El PIN debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+        });
+      }
+
+      keepStateOnError(res);
+      const check = await checkResponsiblePin(responsible, pin);
+      if (!check.ok) {
+        return check.lockedMinutes > 0
+          ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+          : res.status(401).json({ error: 'El PIN es incorrecto' });
+      }
     }
 
     const deviceIds = new Set(

@@ -31,6 +31,11 @@ export const generateLinkCode = (): string => {
   return code;
 };
 
+/** Intentos fallidos seguidos con el PIN antes de bloquearlo. */
+export const PIN_MAX_ATTEMPTS = 5;
+/** Minutos que el PIN queda bloqueado después de agotar los intentos. */
+export const PIN_LOCK_MINUTES = 15;
+
 /** Cifra el PIN con bcrypt y lo asocia al responsable. */
 export const setResponsiblePin = async (
   responsible: Responsible,
@@ -39,18 +44,84 @@ export const setResponsiblePin = async (
   const salt = await bcrypt.genSalt(10);
   responsible.pinHash = await bcrypt.hash(pin, salt);
   responsible.pinUpdatedAt = new Date().toISOString();
+  responsible.pinFailedAttempts = undefined;
+  responsible.pinLockedUntil = undefined;
 };
 
-/** Verifica el PIN contra el hash del responsable. */
+/**
+ * Minutos que faltan para que se desbloquee el PIN (redondeado hacia arriba),
+ * o 0 si no está bloqueado.
+ */
+export const pinLockRemainingMinutes = (responsible: Responsible, now = Date.now()): number => {
+  const lockedUntil = responsible.pinLockedUntil ? Date.parse(responsible.pinLockedUntil) : NaN;
+  if (Number.isNaN(lockedUntil) || lockedUntil <= now) {
+    return 0;
+  }
+  return Math.ceil((lockedUntil - now) / 60000);
+};
+
+/** Mensaje del 429 que responden los endpoints que piden el PIN mientras está bloqueado. */
+export const pinLockedMessage = (minutes: number): string =>
+  `Ingresaste mal el PIN demasiadas veces. Probá de nuevo en ${minutes} ${
+    minutes === 1 ? 'minuto' : 'minutos'
+  }.`;
+
+/**
+ * Verifica el PIN contra el hash del responsable.
+ *
+ * Cuenta los intentos fallidos: al llegar a PIN_MAX_ATTEMPTS el PIN queda
+ * bloqueado PIN_LOCK_MINUTES y, mientras tanto, devuelve false sin compararlo.
+ * Así no se pueden probar las 10.000 combinaciones con una sesión robada.
+ * Quien la llama revisa antes pinLockRemainingMinutes para responder 429, y
+ * marca el pedido con keepStateOnError para que el contador se guarde.
+ */
 export const verifyResponsiblePin = async (
   responsible: Responsible,
   pin: string
 ): Promise<boolean> => {
-  if (!responsible.pinHash) {
+  if (!responsible.pinHash || pinLockRemainingMinutes(responsible) > 0) {
     return false;
   }
 
-  return bcrypt.compare(pin, responsible.pinHash);
+  const isValid = await bcrypt.compare(pin, responsible.pinHash);
+
+  if (isValid) {
+    responsible.pinFailedAttempts = undefined;
+    responsible.pinLockedUntil = undefined;
+    return true;
+  }
+
+  const attempts = (responsible.pinFailedAttempts ?? 0) + 1;
+  if (attempts >= PIN_MAX_ATTEMPTS) {
+    responsible.pinFailedAttempts = undefined;
+    responsible.pinLockedUntil = new Date(Date.now() + PIN_LOCK_MINUTES * 60000).toISOString();
+  } else {
+    responsible.pinFailedAttempts = attempts;
+  }
+
+  return false;
+};
+
+export type PinCheck = { ok: true } | { ok: false; lockedMinutes: number };
+
+/**
+ * Verifica el PIN e informa si quedó bloqueado: `lockedMinutes > 0` se responde
+ * con 429 y `0` con 401 (PIN incorrecto).
+ */
+export const checkResponsiblePin = async (
+  responsible: Responsible,
+  pin: string
+): Promise<PinCheck> => {
+  const lockedBefore = pinLockRemainingMinutes(responsible);
+  if (lockedBefore > 0) {
+    return { ok: false, lockedMinutes: lockedBefore };
+  }
+
+  if (await verifyResponsiblePin(responsible, pin)) {
+    return { ok: true };
+  }
+
+  return { ok: false, lockedMinutes: pinLockRemainingMinutes(responsible) };
 };
 
 /** Normaliza un estado recibido a los valores canónicos del dominio. */

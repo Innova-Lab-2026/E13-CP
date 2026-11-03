@@ -9,6 +9,8 @@ import type { ResponsibleProfile, UserMode } from "./auth";
  * - `mode`: modo elegido en "Selección de modo". Vive en este dispositivo.
  * - `linkedDeviceId`: perfil protegido vinculado a este celular (solo en modo
  *   dispositivo protegido).
+ * - `authMethod`: cómo se inició la sesión en este dispositivo. Es opcional
+ *   porque las sesiones guardadas antes de sumar Google no lo tienen.
  */
 export type Session = {
   token: string;
@@ -16,7 +18,10 @@ export type Session = {
   mode?: UserMode;
   linkedDeviceId?: string;
   linkedDeviceName?: string;
+  authMethod?: AuthMethod;
 };
+
+export type AuthMethod = "password" | "google";
 
 const STORAGE_KEY = "ba-protege:session";
 

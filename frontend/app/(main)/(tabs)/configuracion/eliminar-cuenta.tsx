@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -16,7 +16,9 @@ import AppHeader from "../../../../src/components/AppHeader";
 import AppInput from "../../../../src/components/AppInput";
 import AppButton from "../../../../src/components/AppButton";
 import ConfirmModal from "../../../../src/components/ConfirmModal";
-import { deleteMyAccount } from "../../../../src/services/auth";
+import PinInput from "../../../../src/components/PinInput";
+import { deleteMyAccount, getMyProfile } from "../../../../src/services/auth";
+import { useSession } from "../../../../src/services/session";
 import { ApiError, errorMessage } from "../../../../src/services/api";
 import { colors, radius, spacing, typography } from "../../../../src/theme";
 
@@ -29,20 +31,40 @@ const WHAT_IS_DELETED = [
 
 export default function EliminarCuentaScreen() {
   const router = useRouter();
+  const { session } = useSession();
+  // Las cuentas creadas con Google no tienen contraseña: confirman con el PIN.
+  const usesPin = session?.profile.hasPassword === false;
 
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | undefined>();
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState<string | undefined>();
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleted, setDeleted] = useState(false);
 
+  // Trae el perfil vigente (actualiza la sesión) para saber si la cuenta tiene contraseña.
+  useEffect(() => {
+    getMyProfile().catch(() => {
+      // Sin conexión se usa el perfil guardado en la sesión.
+    });
+  }, []);
+
   const openConfirm = () => {
-    if (!password) {
-      setPasswordError("Ingresá tu contraseña para continuar.");
-      return;
+    if (usesPin) {
+      if (pin.length !== 4) {
+        setPinError("Ingresá los 4 dígitos de tu PIN para continuar.");
+        return;
+      }
+      setPinError(undefined);
+    } else {
+      if (!password) {
+        setPasswordError("Ingresá tu contraseña para continuar.");
+        return;
+      }
+      setPasswordError(undefined);
     }
-    setPasswordError(undefined);
     setDeleteError(null);
     setConfirmVisible(true);
   };
@@ -51,16 +73,25 @@ export default function EliminarCuentaScreen() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await deleteMyAccount(password);
+      await deleteMyAccount(usesPin ? { pin } : { password });
       setConfirmVisible(false);
       setPassword("");
+      setPin("");
       setDeleted(true);
     } catch (error) {
-      setDeleteError(
-        error instanceof ApiError && error.status === 401
-          ? "La contraseña es incorrecta. Revisala e intentá de nuevo."
-          : errorMessage(error, "No pudimos eliminar la cuenta. Intentá de nuevo."),
-      );
+      if (error instanceof ApiError && error.status === 401) {
+        setDeleteError(
+          usesPin
+            ? "El PIN es incorrecto. Revisalo e intentá de nuevo."
+            : "La contraseña es incorrecta. Revisala e intentá de nuevo.",
+        );
+      } else if (usesPin && error instanceof ApiError && error.status === 409) {
+        setDeleteError(
+          "Todavía no creaste tu PIN de seguridad. Crealo primero para poder eliminar la cuenta.",
+        );
+      } else {
+        setDeleteError(errorMessage(error, "No pudimos eliminar la cuenta. Intentá de nuevo."));
+      }
     } finally {
       setDeleting(false);
     }
@@ -126,18 +157,37 @@ export default function EliminarCuentaScreen() {
           </View>
 
           <View style={styles.card}>
-            <AppInput
-              label="Contraseña"
-              placeholder="Ingresá tu contraseña"
-              value={password}
-              onChangeText={(value) => {
-                setPassword(value);
-                setPasswordError(undefined);
-              }}
-              secureTextEntry
-              error={passwordError}
-            />
-            <Text style={styles.hint}>Te la pedimos para confirmar que sos vos.</Text>
+            {usesPin ? (
+              <>
+                <PinInput
+                  label="PIN de seguridad"
+                  value={pin}
+                  onChange={(value) => {
+                    setPin(value);
+                    setPinError(undefined);
+                  }}
+                  error={pinError}
+                />
+                <Text style={styles.hint}>
+                  Tu cuenta entra con Google, así que te pedimos tu PIN para confirmar que sos vos.
+                </Text>
+              </>
+            ) : (
+              <>
+                <AppInput
+                  label="Contraseña"
+                  placeholder="Ingresá tu contraseña"
+                  value={password}
+                  onChangeText={(value) => {
+                    setPassword(value);
+                    setPasswordError(undefined);
+                  }}
+                  secureTextEntry
+                  error={passwordError}
+                />
+                <Text style={styles.hint}>Te la pedimos para confirmar que sos vos.</Text>
+              </>
+            )}
           </View>
 
           <View style={styles.actions}>
