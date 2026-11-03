@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes';
 import deviceRoutes from './routes/device.routes';
 import blocklistRoutes from './routes/blocklist.routes';
 import eventRoutes from './routes/event.routes';
+import { persistState } from './config/persistence';
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+// Estado compartido entre instancias serverless (Redis). Sin configurar, no hace nada.
+app.use('/api', persistState);
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -25,7 +28,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', service: 'BA Protege+ Backend' });
 });
 
-if (process.env.NODE_ENV !== 'test') {
+// En Vercel la app corre como función serverless (ver api/index.js): no escucha un puerto.
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`BA Protege+ Backend running on port ${PORT}`);
   });

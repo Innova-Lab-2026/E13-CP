@@ -1,6 +1,5 @@
-// src/components/GreetingHeader.tsx
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from "react-native";
+import { colors, spacing, typography } from "../theme";
 
 interface GreetingHeaderProps {
   name: string;
@@ -10,13 +9,15 @@ interface GreetingHeaderProps {
 
 export default function GreetingHeader({
   name,
-  subtitle = '¡Qué bueno tenerte de vuelta!',
+  subtitle = "Qué bueno tenerte de vuelta.",
   showStatusDot = false,
 }: GreetingHeaderProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>Hola, {name}</Text>
-      
+      <Text style={styles.greeting} accessibilityRole="header">
+        Hola, {name}
+      </Text>
+
       <View style={styles.subtitleRow}>
         {showStatusDot && <View style={styles.greenDot} />}
         <Text style={[styles.subtitleText, showStatusDot && styles.statusText]}>
@@ -29,32 +30,30 @@ export default function GreetingHeader({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
   greeting: {
+    ...typography.display,
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
     marginBottom: 2,
   },
   subtitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
   greenDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#166534',
+    backgroundColor: colors.success,
   },
   subtitleText: {
-    fontSize: 14,
-    color: '#6B7280',
+    ...typography.body,
   },
   statusText: {
     fontSize: 13,
-    color: '#166534',
-    fontWeight: '600',
+    color: colors.successText,
+    fontWeight: "600",
   },
 });

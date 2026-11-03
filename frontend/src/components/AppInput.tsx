@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   View,
@@ -8,6 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { colors, radius } from "../theme";
 
 type AppInputProps = {
   label: string;
@@ -15,8 +15,10 @@ type AppInputProps = {
   value: string;
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
-  keyboardType?: "default" | "email-address";
+  keyboardType?: "default" | "email-address" | "phone-pad" | "number-pad" | "url";
+  autoCapitalize?: "none" | "sentences" | "words";
   error?: string;
+  editable?: boolean;
 };
 
 export default function AppInput({
@@ -26,7 +28,9 @@ export default function AppInput({
   onChangeText,
   secureTextEntry = false,
   keyboardType = "default",
+  autoCapitalize = "none",
   error,
+  editable = true,
 }: AppInputProps) {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
@@ -34,15 +38,24 @@ export default function AppInput({
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
 
-      <View style={[styles.inputContainer, error ? styles.inputError : null]}>
+      <View
+        style={[
+          styles.inputContainer,
+          error ? styles.inputError : null,
+          !editable && styles.inputDisabled,
+        ]}
+      >
         <TextInput
           style={styles.input}
           placeholder={placeholder}
+          placeholderTextColor={colors.textSubtle}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry && !passwordVisible}
           keyboardType={keyboardType}
-          autoCapitalize="none"
+          autoCapitalize={autoCapitalize}
+          editable={editable}
+          accessibilityLabel={label}
         />
 
         {secureTextEntry ? (
@@ -58,7 +71,7 @@ export default function AppInput({
             <MaterialCommunityIcons
               name={passwordVisible ? "eye-off-outline" : "eye-outline"}
               size={22}
-              color="#64748B"
+              color={colors.textMuted}
             />
           </Pressable>
         ) : null}
@@ -80,13 +93,15 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     fontWeight: "600",
+    color: colors.text,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: 10,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
     paddingLeft: 14,
     paddingRight: 12,
   },
@@ -94,12 +109,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
+    color: colors.text,
   },
   inputError: {
-    borderColor: "#DC2626",
+    borderColor: colors.danger,
+  },
+  inputDisabled: {
+    backgroundColor: colors.surfaceMuted,
   },
   error: {
-    color: "#DC2626",
+    color: colors.danger,
     fontSize: 13,
   },
   visibilityButton: {

@@ -1,92 +1,189 @@
-import { Platform } from "react-native";
+import { ApiError, apiRequest } from "./api";
+import {
+  clearSession,
+  loadDeviceBinding,
+  loadSession,
+  saveSession,
+  updateSession,
+  type AuthMethod,
+} from "./session";
+
+/** Perfil del usuario devuelto por la API. */
+export type UserRole = "responsable" | "tutor";
+
+/** Modo de uso elegido en la pantalla "Selección de Modo". */
+export type UserMode = "adulto" | "dispositivo_protegido";
+
+export type ResponsibleProfile = {
+  id: string;
+  email: string;
+  name: string;
+  rol: UserRole;
+  mode: UserMode;
+  telefono?: string;
+  /** true si el adulto ya configuró su PIN de seguridad. */
+  hasPin?: boolean;
+  /**
+   * false si la cuenta se creó con Google y no tiene contraseña. Si falta
+   * (servidor anterior), se asume que tiene contraseña.
+   */
+  hasPassword?: boolean;
+  /** Formas de ingresar vinculadas a la cuenta. */
+  authProviders?: AuthProvider[];
+  createdAt?: string;
+};
+
+export type AuthProvider = "password" | "google";
 
 export type AuthResponse = {
   message: string;
   token: string;
-  responsible: {
-    id: string;
-    email: string;
-    name: string;
-  };
+  responsible: ResponsibleProfile;
 };
 
-const API_BASE_URL = (
-  process.env.EXPO_PUBLIC_API_URL ||
-  (Platform.OS === "android" ? "http://10.0.2.2:3000" : "http://localhost:3000")
-).replace(/\/+$/, "");
-
-async function sendAuthRequest(
-  endpoint: "register" | "login",
-  payload: Record<string, string>,
-): Promise<AuthResponse> {
-  let response: Response;
-
-  try {
-    response = await fetch(`${API_BASE_URL}/api/auth/${endpoint}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  } catch {
-    throw new Error(
-      `No se pudo conectar con el backend en ${API_BASE_URL}. Verifica que esté ejecutándose.`,
-    );
-  }
-
-  const body: unknown = await response.json();
-  if (typeof body !== "object" || body === null) {
-    throw new Error("El backend devolvió una respuesta no válida.");
-  }
-
-  const data = body as Record<string, unknown>;
-  if (!response.ok) {
-    throw new Error(
-      typeof data.error === "string"
-        ? data.error
-        : `El backend respondió con el estado ${response.status}.`,
-    );
-  }
-
+export function assertAuthResponse(data: unknown): AuthResponse {
+  const body = data as Partial<AuthResponse> | null;
+  const responsible = body?.responsible as Partial<ResponsibleProfile> | undefined;
   if (
-    typeof data.message !== "string" ||
-    typeof data.token !== "string" ||
-    typeof data.responsible !== "object" ||
-    data.responsible === null
-  ) {
-    throw new Error("El backend devolvió una respuesta de autenticación no válida.");
-  }
-
-  const responsible = data.responsible as Record<string, unknown>;
-  if (
+    !body ||
+    typeof body.token !== "string" ||
+    !responsible ||
     typeof responsible.id !== "string" ||
     typeof responsible.email !== "string" ||
     typeof responsible.name !== "string"
   ) {
-    throw new Error("El backend devolvió datos de usuario no válidos.");
+    throw new Error("El servidor devolvió una respuesta de autenticación no válida.");
   }
-
-  return {
-    message: data.message,
-    token: data.token,
-    responsible: {
-      id: responsible.id,
-      email: responsible.email,
-      name: responsible.name,
-    },
-  };
+  return body as AuthResponse;
 }
 
-export function registerResponsible(payload: {
+/**
+ * Guarda la sesión del adulto. El modo y el perfil vinculado son propios de este
+ * dispositivo, así que se conservan si la misma cuenta vuelve a iniciar sesión.
+ * La usan el ingreso con contraseña y el ingreso con Google.
+ */
+export async function startSession<T extends AuthResponse>(
+  result: T,
+  authMethod: AuthMethod,
+): Promise<T> {
+  const previous = await loadSession();
+  // Si la sesión anterior venció, el vínculo del celular protegido quedó guardado aparte.
+  const local = previous
+    ? {
+        profileId: previous.profile.id,
+        mode: previous.mode,
+        linkedDeviceId: previous.linkedDeviceId,
+        linkedDeviceName: previous.linkedDeviceName,
+      }
+    : await loadDeviceBinding();
+  const sameAccount = local?.profileId === result.responsible.id;
+  await saveSession({
+    token: result.token,
+    profile: result.responsible,
+    mode: sameAccount ? local?.mode : undefined,
+    linkedDeviceId: sameAccount ? local?.linkedDeviceId : undefined,
+    linkedDeviceName: sameAccount ? local?.linkedDeviceName : undefined,
+    authMethod,
+  });
+  return result;
+}
+
+export async function registerResponsible(payload: {
   name: string;
   email: string;
   password: string;
-}) {
-  return sendAuthRequest("register", payload);
+  telefono?: string;
+  esResponsable?: boolean;
+}): Promise<AuthResponse> {
+  const data = await apiRequest<unknown>("/api/auth/register", {
+    method: "POST",
+    body: payload,
+    auth: false,
+  });
+  return startSession(assertAuthResponse(data), "password");
 }
 
-export function loginResponsible(payload: {
+export async function loginResponsible(payload: {
   email: string;
   password: string;
-}) {
-  return sendAuthRequest("login", payload);
+}): Promise<AuthResponse> {
+  const data = await apiRequest<unknown>("/api/auth/login", {
+    method: "POST",
+    body: payload,
+    auth: false,
+  });
+  return startSession(assertAuthResponse(data), "password");
+}
+
+export async function logout(): Promise<void> {
+  await clearSession();
+}
+
+/** Perfil vigente del usuario autenticado. Actualiza la copia de la sesión. */
+export async function getMyProfile(): Promise<ResponsibleProfile> {
+  const profile = await apiRequest<ResponsibleProfile>("/api/auth/me");
+  await updateSession({ profile });
+  return profile;
+}
+
+/** Guarda el modo de uso en este dispositivo y lo refleja en el servidor. */
+export async function updateMyMode(mode: UserMode): Promise<ResponsibleProfile> {
+  const profile = await apiRequest<ResponsibleProfile>("/api/auth/me/mode", {
+    method: "PATCH",
+    body: { mode },
+  });
+  await updateSession({ profile, mode });
+  return profile;
+}
+
+/** Actualiza los datos de "Mi cuenta". */
+export async function updateMyProfile(payload: {
+  name?: string;
+  telefono?: string;
+}): Promise<ResponsibleProfile> {
+  const profile = await apiRequest<ResponsibleProfile>("/api/auth/me", {
+    method: "PATCH",
+    body: payload,
+  });
+  await updateSession({ profile });
+  return profile;
+}
+
+/**
+ * Crea o reemplaza el PIN de seguridad de 4 dígitos del adulto. Para reemplazar
+ * uno existente se envía el actual (obligatorio en las cuentas creadas con Google).
+ */
+export async function setSecurityPin(pin: string, currentPin?: string): Promise<void> {
+  await apiRequest("/api/auth/pin", {
+    method: "PATCH",
+    body: currentPin ? { pin, currentPin } : { pin },
+  });
+  const session = await loadSession();
+  if (session) {
+    await updateSession({ profile: { ...session.profile, hasPin: true } });
+  }
+}
+
+/** Verifica el PIN del adulto. Devuelve false si es incorrecto. */
+export async function verifySecurityPin(pin: string): Promise<boolean> {
+  try {
+    await apiRequest("/api/auth/pin/verify", { method: "POST", body: { pin } });
+    return true;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Elimina la cuenta en el servidor y cierra la sesión local. Las cuentas con
+ * contraseña la confirman con la contraseña; las que solo usan Google, con el PIN.
+ */
+export async function deleteMyAccount(
+  credentials: { password: string } | { pin: string },
+): Promise<void> {
+  await apiRequest("/api/auth/me", { method: "DELETE", body: credentials });
+  await clearSession();
 }

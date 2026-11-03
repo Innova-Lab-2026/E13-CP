@@ -2,18 +2,147 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../config/db';
-import { JWT_SECRET } from '../middleware/auth.middleware';
+import { db, Responsible, UserMode, UserRole, USER_MODES } from '../config/db';
+import { AuthRequest, JWT_SECRET } from '../middleware/auth.middleware';
+import { keepStateOnError } from '../config/persistence';
+import {
+  checkResponsiblePin,
+  isValidPin,
+  PIN_LENGTH,
+  pinLockedMessage,
+  setResponsiblePin
+} from '../services/device.service';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Caracteres permitidos en un teléfono (dígitos, +, espacios, paréntesis y guiones). */
+const PHONE_CHARS_REGEX = /^[0-9+\s()-]{7,20}$/;
+/** Un teléfono válido tiene entre 7 y 15 dígitos (E.164), sin contar los separadores. */
+const isValidPhone = (phone: string): boolean => {
+  if (!PHONE_CHARS_REGEX.test(phone)) return false;
+  const digits = phone.replace(/\D/g, '').length;
+  return digits >= 7 && digits <= 15;
+};
+const MIN_PASSWORD_LENGTH = 6;
+
+interface RegisterRequest {
+  nombre?: string;
+  /** Alias aceptado por compatibilidad con clientes que envían `name`. */
+  name?: string;
+  email?: string;
+  password?: string;
+  telefono?: string;
+  esResponsable?: boolean;
+}
+
+interface LoginRequest {
+  email?: string;
+  password?: string;
+}
+
+interface UpdateModeRequest {
+  mode?: string;
+}
+
+/** Formas de iniciar sesión que tiene habilitadas una cuenta. */
+export type AuthProvider = 'password' | 'google';
+
+/** Mensaje para quien intenta entrar con contraseña a una cuenta creada con Google. */
+export const GOOGLE_ONLY_LOGIN_ERROR = 'Esta cuenta usa Google. Entrá con "Continuar con Google".';
+
+const authProvidersOf = (responsible: Responsible): AuthProvider[] => {
+  const providers: AuthProvider[] = [];
+  if (responsible.passwordHash) providers.push('password');
+  if (responsible.googleSub) providers.push('google');
+  return providers;
+};
+
+/**
+ * Perfil público del usuario: nunca incluye el hash de la contraseña ni del PIN,
+ * ni el identificador de la cuenta de Google.
+ */
+export const toPublicProfile = (responsible: Responsible) => ({
+  id: responsible.id,
+  email: responsible.email,
+  name: responsible.name,
+  rol: responsible.rol,
+  mode: responsible.mode,
+  telefono: responsible.telefono,
+  /** Indica si el adulto ya configuró su PIN de seguridad (nunca expone el hash). */
+  hasPin: Boolean(responsible.pinHash),
+  /** `false` en las cuentas creadas con Google, que no tienen contraseña propia. */
+  hasPassword: Boolean(responsible.passwordHash),
+  authProviders: authProvidersOf(responsible),
+  createdAt: responsible.createdAt
+});
+
+/**
+ * JWT de sesión (id, email y rol, vigente 7 días). Lo emiten el login con
+ * contraseña, el registro y el inicio de sesión con Google.
+ */
+export const signSessionToken = (responsible: Responsible): string =>
+  jwt.sign(
+    { id: responsible.id, email: responsible.email, rol: responsible.rol },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+/**
+ * POST /api/auth/register
+ * Registra un responsable/tutor, hashea la contraseña con bcryptjs y emite un JWT con el rol.
+ */
 export const registerResponsible = async (req: Request, res: Response) => {
   try {
-    const { email, password, name } = req.body;
+    const { nombre, name, email, password, telefono, esResponsable } = req.body as RegisterRequest;
 
-    if (!email || !password || !name) {
-      return res.status(400).json({ error: 'Email, password, and name are required' });
+    if (
+      (nombre !== undefined && typeof nombre !== 'string') ||
+      (name !== undefined && typeof name !== 'string')
+    ) {
+      return res.status(400).json({ error: 'El nombre debe ser un texto' });
     }
 
-    const existingUser = db.responsables.find(r => r.email === email);
+    if (email !== undefined && typeof email !== 'string') {
+      return res.status(400).json({ error: 'El email debe ser un texto' });
+    }
+
+    if (password !== undefined && typeof password !== 'string') {
+      return res.status(400).json({ error: 'La contraseña debe ser un texto' });
+    }
+
+    const fullName = (nombre ?? name)?.trim();
+    const cleanEmail = email?.trim().toLowerCase();
+
+    if (telefono !== undefined && telefono !== null && typeof telefono !== 'string') {
+      return res.status(400).json({ error: 'El teléfono debe ser un texto' });
+    }
+
+    const cleanPhone = typeof telefono === 'string' ? telefono.trim() : undefined;
+
+    if (!fullName || !cleanEmail || !password) {
+      return res.status(400).json({
+        error: 'Nombre, email y password son obligatorios'
+      });
+    }
+
+    if (!EMAIL_REGEX.test(cleanEmail)) {
+      return res.status(400).json({ error: 'El email no tiene un formato válido' });
+    }
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      return res.status(400).json({
+        error: `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`
+      });
+    }
+
+    if (cleanPhone !== undefined && cleanPhone !== '' && !isValidPhone(cleanPhone)) {
+      return res.status(400).json({ error: 'El teléfono no tiene un formato válido' });
+    }
+
+    if (esResponsable !== undefined && typeof esResponsable !== 'boolean') {
+      return res.status(400).json({ error: 'esResponsable debe ser un valor booleano' });
+    }
+
+    const existingUser = db.responsables.find(r => r.email === cleanEmail);
     if (existingUser) {
       return res.status(400).json({ error: 'Responsible with this email already exists' });
     }
@@ -21,43 +150,56 @@ export const registerResponsible = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    const newResponsible = {
+    // `esResponsable` define el perfil emitido en el JWT.
+    const rol: UserRole = esResponsable === false ? 'tutor' : 'responsable';
+
+    const newResponsible: Responsible = {
       id: uuidv4(),
-      email,
+      email: cleanEmail,
       passwordHash,
-      name,
+      name: fullName,
+      telefono: cleanPhone,
+      rol,
+      mode: 'adulto',
       createdAt: new Date().toISOString()
     };
 
     db.responsables.push(newResponsible);
 
-    const token = jwt.sign({ id: newResponsible.id, email: newResponsible.email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = signSessionToken(newResponsible);
 
     return res.status(201).json({
       message: 'Responsible registered successfully',
       token,
-      responsible: {
-        id: newResponsible.id,
-        email: newResponsible.email,
-        name: newResponsible.name
-      }
+      responsible: toPublicProfile(newResponsible)
     });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
 
+/**
+ * POST /api/auth/login
+ * Verifica el hash con bcrypt y emite un JWT que incluye el rol.
+ */
 export const loginResponsible = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body as LoginRequest;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const responsible = db.responsables.find(r => r.email === email);
+    const cleanEmail = email.trim().toLowerCase();
+    const responsible = db.responsables.find(r => r.email === cleanEmail);
+
     if (!responsible) {
       return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Cuenta creada con Google: no tiene contraseña con la que comparar.
+    if (!responsible.passwordHash) {
+      return res.status(401).json({ error: GOOGLE_ONLY_LOGIN_ERROR });
     }
 
     const isMatch = await bcrypt.compare(password, responsible.passwordHash);
@@ -65,17 +207,287 @@ export const loginResponsible = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: responsible.id, email: responsible.email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = signSessionToken(responsible);
 
     return res.status(200).json({
       message: 'Login successful',
       token,
-      responsible: {
-        id: responsible.id,
-        email: responsible.email,
-        name: responsible.name
-      }
+      responsible: toPublicProfile(responsible)
     });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * PATCH /api/auth/pin
+ * Configura el PIN de seguridad de 4 dígitos con el que el adulto autoriza
+ * la vinculación de dispositivos y los cambios críticos.
+ *
+ * El PIN se cifra con bcrypt y nunca se devuelve ni se almacena en texto plano.
+ * Solo puede existir un PIN activo por responsable: el nuevo sobrescribe al anterior.
+ *
+ * Para reemplazar un PIN existente se puede enviar `currentPin`, que se verifica.
+ * En las cuentas creadas con Google es obligatorio: ahí el PIN es lo único que
+ * confirma la eliminación de la cuenta, así que no se puede pisar solo con la sesión.
+ */
+export const updateMyPin = async (req: AuthRequest, res: Response) => {
+  try {
+    const { pin, currentPin } = (req.body ?? {}) as { pin?: unknown; currentPin?: unknown };
+
+    if (!isValidPin(pin)) {
+      return res.status(400).json({
+        error: `El PIN debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+      });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    if (responsible.pinHash) {
+      if (currentPin === undefined && !responsible.passwordHash) {
+        return res.status(400).json({ error: 'Ingresá tu PIN actual para cambiarlo' });
+      }
+
+      if (currentPin !== undefined) {
+        if (!isValidPin(currentPin)) {
+          return res.status(400).json({
+            error: `El PIN actual debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+          });
+        }
+
+        keepStateOnError(res);
+        const check = await checkResponsiblePin(responsible, currentPin);
+        if (!check.ok) {
+          return check.lockedMinutes > 0
+            ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+            : res.status(401).json({ error: 'El PIN actual es incorrecto' });
+        }
+      }
+    }
+
+    await setResponsiblePin(responsible, pin);
+
+    return res.status(200).json({ message: 'PIN creado con éxito' });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * GET /api/auth/me
+ * Devuelve el perfil vigente del usuario autenticado (requiere JWT).
+ */
+export const getMyProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    return res.status(200).json(toPublicProfile(responsible));
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * PATCH /api/auth/me/mode
+ * Actualiza el modo de uso ("adulto" | "dispositivo_protegido") del usuario autenticado.
+ */
+export const updateMyMode = async (req: AuthRequest, res: Response) => {
+  try {
+    const { mode } = req.body as UpdateModeRequest;
+
+    if (!mode) {
+      return res.status(400).json({ error: 'Mode is required' });
+    }
+
+    if (!USER_MODES.includes(mode as UserMode)) {
+      return res.status(400).json({
+        error: `Invalid mode. Must be one of: ${USER_MODES.join(', ')}`
+      });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    responsible.mode = mode as UserMode;
+
+    return res.status(200).json(toPublicProfile(responsible));
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * POST /api/auth/pin/verify
+ * Verifica el PIN del adulto sin modificarlo. Lo usa el dispositivo protegido
+ * para autorizar acciones críticas (por ejemplo, salir del modo protegido).
+ */
+export const verifyMyPin = async (req: AuthRequest, res: Response) => {
+  try {
+    const { pin } = req.body as { pin?: unknown };
+
+    if (!isValidPin(pin)) {
+      return res.status(400).json({
+        error: `El PIN debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+      });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    if (!responsible.pinHash) {
+      return res.status(409).json({
+        error: 'El responsable todavía no configuró un PIN de seguridad'
+      });
+    }
+
+    keepStateOnError(res);
+    const check = await checkResponsiblePin(responsible, pin);
+    if (!check.ok) {
+      return check.lockedMinutes > 0
+        ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+        : res.status(401).json({ error: 'Invalid PIN' });
+    }
+
+    return res.status(200).json({ message: 'PIN válido', valid: true });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * PATCH /api/auth/me
+ * Actualiza los datos editables de "Mi cuenta": nombre y teléfono.
+ */
+export const updateMyProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, telefono } = req.body as { name?: unknown; telefono?: unknown };
+
+    if (name === undefined && telefono === undefined) {
+      return res.status(400).json({ error: 'Enviá al menos un campo para actualizar' });
+    }
+
+    if (name !== undefined && (typeof name !== 'string' || !name.trim())) {
+      return res.status(400).json({ error: 'El nombre debe ser un texto' });
+    }
+
+    if (telefono !== undefined && typeof telefono !== 'string') {
+      return res.status(400).json({ error: 'El teléfono debe ser un texto' });
+    }
+
+    const cleanPhone = typeof telefono === 'string' ? telefono.trim() : undefined;
+    if (cleanPhone && !isValidPhone(cleanPhone)) {
+      return res.status(400).json({ error: 'El teléfono no tiene un formato válido' });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    if (typeof name === 'string') {
+      responsible.name = name.trim();
+    }
+
+    if (cleanPhone !== undefined) {
+      responsible.telefono = cleanPhone || undefined;
+    }
+
+    return res.status(200).json(toPublicProfile(responsible));
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * DELETE /api/auth/me
+ * Elimina la cuenta del adulto y todo lo asociado: dispositivos, eventos,
+ * alertas y dominios personalizados.
+ *
+ * Como confirmación exige la contraseña o, en las cuentas creadas con Google
+ * (que no tienen contraseña), el PIN de seguridad del adulto.
+ */
+export const deleteMyAccount = async (req: AuthRequest, res: Response) => {
+  try {
+    const { password, pin } = (req.body ?? {}) as { password?: unknown; pin?: unknown };
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    if (responsible.passwordHash) {
+      if (!password || typeof password !== 'string') {
+        return res.status(400).json({ error: 'La contraseña es obligatoria para eliminar la cuenta' });
+      }
+
+      const isMatch = await bcrypt.compare(password, responsible.passwordHash);
+      if (!isMatch) {
+        return res.status(401).json({ error: 'La contraseña es incorrecta' });
+      }
+    } else {
+      // Cuenta solo con Google: se confirma con el PIN de seguridad.
+      if (password !== undefined) {
+        return res.status(400).json({
+          error: 'Tu cuenta usa Google y no tiene contraseña: confirmá con tu PIN de seguridad'
+        });
+      }
+
+      if (!responsible.pinHash) {
+        return res.status(409).json({
+          error: 'Configurá tu PIN de seguridad para poder eliminar la cuenta'
+        });
+      }
+
+      if (pin === undefined) {
+        return res.status(400).json({
+          error: 'El PIN de seguridad es obligatorio para eliminar la cuenta'
+        });
+      }
+
+      if (!isValidPin(pin)) {
+        return res.status(400).json({
+          error: `El PIN debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+        });
+      }
+
+      keepStateOnError(res);
+      const check = await checkResponsiblePin(responsible, pin);
+      if (!check.ok) {
+        return check.lockedMinutes > 0
+          ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+          : res.status(401).json({ error: 'El PIN es incorrecto' });
+      }
+    }
+
+    const deviceIds = new Set(
+      db.devices.filter(d => d.responsibleId === responsible.id).map(d => d.id)
+    );
+
+    db.devices = db.devices.filter(d => d.responsibleId !== responsible.id);
+    db.events = db.events.filter(e => !deviceIds.has(e.deviceId));
+    db.alerts = db.alerts.filter(a => a.responsibleId !== responsible.id);
+    db.blocklist = db.blocklist.filter(
+      item => item.type === 'LOTBA_OFFICIAL' || item.addedBy !== responsible.id
+    );
+    db.responsables = db.responsables.filter(r => r.id !== responsible.id);
+
+    return res.status(200).json({ message: 'Cuenta eliminada' });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }

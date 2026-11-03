@@ -1,5 +1,5 @@
-
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import { colors, radius, spacing } from "../../theme";
 
 export type HistoryCategory = "all" | "blocked" | "security" | "settings";
 
@@ -18,6 +18,34 @@ const categories: { label: string; value: HistoryCategory }[] = [
   { label: "Configuración", value: "settings" },
 ];
 
+type ChipProps = {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  accessibilityLabel: string;
+};
+
+function FilterChip({ label, selected, onPress, accessibilityLabel }: ChipProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.filter,
+        selected && styles.filterSelected,
+        pressed && styles.pressed,
+      ]}
+      accessibilityRole="radio"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ checked: selected, selected }}
+      hitSlop={{ top: 4, bottom: 4 }}
+    >
+      <Text style={[styles.filterText, selected && styles.filterTextSelected]}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 export default function HistoryFilters({
   selectedCategory,
   onCategoryChange,
@@ -29,64 +57,37 @@ export default function HistoryFilters({
     <View style={styles.container}>
       <Text style={styles.heading}>Filtrar por categoría</Text>
 
-      <View style={styles.filters}>
-        {categories.map((category) => {
-          const isSelected = selectedCategory === category.value;
-
-          return (
-            <Pressable
-              key={category.value}
-              onPress={() => onCategoryChange(category.value)}
-              style={[
-                styles.filter,
-                isSelected && styles.filterSelected,
-              ]}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isSelected }}
-            >
-              <Text
-                style={[
-                  styles.filterText,
-                  isSelected && styles.filterTextSelected,
-                ]}
-              >
-                {category.label}
-              </Text>
-            </Pressable>
-          );
-        })}
+      <View style={styles.filters} accessibilityRole="radiogroup">
+        {categories.map((category) => (
+          <FilterChip
+            key={category.value}
+            label={category.label}
+            selected={selectedCategory === category.value}
+            onPress={() => onCategoryChange(category.value)}
+            accessibilityLabel={`Categoría ${category.label}`}
+          />
+        ))}
       </View>
 
       <Text style={[styles.heading, styles.userHeading]}>
         Filtrar por usuario
       </Text>
-      <View style={styles.filters}>
-        {["Todos", ...users].map((user) => {
-          const value = user === "Todos" ? "all" : user;
-          const isSelected = selectedUser === value;
-
-          return (
-            <Pressable
-              key={value}
-              onPress={() => onUserChange(value)}
-              style={[
-                styles.filter,
-                isSelected && styles.filterSelected,
-              ]}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isSelected }}
-            >
-              <Text
-                style={[
-                  styles.filterText,
-                  isSelected && styles.filterTextSelected,
-                ]}
-              >
-                {user}
-              </Text>
-            </Pressable>
-          );
-        })}
+      <View style={styles.filters} accessibilityRole="radiogroup">
+        <FilterChip
+          label="Todos"
+          selected={selectedUser === "all"}
+          onPress={() => onUserChange("all")}
+          accessibilityLabel="Todos los usuarios"
+        />
+        {users.map((user) => (
+          <FilterChip
+            key={user}
+            label={user}
+            selected={selectedUser === user}
+            onPress={() => onUserChange(user)}
+            accessibilityLabel={`Usuario ${user}`}
+          />
+        ))}
       </View>
     </View>
   );
@@ -94,41 +95,46 @@ export default function HistoryFilters({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 18,
+    marginBottom: spacing.xl,
   },
   heading: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333333",
-    marginBottom: 10,
+    color: colors.text,
+    marginBottom: spacing.sm + 2,
   },
   userHeading: {
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   filters: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: spacing.sm,
   },
   filter: {
+    minHeight: 44,
+    justifyContent: "center",
     paddingVertical: 9,
     paddingHorizontal: 13,
-    borderRadius: 20,
-    backgroundColor: "#F1F1EB",
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceMuted,
     borderWidth: 1,
-    borderColor: "#E2E2D9",
+    borderColor: colors.border,
   },
   filterSelected: {
-    backgroundColor: "#FFCC00",
-    borderColor: "#E6B800",
+    backgroundColor: colors.brand,
+    borderColor: colors.brandPressed,
+  },
+  pressed: {
+    opacity: 0.8,
   },
   filterText: {
-    color: "#444444",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "500",
   },
   filterTextSelected: {
-    color: "#292400",
+    color: colors.onBrand,
     fontWeight: "700",
   },
 });

@@ -34,7 +34,10 @@ class LocalVpnService : VpnService() {
         private const val DNS_PORT = 53
         private const val MAX_PACKET_SIZE = 32767
         private const val MAX_DNS_PACKET_SIZE = 4096
-        private val BLOCKED_DOMAINS = setOf(
+        private const val BLOCKED_DOMAINS_KEY = "blocked_domains"
+
+        // Lista de respaldo: se usa solo si la app no pudo enviar la lista oficial.
+        private val FALLBACK_BLOCKED_DOMAINS = setOf(
             "bplay.bet.ar",
             "bpplay.bet.ar",
             "gambeta.ia",
@@ -47,7 +50,36 @@ class LocalVpnService : VpnService() {
         fun isRunning(context: Context): Boolean =
             context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
                 .getBoolean(RUNNING_KEY, false)
+
+        /** Guarda la lista de dominios que el servicio debe bloquear. */
+        fun saveBlockedDomains(context: Context, domains: List<String>) {
+            val normalized = domains.mapNotNull(::normalizeDomain).toSet()
+            context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putStringSet(BLOCKED_DOMAINS_KEY, normalized)
+                .apply()
+        }
+
+        private fun loadBlockedDomains(context: Context): Set<String> {
+            val stored = context
+                .getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+                .getStringSet(BLOCKED_DOMAINS_KEY, null)
+            // Se copia el set: Android no permite modificar el que devuelve getStringSet.
+            return if (stored.isNullOrEmpty()) FALLBACK_BLOCKED_DOMAINS else HashSet(stored)
+        }
+
+        /** Pasa "https://www.Sitio.com/ruta" o "*.sitio.com." a "www.sitio.com" / "sitio.com". */
+        private fun normalizeDomain(value: String): String? {
+            var domain = value.trim().lowercase()
+            domain = domain.substringAfter("://")
+            domain = domain.substringBefore('/').substringBefore('?').substringBefore('#')
+            domain = domain.substringBefore(':')
+            domain = domain.removePrefix("*.").trim('.')
+            return domain.ifEmpty { null }
+        }
     }
+
+    @Volatile private var blockedDomains: Set<String> = FALLBACK_BLOCKED_DOMAINS
 
     override fun onStartCommand(
         intent: Intent?,
@@ -55,12 +87,16 @@ class LocalVpnService : VpnService() {
         startId: Int
     ): Int {
         startForeground(NOTIFICATION_ID, createNotification())
+        // Se relee en cada inicio para tomar la lista más reciente enviada desde JS.
+        blockedDomains = loadBlockedDomains(this)
         if (vpnInterface != null) {
+            // Ya estaba activa: solo se actualizó la lista. El módulo espera esta marca.
+            setRunningPreference(true)
             return START_STICKY
         }
 
         val descriptor = Builder()
-            .setSession("Parental Control")
+            .setSession("BA Protege+")
             .setMtu(1500)
             .addAddress(VPN_ADDRESS, 32)
             .addDnsServer(DNS_ADDRESS)
@@ -252,10 +288,28 @@ class LocalVpnService : VpnService() {
         return null
     }
 
-    private fun isBlockedDomain(domain: String?): Boolean =
-        domain != null && BLOCKED_DOMAINS.any { blocked ->
-            domain == blocked || domain.endsWith(".$blocked")
+    /**
+     * Bloquea el dominio exacto y cualquier subdominio: para "a.b.sitio.com" se
+     * prueban "a.b.sitio.com", "b.sitio.com", "sitio.com" y "com" contra el set.
+     */
+    private fun isBlockedDomain(domain: String?): Boolean {
+        if (domain.isNullOrEmpty()) {
+            return false
         }
+        val domains = blockedDomains
+        var candidate: String = domain.trimEnd('.')
+        while (candidate.isNotEmpty()) {
+            if (candidate in domains) {
+                return true
+            }
+            val nextDot = candidate.indexOf('.')
+            if (nextDot < 0) {
+                return false
+            }
+            candidate = candidate.substring(nextDot + 1)
+        }
+        return false
+    }
 
     private fun isDnsDestination(packet: ByteArray): Boolean =
         packet[16].toInt() and 0xff == 10 &&

@@ -1,4 +1,8 @@
-export type AlertType = 'danger' | 'blocked' | 'warning';
+import { apiRequest } from "./api";
+import { getDevices } from "./deviceService";
+import { formatDayLabel, formatTime } from "../utils/date";
+
+export type AlertType = "danger" | "blocked" | "warning" | "info";
 
 export interface Alert {
   id: string;
@@ -8,51 +12,76 @@ export interface Alert {
   date: string;
   type: AlertType;
   device: string;
+  deviceId: string;
   description: string;
+  read: boolean;
+  createdAt: string;
   site?: string;
 }
 
-const alerts: Alert[] = [
-  {
-    id: '1',
-    title: '¡Requiere tu atención!',
-    subtitle: 'Paula desinstaló la aplicación',
-    time: '13:00',
-    date: 'Hoy',
-    type: 'danger',
-    device: 'Paula',
-    description:
-      'Se detectó que la aplicación de control parental fue desinstalada del dispositivo.',
-  },
-  {
-    id: '2',
-    title: 'Sitio bloqueado',
-    subtitle: 'Ramiro - apostando-sitio.com',
-    time: '14:25',
-    date: 'Hoy',
-    type: 'blocked',
-    device: 'Ramiro',
-    description: 'Se bloqueó el intento de acceder a un sitio restringido.',
-    site: 'apostando-sitio.com',
-  },
-  {
-    id: '3',
-    title: 'Intento de modificación',
-    subtitle: 'Paula - Configuración protegida',
-    time: '11:00',
-    date: 'Hoy',
-    type: 'warning',
-    device: 'Paula',
-    description:
-      'Se detectó un intento de modificar una configuración protegida.',
-  },
-];
+type ApiAlert = {
+  id: string;
+  deviceId: string;
+  alertType: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+};
 
-export function getAlerts(): Alert[] {
-  return alerts.map((alert) => ({ ...alert }));
+const ALERT_PRESENTATION: Record<string, { title: string; type: AlertType }> = {
+  ACCESS_ATTEMPT: { title: "Sitio bloqueado", type: "blocked" },
+  BYPASS_ATTEMPT: { title: "¡Requiere tu atención!", type: "danger" },
+  APP_INSTALL_ATTEMPT: { title: "Intento de instalación", type: "warning" },
+  DEVICE_PENDING: { title: "Dispositivo pendiente", type: "info" },
+  DEVICE_LINKED: { title: "Dispositivo vinculado", type: "info" },
+};
+
+/** El backend menciona el sitio en el mensaje: "...al sitio dominio.com desde...". */
+function extractSite(message: string): string | undefined {
+  const match = /sitio\s+([a-z0-9.-]+\.[a-z]{2,})/i.exec(message);
+  return match?.[1];
 }
 
-export function getAlertById(alertId: string): Alert | undefined {
-  const alert = alerts.find((item) => item.id === alertId);
-  return alert ? { ...alert } : undefined;
+export async function getAlerts(): Promise<Alert[]> {
+  const [data, devices] = await Promise.all([
+    apiRequest<{ alerts: ApiAlert[] }>("/api/events/alerts"),
+    getDevices(),
+  ]);
+  const names = new Map(devices.map((device) => [device.id, device.name]));
+
+  return data.alerts
+    .map((alert): Alert => {
+      const presentation = ALERT_PRESENTATION[alert.alertType] ?? {
+        title: "Alerta",
+        type: "warning" as const,
+      };
+      const device = names.get(alert.deviceId) ?? "Dispositivo";
+      const site = extractSite(alert.message);
+      return {
+        id: alert.id,
+        title: presentation.title,
+        subtitle: site ? `${device} - ${site}` : device,
+        time: formatTime(alert.createdAt),
+        date: formatDayLabel(alert.createdAt),
+        type: presentation.type,
+        device,
+        deviceId: alert.deviceId,
+        description: alert.message,
+        read: alert.read,
+        createdAt: alert.createdAt,
+        site,
+      };
+    })
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function getAlertById(alertId: string): Promise<Alert | undefined> {
+  const alerts = await getAlerts();
+  return alerts.find((alert) => alert.id === alertId);
+}
+
+export async function markAlertRead(alertId: string): Promise<void> {
+  await apiRequest(`/api/events/alerts/${encodeURIComponent(alertId)}/read`, {
+    method: "PATCH",
+  });
 }

@@ -1,16 +1,19 @@
-// src/components/AppSwitch.tsx
-import React from 'react';
-import { View, Text, StyleSheet, Pressable, Animated } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { colors, radius, shadow, spacing, typography } from "../theme";
 
 interface AppSwitchProps {
   label?: string;
+  /** Texto para el lector de pantalla. Si falta, se usa `label`. */
+  accessibilityLabel?: string;
   value: boolean;
   onValueChange: (newValue: boolean) => void;
   disabled?: boolean;
 }
 
+/** Interruptor Sí/No del UI Kit, con el amarillo de marca cuando está activo. */
 export default function AppSwitch({
   label,
+  accessibilityLabel,
   value,
   onValueChange,
   disabled = false,
@@ -30,17 +33,16 @@ export default function AppSwitch({
         disabled={disabled}
         style={[styles.switchCard, disabled && styles.disabledCard]}
         accessibilityRole="switch"
-        accessibilityState={{ checked: value }}
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityState={{ checked: value, disabled }}
+        hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
       >
-        {/* Track / Fondo del Switch */}
         <View style={[styles.track, value ? styles.trackActive : styles.trackInactive]}>
-          {/* Thumb / Círculo que se mueve */}
           <View style={[styles.thumb, value ? styles.thumbActive : styles.thumbInactive]} />
         </View>
 
-        {/* Texto "Sí" o "No" */}
         <Text style={[styles.statusText, value && styles.statusTextActive]}>
-          {value ? 'Sí' : 'No'}
+          {value ? "Sí" : "No"}
         </Text>
       </Pressable>
     </View>
@@ -49,24 +51,23 @@ export default function AppSwitch({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 8,
+    marginVertical: spacing.sm,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1C1C1C',
+    ...typography.label,
     marginBottom: 6,
   },
   switchCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 12,
-    paddingHorizontal: 12,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
     paddingVertical: 10,
-    alignSelf: 'flex-start',
+    minHeight: 44,
+    alignSelf: "flex-start",
     gap: 10,
   },
   disabledCard: {
@@ -75,39 +76,35 @@ const styles = StyleSheet.create({
   track: {
     width: 44,
     height: 24,
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: 2,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   trackInactive: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.borderStrong,
   },
   trackActive: {
-    backgroundColor: '#FFCC00', // Amarillo del UI Kit
+    backgroundColor: colors.brand,
   },
   thumb: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
+    backgroundColor: colors.background,
+    ...shadow.card,
   },
   thumbInactive: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   thumbActive: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
   },
   statusText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#6B7280',
+    ...typography.label,
+    fontWeight: "700",
+    color: colors.textMuted,
   },
   statusTextActive: {
-    color: '#1C1C1C',
+    color: colors.text,
   },
 });

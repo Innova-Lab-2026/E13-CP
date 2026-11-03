@@ -1,6 +1,7 @@
-// src/components/RestrictionSummaryCard.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { colors, radius, shadow, spacing } from '../theme';
 
 export interface MetricItem {
   label?: string;
@@ -23,72 +24,89 @@ export default function RestrictionSummaryCard({
 }: RestrictionSummaryCardProps) {
   return (
     <View style={styles.card}>
-      {/* Encabezado de estado */}
       {statusText ? (
         <View style={styles.statusHeaderRow}>
-          <Text style={styles.checkIcon}>{isProtected ? '✅' : '⚠️'}</Text>
-          <Text style={[styles.statusTitle, !isProtected && styles.dangerTitle]}>
+          <View
+            style={[
+              styles.statusIcon,
+              { backgroundColor: isProtected ? colors.successSoft : colors.dangerSoft },
+            ]}
+          >
+            <Ionicons
+              name={isProtected ? 'shield-checkmark' : 'alert-circle'}
+              size={18}
+              color={isProtected ? colors.success : colors.danger}
+            />
+          </View>
+          <Text
+            style={[styles.statusTitle, !isProtected && styles.dangerTitle]}
+            accessibilityRole="header"
+          >
             {statusText}
           </Text>
         </View>
       ) : null}
 
-      {/* Fila de métricas dinámicas */}
-      <View style={styles.metricsRow}>
-        {metrics.map((metric, index) => (
-          <React.Fragment key={index}>
-            {index > 0 && <View style={styles.verticalDivider} />}
-            <View style={styles.metricColumn}>
-              {metric.sublabel ? (
-                <Text style={styles.metricSublabel}>{metric.sublabel}</Text>
-              ) : null}
-              
-              <Text style={[styles.metricValue, metric.isDanger && styles.metricValueDanger]}>
-                {metric.value}
-                {metric.unit ? <Text style={styles.metricUnit}> {metric.unit}</Text> : null}
-              </Text>
+      {metrics.length > 0 ? (
+        <View style={styles.metricsRow}>
+          {metrics.map((metric, index) => (
+            <React.Fragment key={`${metric.sublabel ?? metric.label ?? ''}-${index}`}>
+              {index > 0 && <View style={styles.verticalDivider} />}
+              <View style={styles.metricColumn}>
+                {metric.sublabel ? (
+                  <Text style={styles.metricSublabel}>{metric.sublabel}</Text>
+                ) : null}
 
-              {metric.label ? (
-                <Text style={styles.metricLabel}>{metric.label}</Text>
-              ) : null}
-            </View>
-          </React.Fragment>
-        ))}
-      </View>
+                <Text
+                  style={[styles.metricValue, metric.isDanger && styles.metricValueDanger]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {metric.value}
+                  {metric.unit ? <Text style={styles.metricUnit}> {metric.unit}</Text> : null}
+                </Text>
+
+                {metric.label ? <Text style={styles.metricLabel}>{metric.label}</Text> : null}
+              </View>
+            </React.Fragment>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xxl,
+    gap: spacing.lg,
+    ...shadow.card,
   },
   statusHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    gap: 8,
+    gap: spacing.sm,
   },
-  checkIcon: {
-    fontSize: 16,
+  statusIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statusTitle: {
+    flex: 1,
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#16A34A',
+    fontWeight: '800',
+    color: colors.successText,
   },
   dangerTitle: {
-    color: '#DC2626',
+    color: colors.dangerText,
   },
   metricsRow: {
     flexDirection: 'row',
@@ -98,35 +116,35 @@ const styles = StyleSheet.create({
   metricColumn: {
     flex: 1,
     alignItems: 'center',
+    paddingHorizontal: spacing.xs,
   },
   verticalDivider: {
     width: 1,
     height: 36,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.border,
   },
   metricSublabel: {
     fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 4,
+    color: colors.textMuted,
+    marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   metricValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.text,
   },
   metricUnit: {
     fontSize: 14,
     fontWeight: 'normal',
-    color: '#6B7280',
+    color: colors.textMuted,
   },
   metricValueDanger: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#DC2626',
+    color: colors.danger,
   },
   metricLabel: {
     fontSize: 11,
-    color: '#6B7280',
+    color: colors.textMuted,
     marginTop: 2,
   },
 });
