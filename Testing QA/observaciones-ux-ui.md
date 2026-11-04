@@ -18,6 +18,6 @@ Esta situación podría generar una duplicación de información o confusión du
 
 Revisar con el equipo de UX/UI y Backend si ambas selecciones representan el mismo dato. En caso de ser así, evaluar la posibilidad de unificar la selección y conservar esa información durante el registro.
 
-**Estado:** Pendiente de revisión por el equipo.
+**Estado:** Aclarado con el equipo.
 
 **Referencia:** Diseño de Figma — Onboarding y creación de cuenta.
