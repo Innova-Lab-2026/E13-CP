@@ -9,8 +9,17 @@ beforeEach(() => {
   db.events = [];
   db.alerts = [];
   db.blocklist = [
-    { id: 'lotba-1', domain: 'apuestasilegalesba.com', type: 'LOTBA_OFFICIAL', createdAt: new Date().toISOString() },
+    {
+      id: 'lotba-1',
+      domain: 'apuestasilegalesba.com',
+      type: 'LOTBA_OFFICIAL',
+      categoria: 'Apuestas',
+      period: '2026-10',
+      updatedAt: '2026-10-01T00:00:00.000Z',
+      createdAt: '2026-10-01T00:00:00.000Z'
+    },
   ];
+  db.blocklistSyncLog = [];
 });
 
 describe('BA Protege+ API Integration Tests', () => {
