@@ -2,6 +2,23 @@ import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { db, EventItem, AlertItem } from '../config/db';
 import { AuthRequest } from '../middleware/auth.middleware';
+import {
+  sendPushNotification,
+  getResponsiblePushToken,
+  CRITICAL_EVENT_TYPES,
+  getCriticalAlertMessage,
+  CriticalEventType
+} from '../services/push.service';
+
+const SECURITY_EVENT_TYPES = [
+  'SITE_BLOCKED',
+  'UNINSTALL_ATTEMPT',
+  'APP_INSTALL_ATTEMPT',
+  'BYPASS_ATTEMPT',
+  'ACCESS_ATTEMPT'
+] as const;
+
+export type SecurityEventType = typeof SECURITY_EVENT_TYPES[number];
 
 export const recordEvent = async (req: AuthRequest, res: Response) => {
   try {
@@ -9,6 +26,10 @@ export const recordEvent = async (req: AuthRequest, res: Response) => {
 
     if (!deviceId || !eventType || !details) {
       return res.status(400).json({ error: 'deviceId, eventType, and details are required' });
+    }
+
+    if (!SECURITY_EVENT_TYPES.includes(eventType as SecurityEventType)) {
+      return res.status(400).json({ error: 'Invalid eventType' });
     }
 
     const device = db.devices.find(d => d.id === deviceId);
@@ -19,7 +40,7 @@ export const recordEvent = async (req: AuthRequest, res: Response) => {
     const newEvent: EventItem = {
       id: uuidv4(),
       deviceId,
-      eventType,
+      eventType: eventType as SecurityEventType,
       domain,
       details,
       timestamp: new Date().toISOString()
@@ -27,13 +48,14 @@ export const recordEvent = async (req: AuthRequest, res: Response) => {
 
     db.events.push(newEvent);
 
-    // If it's a security event (Access attempt to blocked site, app install attempt, or bypass attempt), generate an alert for the responsible
-    if (['ACCESS_ATTEMPT', 'APP_INSTALL_ATTEMPT', 'BYPASS_ATTEMPT'].includes(eventType)) {
-      const alertMessage = eventType === 'ACCESS_ATTEMPT'
+    // Si es un evento de seguridad crítica, generar alerta y enviar push notification
+    const criticalEventType = eventType as CriticalEventType;
+    if (CRITICAL_EVENT_TYPES.includes(criticalEventType)) {
+      const alertMessage = eventType === 'SITE_BLOCKED'
         ? `Intento de acceso bloqueado al sitio ${domain || 'restringido'} desde el dispositivo ${device.deviceName}.`
-        : eventType === 'APP_INSTALL_ATTEMPT'
-        ? `Intento de instalación de aplicación no autorizada detectado en el dispositivo ${device.deviceName}.`
-        : `¡Alerta de seguridad! Intento de evasión o bypass detectado en el dispositivo ${device.deviceName}.`;
+        : eventType === 'UNINSTALL_ATTEMPT'
+        ? `¡Alerta de seguridad! Intento de desinstalación detectado en el dispositivo ${device.deviceName}.`
+        : `Evento de seguridad detectado en el dispositivo ${device.deviceName}.`;
 
       const newAlert: AlertItem = {
         id: uuidv4(),
@@ -46,6 +68,17 @@ export const recordEvent = async (req: AuthRequest, res: Response) => {
       };
 
       db.alerts.push(newAlert);
+
+      // Enviar push notification (graceful: no romper si falla)
+      const pushToken = getResponsiblePushToken(device.responsibleId);
+      if (pushToken) {
+        const notification = getCriticalAlertMessage(
+          criticalEventType,
+          device.deviceName,
+          domain
+        );
+        sendPushNotification(pushToken, notification);
+      }
     }
 
     return res.status(201).json({
@@ -60,15 +93,21 @@ export const recordEvent = async (req: AuthRequest, res: Response) => {
 export const getEvents = async (req: AuthRequest, res: Response) => {
   try {
     const responsibleId = req.responsibleId;
-    const { deviceId } = req.query;
+    const { deviceId, category } = req.query;
 
     const responsibleDevices = db.devices.filter(d => d.responsibleId === responsibleId);
     const deviceIds = responsibleDevices.map(d => d.id);
 
-    let events = db.events.filter(e => deviceIds.includes(e.deviceId));
+    let events = db.events
+      .filter(e => deviceIds.includes(e.deviceId))
+      .sort((a, b) => b.timestamp.localeCompare(a.timestamp)); // descendente por timestamp
 
     if (deviceId) {
       events = events.filter(e => e.deviceId === deviceId);
+    }
+
+    if (category) {
+      events = events.filter(e => e.eventType === category);
     }
 
     return res.status(200).json({ events });
