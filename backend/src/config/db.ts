@@ -40,15 +40,40 @@ export interface Responsible {
   rol: UserRole;
   /** Modo de uso persistido. Se actualiza mediante PATCH /api/auth/me/mode. */
   mode: UserMode;
+  /**
+   * Hash bcrypt del PIN de 4 dígitos con el que el adulto autoriza la
+   * vinculación y los cambios críticos. Nunca se almacena en texto plano.
+   */
+  pinHash?: string;
+  /** Fecha en que se configuró el PIN vigente. */
+  pinUpdatedAt?: string;
+  /** Token de push notifications del responsable (registrado desde la app móvil). */
+  pushToken?: string;
   createdAt: string;
 }
+
+/**
+ * Estados de un dispositivo protegido.
+ * - `pending`: perfil creado, pendiente de confirmar el vínculo con el PIN.
+ * - `active`: vínculo confirmado, la protección está operativa.
+ * - `inactive`: protección desactivada por el adulto responsable.
+ */
+export type DeviceStatus = 'pending' | 'active' | 'inactive';
 
 export interface Device {
   id: string;
   responsibleId: string;
   deviceName: string;
-  deviceToken: string;
-  status: 'active' | 'inactive';
+  /** Fecha de nacimiento del menor, en formato ISO (AAAA-MM-DD). */
+  fechaNacimiento: string;
+  /**
+   * Código de vinculación alfanumérico (8 caracteres).
+   * Lo usa la app del dispositivo protegido para identificar el perfil.
+   */
+  linkCode: string;
+  /** Token de dispositivo para notificaciones push (FCM). */
+  deviceToken?: string;
+  status: DeviceStatus;
   lastSeen: string;
   createdAt: string;
 }
@@ -103,7 +128,7 @@ export interface BlocklistStatus {
 export interface EventItem {
   id: string;
   deviceId: string;
-  eventType: 'ACCESS_ATTEMPT' | 'APP_INSTALL_ATTEMPT' | 'PROTECTION_MODIFIED' | 'BYPASS_ATTEMPT';
+  eventType: 'SITE_BLOCKED' | 'UNINSTALL_ATTEMPT' | 'APP_INSTALL_ATTEMPT' | 'BYPASS_ATTEMPT' | 'ACCESS_ATTEMPT';
   domain?: string;
   details: string;
   timestamp: string;
