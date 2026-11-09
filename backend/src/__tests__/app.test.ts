@@ -84,21 +84,24 @@ describe('BA Protege+ API Integration Tests', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         deviceName: 'Celular Juan',
+        fechaNacimiento: '2015-08-12',
         deviceToken: 'token-fcm-123'
       });
 
     expect(res.status).toBe(201);
     expect(res.body.device.id).toBeDefined();
+    expect(res.body.device.status).toBe('pending');
+    expect(res.body.linkCode).toBeDefined();
     deviceId = res.body.device.id;
 
-    // Check alerts
+    // Check alerts - linkDevice crea DEVICE_PENDING
     const alertsRes = await request(app)
       .get('/api/events/alerts')
       .set('Authorization', `Bearer ${token}`);
 
     expect(alertsRes.status).toBe(200);
     expect(alertsRes.body.alerts.length).toBe(1);
-    expect(alertsRes.body.alerts[0].alertType).toBe('DEVICE_LINKED');
+    expect(alertsRes.body.alerts[0].alertType).toBe('DEVICE_PENDING');
   });
 
   test('POST /api/blocklist/check should detect blocked LOTBA domains', async () => {
