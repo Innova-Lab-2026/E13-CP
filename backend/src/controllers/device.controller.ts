@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { db, DeviceStatus } from '../config/db';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { keepStateOnError } from '../config/persistence';
+import { setResponsiblePushToken } from '../services/push.service';
 import {
   buildPendingDevice,
   checkResponsiblePin,
@@ -177,6 +178,34 @@ export const updateDeviceStatus = async (req: AuthRequest, res: Response) => {
     return res.status(200).json({
       message: 'Device status updated successfully',
       device
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * POST /api/devices/push-token
+ * Registra o actualiza el pushToken del responsable autenticado para
+ * recibir notificaciones push de alertas críticas.
+ */
+export const registerPushToken = async (req: AuthRequest, res: Response) => {
+  try {
+    const { pushToken } = req.body as { pushToken?: unknown };
+
+    if (!pushToken || typeof pushToken !== 'string') {
+      return res.status(400).json({ error: 'pushToken is required' });
+    }
+
+    const responsible = db.responsables.find(r => r.id === req.responsibleId);
+    if (!responsible) {
+      return res.status(404).json({ error: 'Responsible not found' });
+    }
+
+    setResponsiblePushToken(responsible, pushToken);
+
+    return res.status(201).json({
+      message: 'Push token registered successfully'
     });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });

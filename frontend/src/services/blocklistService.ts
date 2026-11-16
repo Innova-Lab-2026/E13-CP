@@ -53,12 +53,24 @@ export async function removeCustomDomain(id: string): Promise<void> {
 }
 
 /**
+ * Catálogo de eventos del Hito 3. ACCESS_ATTEMPT es el nombre anterior de
+ * SITE_BLOCKED y se sigue aceptando por compatibilidad.
+ */
+export type SecurityEventType =
+  | "SITE_BLOCKED"
+  | "UNINSTALL_ATTEMPT"
+  | "APP_INSTALL_ATTEMPT"
+  | "BYPASS_ATTEMPT"
+  | "ACCESS_ATTEMPT"
+  | "PROTECTION_MODIFIED";
+
+/**
  * Registra un evento del dispositivo protegido. Los intentos de acceso a sitios
  * bloqueados generan una alerta para el adulto responsable.
  */
 export async function recordDeviceEvent(event: {
   deviceId: string;
-  eventType: "ACCESS_ATTEMPT" | "APP_INSTALL_ATTEMPT" | "PROTECTION_MODIFIED" | "BYPASS_ATTEMPT";
+  eventType: SecurityEventType;
   domain?: string;
   details: string;
 }): Promise<void> {

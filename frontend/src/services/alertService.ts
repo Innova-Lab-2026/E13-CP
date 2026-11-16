@@ -29,7 +29,9 @@ type ApiAlert = {
 };
 
 const ALERT_PRESENTATION: Record<string, { title: string; type: AlertType }> = {
+  SITE_BLOCKED: { title: "Sitio bloqueado", type: "blocked" },
   ACCESS_ATTEMPT: { title: "Sitio bloqueado", type: "blocked" },
+  UNINSTALL_ATTEMPT: { title: "¡Requiere tu atención!", type: "danger" },
   BYPASS_ATTEMPT: { title: "¡Requiere tu atención!", type: "danger" },
   APP_INSTALL_ATTEMPT: { title: "Intento de instalación", type: "warning" },
   DEVICE_PENDING: { title: "Dispositivo pendiente", type: "info" },

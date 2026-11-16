@@ -326,7 +326,7 @@ export default function ProtectedHomeScreen() {
       if (result.isBlocked) {
         await recordSafely({
           deviceId: linkedDeviceId,
-          eventType: "ACCESS_ATTEMPT",
+          eventType: "SITE_BLOCKED",
           domain: result.domain || domain,
           details: "Intento de acceso a un sitio de la lista de bloqueo",
         });

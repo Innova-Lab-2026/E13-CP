@@ -1,6 +1,7 @@
 import type { HistoryVariant } from "../components/historial/HistoryCard";
 import { apiRequest } from "./api";
 import { getDevices } from "./deviceService";
+import type { SecurityEventType } from "./blocklistService";
 import { formatDayLabel, formatTime } from "../utils/date";
 
 export type HistoryCategory = "blocked" | "security" | "settings";
@@ -23,7 +24,7 @@ export interface HistoryEvent {
 type ApiEvent = {
   id: string;
   deviceId: string;
-  eventType: "ACCESS_ATTEMPT" | "APP_INSTALL_ATTEMPT" | "PROTECTION_MODIFIED" | "BYPASS_ATTEMPT";
+  eventType: SecurityEventType;
   domain?: string;
   details: string;
   timestamp: string;
@@ -41,7 +42,9 @@ const EVENT_PRESENTATION: Record<
   ApiEvent["eventType"],
   { variant: HistoryVariant; title: string; category: HistoryCategory }
 > = {
+  SITE_BLOCKED: { variant: "blocked", title: "Sitio web bloqueado", category: "blocked" },
   ACCESS_ATTEMPT: { variant: "blocked", title: "Sitio web bloqueado", category: "blocked" },
+  UNINSTALL_ATTEMPT: { variant: "alert", title: "Intento de desinstalación", category: "security" },
   BYPASS_ATTEMPT: { variant: "alert", title: "Intento de evasión", category: "security" },
   APP_INSTALL_ATTEMPT: { variant: "alert", title: "Intento de instalación", category: "security" },
   PROTECTION_MODIFIED: { variant: "settings", title: "Protección modificada", category: "settings" },

@@ -60,6 +60,8 @@ export interface Responsible {
   pinFailedAttempts?: number;
   /** Hasta cuándo el PIN queda bloqueado por demasiados intentos fallidos (ISO). */
   pinLockedUntil?: string;
+  /** Token de push notifications del responsable (registrado desde la app móvil). */
+  pushToken?: string;
   createdAt: string;
 }
 
@@ -139,7 +141,13 @@ export interface BlocklistStatus {
 export interface EventItem {
   id: string;
   deviceId: string;
-  eventType: 'ACCESS_ATTEMPT' | 'APP_INSTALL_ATTEMPT' | 'PROTECTION_MODIFIED' | 'BYPASS_ATTEMPT';
+  eventType:
+    | 'SITE_BLOCKED'
+    | 'UNINSTALL_ATTEMPT'
+    | 'APP_INSTALL_ATTEMPT'
+    | 'BYPASS_ATTEMPT'
+    | 'ACCESS_ATTEMPT'
+    | 'PROTECTION_MODIFIED';
   domain?: string;
   details: string;
   timestamp: string;
