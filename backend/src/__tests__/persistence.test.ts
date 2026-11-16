@@ -1,7 +1,15 @@
 import request from 'supertest';
 import app from '../index';
 import { db } from '../config/db';
-import { loadState, saveState } from '../config/persistence';
+import { loadState, saveState, strongEtag } from '../config/persistence';
+
+describe('strongEtag', () => {
+  test('quita el prefijo débil que Blob agrega a las respuestas comprimidas', () => {
+    expect(strongEtag('W/"99300a8fddcf077c4df3bd1b34d04456"')).toBe('"99300a8fddcf077c4df3bd1b34d04456"');
+    expect(strongEtag('"abc"')).toBe('"abc"');
+    expect(strongEtag(undefined)).toBeNull();
+  });
+});
 
 /**
  * Persistencia con Redis (simulado): en el resto de las pruebas está apagada

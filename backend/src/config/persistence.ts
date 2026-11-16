@@ -79,6 +79,13 @@ redis.call('INCR', KEYS[2])
 return 1
 `;
 
+/**
+ * Blob devuelve un ETag débil (W/"...") cuando la respuesta viaja comprimida, pero
+ * `ifMatch` compara contra el fuerte. El hash es el mismo: se quita el prefijo.
+ */
+export const strongEtag = (etag: string | null | undefined): string | null =>
+  etag ? etag.replace(/^W\//, '') : null;
+
 async function readRaw(): Promise<{ raw: string | null; version: string | null }> {
   if (useRedis()) {
     // MGET lee el estado y su versión de forma atómica.
@@ -93,7 +100,7 @@ async function readRaw(): Promise<{ raw: string | null; version: string | null }
     // useCache: false lee siempre la última versión (con caché, otra instancia veía datos viejos).
     const blob = await get(blobPath(), { access: 'private', token: blobToken(), useCache: false });
     if (!blob || !blob.stream) return { raw: null, version: null };
-    return { raw: await new Response(blob.stream).text(), version: blob.blob.etag ?? null };
+    return { raw: await new Response(blob.stream).text(), version: strongEtag(blob.blob.etag) };
   } catch (error) {
     // Primer arranque: todavía no se guardó ningún estado.
     if (error instanceof Error && /not.?found/i.test(error.name + error.message)) {
