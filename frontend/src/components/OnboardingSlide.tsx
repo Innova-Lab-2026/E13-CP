@@ -2,6 +2,7 @@ import {
   Image,
   ImageBackground,
   ImageSourcePropType,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -33,45 +34,51 @@ export default function OnboardingSlide({
 }: OnboardingSlideProps) {
   return (
     <ImageBackground source={background} style={styles.background} resizeMode="cover">
-      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-        <View style={styles.header}>
-          <Image
-            source={require("../../assets/protege-01.png")}
-            style={styles.logo}
-            resizeMode="contain"
-            accessibilityLabel="BA Protege+"
-          />
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+        {/* En pantallas chicas el contenido se desplaza en vez de cortarse. */}
+        <ScrollView
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Image
+              source={require("../../assets/protege-01.png")}
+              style={styles.logo}
+              resizeMode="contain"
+              accessibilityLabel="BA Protege+"
+            />
 
-          <View
-            style={styles.pagination}
-            accessible
-            accessibilityLabel={`Paso ${step + 1} de ${total}`}
-          >
-            {Array.from({ length: total }, (_, index) => (
-              <View
-                key={index}
-                style={index === step ? styles.activeDot : styles.dot}
-              />
-            ))}
+            <View
+              style={styles.pagination}
+              accessible
+              accessibilityLabel={`Paso ${step + 1} de ${total}`}
+            >
+              {Array.from({ length: total }, (_, index) => (
+                <View
+                  key={index}
+                  style={index === step ? styles.activeDot : styles.dot}
+                />
+              ))}
+            </View>
           </View>
-        </View>
 
-        <View style={styles.card}>
-          <Text style={styles.title} accessibilityRole="header">
-            {title}
-          </Text>
-          <Text style={styles.description}>{description}</Text>
-        </View>
+          <View style={styles.card}>
+            <Text style={styles.title} accessibilityRole="header">
+              {title}
+            </Text>
+            <Text style={styles.description}>{description}</Text>
+          </View>
 
-        <View style={styles.footer}>
-          <AppButton
-            variant="secondary"
-            title="Omitir"
-            accessibilityLabel="Omitir la presentación e ir a iniciar sesión"
-            onPress={onSkip}
-          />
-          <AppButton title="Continuar" onPress={onContinue} />
-        </View>
+          <View style={styles.footer}>
+            <AppButton
+              variant="secondary"
+              title="Omitir"
+              accessibilityLabel="Omitir la presentación e ir a iniciar sesión"
+              onPress={onSkip}
+            />
+            <AppButton title="Continuar" onPress={onContinue} />
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -82,9 +89,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundWarm,
   },
-  container: {
+  safeArea: {
     flex: 1,
+  },
+  container: {
+    flexGrow: 1,
     justifyContent: "space-between",
+    gap: spacing.xl,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxl,
     paddingBottom: spacing.xxl,

@@ -6,19 +6,28 @@ import { setResponsiblePushToken } from '../services/push.service';
 import {
   buildPendingDevice,
   checkResponsiblePin,
+  consumeLinkCode,
   createDeviceAlert,
   findResponsibleDevice,
+  isAwaitingRelink,
+  isValidPin,
+  issueLinkCode,
   normalizeDeviceStatus,
-  pinLockedMessage
+  PIN_LENGTH,
+  pinLockedMessage,
+  resetDeviceLink,
+  toPublicDevice
 } from '../services/device.service';
 
 const BIRTH_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const DEVICE_NAME_MIN = 2;
+const DEVICE_NAME_MAX = 40;
 
 /**
  * POST /api/devices/link
  * El adulto responsable registra el dispositivo del menor (nombre y fecha de
- * nacimiento). El dispositivo queda en estado "pending" con un linkCode que la
- * app del dispositivo protegido usa para identificar el perfil.
+ * nacimiento). El dispositivo queda en estado "pending" con un linkCode vigente
+ * (LINK_CODE_TTL_MINUTES) con el que se vincula el celular del menor.
  */
 export const linkDevice = async (req: AuthRequest, res: Response) => {
   try {
@@ -42,6 +51,13 @@ export const linkDevice = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Device name is required' });
     }
 
+    const nameLength = Array.from(cleanName).length;
+    if (nameLength < DEVICE_NAME_MIN || nameLength > DEVICE_NAME_MAX) {
+      return res.status(400).json({
+        error: `El nombre tiene que tener entre ${DEVICE_NAME_MIN} y ${DEVICE_NAME_MAX} caracteres`
+      });
+    }
+
     const newDevice = buildPendingDevice({
       responsibleId,
       deviceName: cleanName,
@@ -61,9 +77,10 @@ export const linkDevice = async (req: AuthRequest, res: Response) => {
 
     return res.status(201).json({
       message: 'Device registered successfully. Pending confirmation.',
-      device: newDevice,
+      device: toPublicDevice(newDevice),
       deviceId: newDevice.id,
-      linkCode: newDevice.linkCode
+      linkCode: newDevice.linkCode,
+      linkCodeExpiresAt: newDevice.linkCodeExpiresAt
     });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });
@@ -119,8 +136,12 @@ export const confirmDeviceLink = async (req: AuthRequest, res: Response) => {
         : res.status(401).json({ error: 'Invalid PIN' });
     }
 
+    const now = new Date().toISOString();
     device.status = 'active';
-    device.lastSeen = new Date().toISOString();
+    device.lastSeen = now;
+    device.linkedAt = now;
+    // El código ya cumplió su función: no puede usarse para vincular otro celular.
+    consumeLinkCode(device);
 
     createDeviceAlert({
       responsibleId,
@@ -131,7 +152,7 @@ export const confirmDeviceLink = async (req: AuthRequest, res: Response) => {
 
     return res.status(200).json({
       message: 'Vinculación confirmada',
-      device
+      device: toPublicDevice(device)
     });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });
@@ -145,7 +166,9 @@ export const confirmDeviceLink = async (req: AuthRequest, res: Response) => {
 export const getDevices = async (req: AuthRequest, res: Response) => {
   try {
     const responsibleId = req.responsibleId;
-    const devices = db.devices.filter(d => d.responsibleId === responsibleId);
+    const devices = db.devices
+      .filter(d => d.responsibleId === responsibleId)
+      .map(toPublicDevice);
     return res.status(200).json({ devices });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });
@@ -155,6 +178,9 @@ export const getDevices = async (req: AuthRequest, res: Response) => {
 /**
  * PATCH /api/devices/:id/status
  * Activa o desactiva la protección del dispositivo.
+ *
+ * Con "pending" lo desvincula (es lo que hace unlinkDevice en la app): revoca la
+ * credencial del celular y genera un código nuevo para volver a vincularlo.
  */
 export const updateDeviceStatus = async (req: AuthRequest, res: Response) => {
   try {
@@ -172,12 +198,87 @@ export const updateDeviceStatus = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Device not found or unauthorized' });
     }
 
-    device.status = normalizedStatus as DeviceStatus;
-    device.lastSeen = new Date().toISOString();
+    if (normalizedStatus === 'pending') {
+      resetDeviceLink(device);
+    } else {
+      if (isAwaitingRelink(device)) {
+        return res.status(409).json({
+          error:
+            'Este celular se desvinculó. Para volver a protegerlo, vinculalo con el código nuevo.'
+        });
+      }
+      if (device.status === 'pending') {
+        // Se activa sin pasar por la vinculación: el código pendiente deja de servir.
+        device.linkedAt = new Date().toISOString();
+        consumeLinkCode(device);
+      }
+      device.status = normalizedStatus as DeviceStatus;
+      device.lastSeen = new Date().toISOString();
+    }
 
     return res.status(200).json({
       message: 'Device status updated successfully',
-      device
+      device: toPublicDevice(device)
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+};
+
+/**
+ * POST /api/devices/:id/link-code
+ * Genera un código de vinculación nuevo, con vigencia completa.
+ *
+ * Si el celular ya está vinculado (activo o pausado), generar un código
+ * equivale a desvincularlo: exige el PIN del adulto, revoca la credencial del
+ * celular y el dispositivo vuelve a "pending".
+ */
+export const regenerateLinkCode = async (req: AuthRequest, res: Response) => {
+  try {
+    const responsibleId = req.responsibleId!;
+    const { id } = req.params;
+    const { pin } = (req.body ?? {}) as { pin?: unknown };
+
+    const device = db.devices.find(d => d.id === id && d.responsibleId === responsibleId);
+    if (!device) {
+      return res.status(404).json({ error: 'Device not found or unauthorized' });
+    }
+
+    if (device.status === 'pending') {
+      issueLinkCode(device);
+    } else {
+      if (!isValidPin(pin)) {
+        return res.status(400).json({
+          error: `Ingresá tu PIN de seguridad de ${PIN_LENGTH} dígitos para desvincular este celular`
+        });
+      }
+
+      const responsible = db.responsables.find(r => r.id === responsibleId);
+      if (!responsible) {
+        return res.status(404).json({ error: 'Responsible not found' });
+      }
+      if (!responsible.pinHash) {
+        return res.status(409).json({
+          error: 'El responsable todavía no configuró un PIN de seguridad'
+        });
+      }
+
+      keepStateOnError(res);
+      const check = await checkResponsiblePin(responsible, pin);
+      if (!check.ok) {
+        return check.lockedMinutes > 0
+          ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+          : res.status(401).json({ error: 'Invalid PIN' });
+      }
+
+      resetDeviceLink(device);
+    }
+
+    return res.status(200).json({
+      message: 'Código de vinculación generado',
+      linkCode: device.linkCode,
+      linkCodeExpiresAt: device.linkCodeExpiresAt,
+      device: toPublicDevice(device)
     });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });

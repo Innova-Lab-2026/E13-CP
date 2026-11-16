@@ -7,6 +7,7 @@ import {
   getStatus,
   syncOfficial
 } from '../controllers/blocklist.controller';
+import { createSuggestion, listSuggestions } from '../controllers/suggestion.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { requireAdminSecret } from '../middleware/admin.middleware';
 
@@ -24,5 +25,10 @@ router.get('/', authenticateToken, getBlocklist);
 router.get('/status', authenticateToken, getStatus);
 router.post('/custom', authenticateToken, addCustomBlocklistItem);
 router.delete('/custom/:id', authenticateToken, removeCustomBlocklistItem);
+
+// "Sugerir un sitio": el adulto propone un dominio y el equipo lo revisa con
+// LOTBA. El listado de sugerencias es operativo, con el mismo secreto que la sincronización.
+router.post('/suggestions', authenticateToken, createSuggestion);
+router.get('/suggestions', requireAdminSecret, listSuggestions);
 
 export default router;

@@ -121,6 +121,12 @@ export default function ConfiguracionScreen() {
             description="Listado oficial de LOTBA y tus sitios agregados"
             onPress={go("/(main)/(tabs)/configuracion/sitios")}
           />
+          <MenuRow
+            icon="flag-outline"
+            label="Sugerir un sitio"
+            description="Contanos de un sitio de apuestas que no esté en la lista"
+            onPress={go("/(main)/(tabs)/configuracion/sugerir-sitio")}
+          />
         </View>
 
         <Text style={styles.sectionTitle}>Ayuda</Text>

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { get, put } from '@vercel/blob';
+import { BlobPreconditionFailedError, get, put } from '@vercel/blob';
 import { db } from './db';
 
 /**
@@ -16,7 +16,15 @@ import { db } from './db';
  *
  * Estrategia del MVP: antes de cada pedido se lee el estado completo y, si el
  * pedido modificó datos, se guarda antes de enviar la respuesta (la función se
- * congela al responder). Ante dos escrituras simultáneas gana la última.
+ * congela al responder).
+ *
+ * La escritura es condicional (control de concurrencia optimista): solo se
+ * guarda si nadie escribió desde que este pedido leyó el estado. En Redis se
+ * compara un número de versión dentro de un script Lua (atómico); en Blob, el
+ * ETag con `ifMatch`. Si otra instancia escribió en el medio, el pedido responde
+ * 503 en lugar de pisar ese cambio: así, por ejemplo, un evento del celular que
+ * llega a la vez que el adulto lo desvincula no restaura la credencial revocada,
+ * y un claim cuyo token no quedó guardado no se lo entrega al celular.
  */
 
 const MUTATING = new Set(['POST', 'PATCH', 'PUT', 'DELETE']);
@@ -33,6 +41,8 @@ export const keepStateOnError = (res: Response): void => {
 const redisUrl = () => process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = () => process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 const stateKey = () => process.env.STATE_KEY || 'baprotege:state:v1';
+/** Versión del estado en Redis: sube en cada escritura. Sin la clave, vale "0". */
+const versionKey = () => `${stateKey()}:version`;
 
 const blobToken = () => process.env.BLOB_READ_WRITE_TOKEN;
 const blobPath = () => `${stateKey().replace(/:/g, '/')}.json`;
@@ -42,35 +52,86 @@ const useRedis = () => Boolean(redisUrl() && redisToken());
 export const isPersistenceEnabled = (): boolean =>
   process.env.NODE_ENV !== 'test' && (useRedis() || Boolean(blobToken()));
 
-async function readRaw(): Promise<string | null> {
+/** Otra instancia guardó el estado después de que este pedido lo leyera. */
+export class StateConflictError extends Error {
+  constructor() {
+    super('El estado cambió mientras se atendía el pedido');
+    this.name = 'StateConflictError';
+  }
+}
+
+/**
+ * Versión leída por el pedido en curso: la versión de Redis o el ETag del blob
+ * (null si todavía no había estado guardado). Alcanza con una sola variable
+ * porque el candado de abajo atiende los pedidos de a uno por instancia.
+ */
+let loadedVersion: string | null = null;
+
+/**
+ * Guarda solo si la versión sigue siendo la esperada, y la incrementa. Devuelve
+ * 1 si guardó y 0 si otra instancia escribió antes (conflicto).
+ */
+const CONDITIONAL_SET_SCRIPT = `
+local current = redis.call('GET', KEYS[2])
+if (current or '0') ~= ARGV[1] then return 0 end
+redis.call('SET', KEYS[1], ARGV[2])
+redis.call('INCR', KEYS[2])
+return 1
+`;
+
+async function readRaw(): Promise<{ raw: string | null; version: string | null }> {
   if (useRedis()) {
-    const raw = await redis(['GET', stateKey()]);
-    return typeof raw === 'string' ? raw : null;
+    // MGET lee el estado y su versión de forma atómica.
+    const result = await redis(['MGET', stateKey(), versionKey()]);
+    const [raw, version] = Array.isArray(result) ? result : [null, null];
+    return {
+      raw: typeof raw === 'string' ? raw : null,
+      version: typeof version === 'string' ? version : '0'
+    };
   }
   try {
     // useCache: false lee siempre la última versión (con caché, otra instancia veía datos viejos).
     const blob = await get(blobPath(), { access: 'private', token: blobToken(), useCache: false });
-    if (!blob || !blob.stream) return null;
-    return await new Response(blob.stream).text();
+    if (!blob || !blob.stream) return { raw: null, version: null };
+    return { raw: await new Response(blob.stream).text(), version: blob.blob.etag ?? null };
   } catch (error) {
     // Primer arranque: todavía no se guardó ningún estado.
-    if (error instanceof Error && /not.?found/i.test(error.name + error.message)) return null;
+    if (error instanceof Error && /not.?found/i.test(error.name + error.message)) {
+      return { raw: null, version: null };
+    }
     throw error;
   }
 }
 
-async function writeRaw(value: string): Promise<void> {
+async function writeRaw(value: string, expectedVersion: string | null): Promise<void> {
   if (useRedis()) {
-    await redis(['SET', stateKey(), value]);
+    const saved = await redis([
+      'EVAL',
+      CONDITIONAL_SET_SCRIPT,
+      2,
+      stateKey(),
+      versionKey(),
+      expectedVersion ?? '0',
+      value
+    ]);
+    if (Number(saved) !== 1) throw new StateConflictError();
     return;
   }
-  await put(blobPath(), value, {
-    access: 'private',
-    allowOverwrite: true,
-    addRandomSuffix: false,
-    contentType: 'application/json',
-    token: blobToken()
-  });
+  try {
+    await put(blobPath(), value, {
+      access: 'private',
+      // Sin ETag (no había estado guardado) solo se crea: si otra instancia ya
+      // lo creó, falla en lugar de pisarlo.
+      allowOverwrite: expectedVersion !== null,
+      ...(expectedVersion !== null ? { ifMatch: expectedVersion } : {}),
+      addRandomSuffix: false,
+      contentType: 'application/json',
+      token: blobToken()
+    });
+  } catch (error) {
+    if (error instanceof BlobPreconditionFailedError) throw new StateConflictError();
+    throw error;
+  }
 }
 
 type Snapshot = {
@@ -79,6 +140,8 @@ type Snapshot = {
   events: typeof db.events;
   alerts: typeof db.alerts;
   blocklistSyncLog: typeof db.blocklistSyncLog;
+  siteSuggestions: typeof db.siteSuggestions;
+  claimThrottle: typeof db.claimThrottle;
   /**
    * Dominios personalizados. La lista oficial se toma del código salvo que se
    * haya sincronizado un período nuevo: en ese caso se guarda completa.
@@ -110,6 +173,8 @@ function toSnapshot(): Snapshot {
     events: db.events,
     alerts: db.alerts,
     blocklistSyncLog: db.blocklistSyncLog,
+    siteSuggestions: db.siteSuggestions,
+    claimThrottle: db.claimThrottle,
     blocklist: officialWasSynced ? db.blocklist : db.blocklist.filter(item => item.type === 'CUSTOM')
   };
 }
@@ -122,22 +187,32 @@ function applySnapshot(snapshot: Snapshot): void {
   db.events = snapshot.events ?? [];
   db.alerts = snapshot.alerts ?? [];
   db.blocklistSyncLog = snapshot.blocklistSyncLog ?? [];
+  // Los estados guardados antes de estas funciones no traen los campos.
+  db.siteSuggestions = snapshot.siteSuggestions ?? [];
+  db.claimThrottle = snapshot.claimThrottle ?? {};
   const stored = snapshot.blocklist ?? [];
   db.blocklist = db.blocklistSyncLog.length > 0 ? stored : [...officialFromSource, ...stored];
 }
 
 export async function loadState(): Promise<void> {
   if (!isPersistenceEnabled()) return;
-  const raw = await readRaw();
+  const { raw, version } = await readRaw();
+  loadedVersion = version;
   if (raw) {
     applySnapshot(JSON.parse(raw) as Snapshot);
   }
 }
 
+/**
+ * Guarda el estado si nadie más escribió desde el último loadState.
+ * Si hubo otra escritura en el medio, lanza StateConflictError.
+ */
 export async function saveState(): Promise<void> {
   if (!isPersistenceEnabled()) return;
-  await writeRaw(JSON.stringify(toSnapshot()));
+  await writeRaw(JSON.stringify(toSnapshot()), loadedVersion);
 }
+
+const SAVE_FAILED_ERROR = 'No pudimos guardar el cambio. Intentá de nuevo en unos segundos.';
 
 /**
  * Candado por instancia: los pedidos se atienden de a uno. Sin esto, un pedido que
@@ -195,9 +270,26 @@ export const persistState = async (req: Request, res: Response, next: NextFuncti
     ) {
       done();
     } else {
-      saveState()
-        .catch(error => console.error('[persistence] no se pudo guardar el estado', error))
-        .finally(done);
+      saveState().then(done, error => {
+        if (error instanceof StateConflictError) {
+          console.warn('[persistence] otra instancia guardó antes: se descarta este cambio');
+        } else {
+          console.error('[persistence] no se pudo guardar el estado', error);
+        }
+        // El cambio no quedó guardado: no se responde como si hubiera salido bien
+        // (por ejemplo, una credencial de celular cuyo hash no se guardó).
+        if (res.headersSent) {
+          done();
+          return;
+        }
+        const body = JSON.stringify({ error: SAVE_FAILED_ERROR });
+        res.statusCode = 503;
+        res.removeHeader('ETag');
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader('Content-Length', Buffer.byteLength(body));
+        originalEnd(body);
+        releaseOnce();
+      });
     }
     return res;
   };

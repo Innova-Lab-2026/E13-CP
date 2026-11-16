@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AppState, View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,21 +10,31 @@ import AppButton from '../../../../src/components/AppButton';
 import AppSwitch from '../../../../src/components/AppSwitch';
 import ConfirmModal from '../../../../src/components/ConfirmModal';
 import DeviceLinkSteps from '../../../../src/components/DeviceLinkSteps';
+import PinInput from '../../../../src/components/PinInput';
 import RestrictionSummaryCard from '../../../../src/components/RestrictionSummaryCard';
 import ScreenState from '../../../../src/components/ScreenState';
 import HistoryCard from '../../../../src/components/historial/HistoryCard';
 import { useAsyncResource } from '../../../../src/hooks/useAsyncResource';
 import {
+  generateLinkCode,
   getDeviceById,
   setDeviceProtection,
   type Device,
 } from '../../../../src/services/deviceService';
 import { getDeviceActivities } from '../../../../src/services/historyService';
-import { errorMessage } from '../../../../src/services/api';
-import { formatDayLabel, formatIsoDate, formatTime } from '../../../../src/utils/date';
+import { ApiError, errorMessage } from '../../../../src/services/api';
+import {
+  formatDate,
+  formatDayLabel,
+  formatIsoDate,
+  formatTime,
+} from '../../../../src/utils/date';
 import { colors, radius, spacing, typography } from '../../../../src/theme';
 
 const MAX_ACTIVITIES = 10;
+
+/** Mientras el perfil está pendiente, cada cuánto se revisa si el celular ya se vinculó. */
+const PENDING_POLL_MS = 20_000;
 
 const STATUS_TEXT: Record<Device['status'], string> = {
   active: 'Protección activa',
@@ -38,6 +48,12 @@ function formatLastSeen(value?: string): string {
   const time = formatTime(value);
   if (!day) return 'Sin registros';
   return time ? `${day} · ${time}` : day;
+}
+
+function formatLinkedAt(value?: string): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : formatDate(date);
 }
 
 export default function DeviceDetailScreen() {
@@ -59,8 +75,114 @@ export default function DeviceDetailScreen() {
   const [protectionError, setProtectionError] = useState<string | null>(null);
   const [protectionNotice, setProtectionNotice] = useState<string | null>(null);
 
+  const [newCodeLoading, setNewCodeLoading] = useState(false);
+  const [linkNotice, setLinkNotice] = useState<string | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
+
+  const [unlinkVisible, setUnlinkVisible] = useState(false);
+  const [unlinkPin, setUnlinkPin] = useState('');
+  const [unlinkError, setUnlinkError] = useState<string | null>(null);
+  const [unlinking, setUnlinking] = useState(false);
+
   const device = deviceResource.data;
   const firstLoad = deviceResource.loading && !device;
+  const deviceStatus = device?.status;
+  const reloadDevice = deviceResource.reload;
+
+  // Con el código a la vista, el menor puede vincular su celular en cualquier
+  // momento: mientras esté pendiente se vuelve a consultar, para no seguir
+  // mostrando un código que ya se usó.
+  useEffect(() => {
+    if (deviceStatus !== 'pending') return;
+    const interval = setInterval(() => {
+      if (AppState.currentState === 'active') reloadDevice();
+    }, PENDING_POLL_MS);
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') reloadDevice();
+    });
+    return () => {
+      clearInterval(interval);
+      subscription.remove();
+    };
+  }, [deviceStatus, reloadDevice]);
+
+  // Si se vinculó con la pantalla abierta, se avisa en lugar del código.
+  const previousStatus = useRef(deviceStatus);
+  useEffect(() => {
+    if (previousStatus.current === 'pending' && deviceStatus && deviceStatus !== 'pending') {
+      setLinkError(null);
+      setLinkNotice(null);
+      setProtectionNotice(`¡Listo! El celular de ${device?.name ?? 'tu hijo o hija'} ya está vinculado.`);
+    }
+    previousStatus.current = deviceStatus;
+  }, [deviceStatus, device?.name]);
+
+  // Perfil pendiente: un código nuevo reemplaza al anterior, que deja de servir.
+  const handleNewCode = async () => {
+    if (!device || newCodeLoading) return;
+    setNewCodeLoading(true);
+    setLinkError(null);
+    setLinkNotice(null);
+    try {
+      await generateLinkCode(device.id);
+      await deviceResource.reload();
+      setLinkNotice('Generamos un código nuevo. El anterior ya no sirve.');
+    } catch (error) {
+      // Un 400 acá es que el celular se vinculó mientras tanto (ya no está
+      // pendiente y el backend pide el PIN para desvincular): se recarga.
+      if (error instanceof ApiError && error.status === 400) {
+        const fresh = await getDeviceById(device.id).catch(() => undefined);
+        if (fresh && fresh.status !== 'pending') {
+          await deviceResource.reload();
+          return;
+        }
+      }
+      setLinkError(errorMessage(error, 'No pudimos generar el código. Intentá de nuevo.'));
+    } finally {
+      setNewCodeLoading(false);
+    }
+  };
+
+  const openUnlink = () => {
+    setUnlinkPin('');
+    setUnlinkError(null);
+    setUnlinkVisible(true);
+  };
+
+  const closeUnlink = () => {
+    if (unlinking) return;
+    setUnlinkVisible(false);
+    setUnlinkPin('');
+    setUnlinkError(null);
+  };
+
+  // Desvincular: con el PIN, el servidor revoca la credencial del celular y deja
+  // el perfil pendiente con un código nuevo para volver a vincularlo.
+  const handleUnlink = async () => {
+    if (!device || unlinking) return;
+    if (unlinkPin.length !== 4) {
+      setUnlinkError('Ingresá los 4 dígitos del PIN.');
+      return;
+    }
+    setUnlinking(true);
+    setUnlinkError(null);
+    try {
+      await generateLinkCode(device.id, unlinkPin);
+      setUnlinkVisible(false);
+      setUnlinkPin('');
+      setProtectionNotice(null);
+      await deviceResource.reload();
+      setLinkError(null);
+      setLinkNotice(
+        `Desvinculaste el celular de ${device.name}. Si querés volver a vincularlo, usá este código nuevo.`,
+      );
+    } catch (error) {
+      setUnlinkPin('');
+      setUnlinkError(errorMessage(error, 'No pudimos desvincular el celular. Intentá de nuevo.'));
+    } finally {
+      setUnlinking(false);
+    }
+  };
 
   const changeProtection = async (active: boolean) => {
     if (!device) return;
@@ -125,12 +247,15 @@ export default function DeviceDetailScreen() {
     const isPending = device.status === 'pending';
     const isProtected = device.status === 'active';
     const birthDate = device.birthDate ? formatIsoDate(device.birthDate) : 'No especificada';
+    const linkedAt = formatLinkedAt(device.linkedAt);
 
     return (
       <>
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{device.name.charAt(0).toUpperCase()}</Text>
+            <Text style={styles.avatarText}>
+              {device.name.trim().charAt(0).toUpperCase() || '?'}
+            </Text>
           </View>
           <Text style={styles.title} accessibilityRole="header">
             {device.name}
@@ -143,7 +268,15 @@ export default function DeviceDetailScreen() {
               variant="warning"
               message={`El perfil de ${device.name} todavía no está vinculado. Seguí estos pasos en su celular para activar la protección.`}
             />
-            <DeviceLinkSteps name={device.name} linkCode={device.linkCode} />
+            {linkNotice ? <AppAlert variant="success" message={linkNotice} /> : null}
+            {linkError ? <AppAlert variant="error" message={linkError} /> : null}
+            <DeviceLinkSteps
+              name={device.name}
+              linkCode={device.linkCode}
+              linkCodeExpiresAt={device.linkCodeExpiresAt}
+              onNewCode={handleNewCode}
+              newCodeLoading={newCodeLoading}
+            />
             <View style={styles.infoCard}>
               <InfoRow label="Estado" value={STATUS_TEXT.pending} />
               <InfoRow label="Fecha de nacimiento" value={birthDate} last />
@@ -182,8 +315,18 @@ export default function DeviceDetailScreen() {
 
             <View style={[styles.infoCard, styles.section]}>
               <InfoRow label="Estado" value={STATUS_TEXT[device.status]} />
+              {linkedAt ? <InfoRow label="Vinculación" value={`Vinculado el ${linkedAt}`} /> : null}
               <InfoRow label="Fecha de nacimiento" value={birthDate} />
               <InfoRow label="Última actividad" value={formatLastSeen(device.lastSeen)} last />
+            </View>
+
+            <View style={styles.unlink}>
+              <AppButton
+                title="Desvincular este celular"
+                variant="secondary"
+                onPress={openUnlink}
+                accessibilityLabel={`Desvincular el celular de ${device.name}`}
+              />
             </View>
           </>
         )}
@@ -258,6 +401,32 @@ export default function DeviceDetailScreen() {
           setProtectionError(null);
         }}
       />
+
+      <ConfirmModal
+        visible={unlinkVisible}
+        title="¿Desvincular este celular?"
+        message={
+          device
+            ? `El celular de ${device.name} deja de estar protegido. Para volver a vincularlo vas a necesitar un código nuevo. Si lo vinculaste iniciando sesión con tu cuenta en su celular, esa sesión sigue abierta ahí: cerrala desde ese celular. Ingresá tu PIN para confirmar.`
+            : undefined
+        }
+        confirmLabel="Desvincular"
+        destructive
+        busy={unlinking}
+        error={unlinkError}
+        onConfirm={handleUnlink}
+        onCancel={closeUnlink}
+      >
+        <PinInput
+          value={unlinkPin}
+          onChange={(value) => {
+            setUnlinkPin(value);
+            setUnlinkError(null);
+          }}
+          label="Tu PIN de seguridad"
+          autoFocus
+        />
+      </ConfirmModal>
     </SafeAreaView>
   );
 }
@@ -352,6 +521,9 @@ const styles = StyleSheet.create({
   infoValue: {
     ...typography.label,
     fontSize: 15,
+  },
+  unlink: {
+    marginTop: spacing.lg,
   },
   activitySection: {
     marginTop: spacing.xxl,

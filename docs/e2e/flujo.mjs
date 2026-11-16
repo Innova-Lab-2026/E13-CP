@@ -195,5 +195,61 @@ await run("adulto: alertas, historial y configuración", a, async () => {
   await shot(a, "ayuda");
 });
 
+// Segundo celular: se vincula con el código, sin iniciar sesión con la cuenta del adulto.
+const CHILD2 = { nombre: "Tomás", nacimiento: "03052015" };
+let linkCode2 = "";
+await run("adulto: segundo perfil y código de vinculación", a, async () => {
+  await a.goto(BASE + "/app/dispositivos");
+  await btn(a, "Agregar dispositivo").waitFor({ timeout: 20000 });
+  await btn(a, "Agregar dispositivo").click();
+  await field(a, "Nombre").fill(CHILD2.nombre);
+  await a.getByPlaceholder("dd/mm/aaaa").filter({ visible: true }).first().fill(CHILD2.nacimiento);
+  await btn(a, "Agregar dispositivo").click();
+  await visibleText(a, /Perfil creado/i).waitFor({ timeout: 20000 });
+  const code = a.getByTestId("link-code").filter({ visible: true }).first();
+  linkCode2 = (await code.innerText()).trim();
+  if (!/^[A-HJ-NP-Z2-9]{8}$/.test(linkCode2)) throw new Error(`código inválido: "${linkCode2}"`);
+  await visibleText(a, /Vence en/).waitFor();
+  await shot(a, "codigo-de-vinculacion");
+  console.log("  código de vinculación:", linkCode2);
+});
+
+const child2 = await browser.newContext({ viewport, deviceScaleFactor: 2, locale: "es-AR" });
+const d = await child2.newPage();
+d.on("pageerror", (e) => console.log("  [pageerror segundo celular]", e.message));
+await run("segundo celular: vincular con un código", d, async () => {
+  await d.goto(BASE + "/app/");
+  await btn(d, "Vincular con un código").waitFor({ timeout: 20000 });
+  await btn(d, "Vincular con un código").click();
+  await visibleText(d, /Vinculá este celular/).waitFor({ timeout: 20000 });
+  await field(d, "Código de vinculación").fill(linkCode2.toLowerCase());
+  await fillPin(d, "1357");
+  await shot(d, "vincular-con-codigo");
+  await btn(d, /^Vincular$/).click();
+  await visibleText(d, /no son correctos|venció/i).waitFor({ timeout: 15000 });
+  await shot(d, "vincular-con-codigo-error");
+  await fillPin(d, ADULT.pin);
+  await btn(d, /^Vincular$/).click();
+  await visibleText(d, /Probar un sitio/i).waitFor({ timeout: 20000 });
+  await visibleText(d, new RegExp(`Perfil de ${CHILD2.nombre}`)).waitFor();
+  await shot(d, "home-protegido-con-codigo");
+});
+
+await run("segundo celular: sitio bloqueado", d, async () => {
+  await d.getByLabel(/sitio|dominio/i).filter({ visible: true }).first().fill("www.bplay.bet.ar");
+  await btn(d, /Probar/).click();
+  await visibleText(d, /está bloqueado/i).waitFor({ timeout: 20000 });
+  await shot(d, "sitio-bloqueado-con-codigo");
+});
+
+await run("adulto: alerta del segundo celular", a, async () => {
+  await a.goto(BASE + "/app/");
+  await visibleText(a, /Hola, Laura/).waitFor({ timeout: 20000 });
+  await a.getByLabel(/alertas/i).filter({ visible: true }).first().click();
+  await visibleText(a, new RegExp(`${CHILD2.nombre} - `)).waitFor({ timeout: 20000 });
+  await visibleText(a, /Dispositivo vinculado/i).waitFor({ timeout: 20000 });
+  await shot(a, "alertas-segundo-celular");
+});
+
 console.log("OK: flujo completo");
 await browser.close();

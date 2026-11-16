@@ -1,6 +1,8 @@
+// Primero el .env: auth.middleware lee JWT_SECRET (y frena el arranque en
+// producción si falta) apenas se importa, antes que el resto del módulo.
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 
 import authRoutes from './routes/auth.routes';
 import deviceRoutes from './routes/device.routes';
@@ -8,10 +10,29 @@ import blocklistRoutes from './routes/blocklist.routes';
 import eventRoutes from './routes/event.routes';
 import { persistState } from './config/persistence';
 
-dotenv.config();
+/**
+ * Qué proxies se aceptan para calcular req.ip, que usa el límite de intentos de
+ * POST /api/devices/claim. En Vercel hay uno (su borde reescribe X-Forwarded-For).
+ * Sin proxy delante (desarrollo, WSL expuesto a la LAN, `npm start` en un
+ * servidor), X-Forwarded-For lo manda el cliente: confiar en él permitiría
+ * esquivar el límite cambiándolo en cada pedido, así que se usa la IP del socket.
+ * TRUST_PROXY lo fija a mano: un número de saltos, "true"/"false" o una lista de
+ * IPs/subredes, igual que el `trust proxy` de Express.
+ */
+export const trustProxySetting = (
+  env: NodeJS.ProcessEnv = process.env
+): boolean | number | string => {
+  const raw = env.TRUST_PROXY?.trim();
+  if (!raw) return env.VERCEL ? 1 : false;
+  if (raw === 'true') return true;
+  if (raw === 'false') return false;
+  return /^\d+$/.test(raw) ? Number(raw) : raw;
+};
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.set('trust proxy', trustProxySetting());
 
 app.use(cors());
 app.use(express.json());

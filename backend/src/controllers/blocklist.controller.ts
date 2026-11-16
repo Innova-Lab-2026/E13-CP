@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { db } from '../config/db';
-import { AuthRequest, JWT_SECRET } from '../middleware/auth.middleware';
+import { AuthRequest, JWT_SECRET, parseAuthorization } from '../middleware/auth.middleware';
+import { deviceFromAuthorization } from '../middleware/device.middleware';
 import {
   buildCustomBlocklistItem,
   findMatchingBlocklistItem,
+  getBlocklistFor,
   getBlocklistStatus,
   isVisibleTo,
   normalizeDomain,
@@ -22,16 +24,8 @@ import {
  */
 export const getBlocklist = async (req: AuthRequest, res: Response) => {
   try {
-    const responsibleId = req.responsibleId;
     // Official LOTBA domains + custom domains added by this responsible
-    const items = db.blocklist.filter(
-      item => item.type === 'LOTBA_OFFICIAL' || item.addedBy === responsibleId
-    );
-
-    return res.status(200).json({
-      blocklist: items,
-      status: getBlocklistStatus(responsibleId)
-    });
+    return res.status(200).json(getBlocklistFor(req.responsibleId));
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
@@ -107,11 +101,17 @@ export const removeCustomBlocklistItem = async (req: AuthRequest, res: Response)
 /**
  * La ruta de verificación es pública, pero si llega un token válido se suman
  * los sitios personalizados de esa cuenta (los de otras cuentas nunca cuentan).
+ * Sirve el JWT del adulto ("Bearer") o la credencial del celular vinculado por
+ * código ("Device"), que suma los personalizados de su responsable.
  */
 const optionalResponsibleId = (req: Request): string | undefined => {
   const header = req.headers['authorization'];
-  const token = typeof header === 'string' ? header.split(' ')[1] : undefined;
-  if (!token) return undefined;
+  const parsed = parseAuthorization(header);
+  if (!parsed) return undefined;
+  if (parsed.scheme === 'device') {
+    return deviceFromAuthorization(header)?.responsibleId;
+  }
+  const token = parsed.credential;
   try {
     const payload = jwt.verify(token, JWT_SECRET) as { id?: unknown };
     const id = typeof payload?.id === 'string' ? payload.id : undefined;

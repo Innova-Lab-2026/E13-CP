@@ -15,6 +15,39 @@ import {
 /** Normaliza un dominio a minúsculas y sin espacios. */
 export const normalizeDomain = (domain: string): string => domain.toLowerCase().trim();
 
+const HOSTNAME_REGEX = /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9-]{2,63}$/;
+
+/**
+ * Lleva lo que tipea la persona ("https://www.sitio.com/juego?x=1", "Sitio.com")
+ * al dominio pelado ("sitio.com"): sin protocolo, ruta, puerto ni "www.".
+ * Los dominios con acentos quedan en punycode. Devuelve null si no es un sitio.
+ */
+export const extractDomain = (input: string): string | null => {
+  const clean = normalizeDomain(input);
+  if (!clean || /\s/.test(clean)) return null;
+
+  let hostname: string;
+  try {
+    const withProtocol = /^[a-z][a-z0-9+.-]*:\/\//.test(clean) ? clean : `http://${clean}`;
+    hostname = new URL(withProtocol).hostname;
+  } catch {
+    return null;
+  }
+
+  const domain = hostname.replace(/\.$/, '').replace(/^www\./, '');
+  return HOSTNAME_REGEX.test(domain) ? domain : null;
+};
+
+/**
+ * Lista de bloqueo que ve un responsable (oficial de LOTBA + sus personalizados)
+ * con su estado. La usan GET /api/blocklist (adulto) y GET /api/devices/me/blocklist
+ * (celular vinculado por código).
+ */
+export const getBlocklistFor = (responsibleId?: string) => ({
+  blocklist: db.blocklist.filter(item => isVisibleTo(item, responsibleId)),
+  status: getBlocklistStatus(responsibleId)
+});
+
 /**
  * Sincroniza la lista oficial de LOTBA.
  *

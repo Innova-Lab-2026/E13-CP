@@ -12,29 +12,44 @@ export interface Device {
   status: DeviceStatus;
   /** Fecha de nacimiento del menor en formato AAAA-MM-DD. */
   birthDate?: string;
-  /** Código de vinculación de 8 caracteres, para el celular del menor. */
+  /**
+   * Código de vinculación de 8 caracteres para el celular del menor. El backend
+   * solo lo manda mientras el perfil está pendiente y el código sigue vigente.
+   */
   linkCode?: string;
+  /** Vencimiento del código (ISO). */
+  linkCodeExpiresAt?: string;
+  /** Cuándo se vinculó el celular (ISO). Falta en los perfiles vinculados antes de los códigos. */
+  linkedAt?: string;
   lastSeen?: string;
   createdAt?: string;
 }
 
-type ApiDevice = {
+/** Nombre del perfil: entre 2 y 40 caracteres, igual que valida el backend. */
+export const DEVICE_NAME_MIN_LENGTH = 2;
+export const DEVICE_NAME_MAX_LENGTH = 40;
+
+export type ApiDevice = {
   id: string;
   deviceName: string;
   fechaNacimiento?: string;
   status: "pending" | "active" | "inactive";
   linkCode?: string;
+  linkCodeExpiresAt?: string;
+  linkedAt?: string;
   lastSeen?: string;
   createdAt?: string;
 };
 
-function toDevice(device: ApiDevice): Device {
+export function toDevice(device: ApiDevice): Device {
   return {
     id: device.id,
     name: device.deviceName,
     status: device.status === "inactive" ? "disabled" : device.status,
     birthDate: device.fechaNacimiento,
     linkCode: device.linkCode,
+    linkCodeExpiresAt: device.linkCodeExpiresAt,
+    linkedAt: device.linkedAt,
     lastSeen: device.lastSeen,
     createdAt: device.createdAt,
   };
@@ -50,24 +65,61 @@ export async function getDeviceById(deviceId: string): Promise<Device | undefine
   return devices.find((device) => device.id === deviceId);
 }
 
+export type LinkCode = {
+  linkCode: string;
+  linkCodeExpiresAt?: string;
+};
+
 /**
  * Crea el perfil del dispositivo protegido. Queda pendiente hasta que el celular
- * del menor confirme el vínculo con el PIN del adulto.
+ * del menor se vincule con el código y el PIN del adulto.
  */
 export async function addDevice(
   name: string,
   birthDate: string,
-): Promise<{ device: Device; linkCode: string }> {
+): Promise<{ device: Device } & LinkCode> {
   const trimmedName = name.trim();
-  if (!trimmedName) {
-    throw new Error("Ingresá un nombre para el dispositivo.");
+  if (trimmedName.length < DEVICE_NAME_MIN_LENGTH) {
+    throw new Error("El nombre tiene que tener al menos 2 caracteres.");
   }
 
-  const data = await apiRequest<{ device: ApiDevice; linkCode: string }>(
-    "/api/devices/link",
-    { method: "POST", body: { deviceName: trimmedName, fechaNacimiento: birthDate } },
-  );
-  return { device: toDevice(data.device), linkCode: data.linkCode };
+  const data = await apiRequest<{
+    device: ApiDevice;
+    linkCode: string;
+    linkCodeExpiresAt?: string;
+  }>("/api/devices/link", {
+    method: "POST",
+    body: { deviceName: trimmedName, fechaNacimiento: birthDate },
+  });
+  return {
+    device: toDevice(data.device),
+    linkCode: data.linkCode,
+    linkCodeExpiresAt: data.linkCodeExpiresAt ?? data.device.linkCodeExpiresAt,
+  };
+}
+
+/**
+ * Genera un código de vinculación nuevo para el perfil. Si el celular ya estaba
+ * vinculado hace falta el PIN del adulto: el servidor revoca la credencial de ese
+ * celular, que deja de estar protegido, y el perfil vuelve a quedar pendiente.
+ */
+export async function generateLinkCode(
+  deviceId: string,
+  pin?: string,
+): Promise<{ device: Device } & LinkCode> {
+  const data = await apiRequest<{
+    linkCode: string;
+    linkCodeExpiresAt?: string;
+    device: ApiDevice;
+  }>(`/api/devices/${encodeURIComponent(deviceId)}/link-code`, {
+    method: "POST",
+    body: pin ? { pin } : {},
+  });
+  return {
+    device: toDevice(data.device),
+    linkCode: data.linkCode,
+    linkCodeExpiresAt: data.linkCodeExpiresAt,
+  };
 }
 
 /** Confirma el vínculo desde el celular del menor con el PIN del adulto. */

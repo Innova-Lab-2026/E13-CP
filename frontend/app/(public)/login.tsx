@@ -15,6 +15,7 @@ import AppInput from "../../src/components/AppInput";
 import AppButton from "../../src/components/AppButton";
 import AppAlert from "../../src/components/AppAlert";
 import GoogleButton from "../../src/components/GoogleButton";
+import LinkWithCodeEntry from "../../src/components/LinkWithCodeEntry";
 import { loginResponsible } from "../../src/services/auth";
 import {
   startGoogleLogin,
@@ -207,6 +208,8 @@ export default function LoginScreen() {
               title="Crear cuenta"
               onPress={() => router.push("/register")}
             />
+
+            <LinkWithCodeEntry onPress={() => router.push("/vincular")} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

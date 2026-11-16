@@ -21,7 +21,11 @@ import AppInput from '../../../../src/components/AppInput';
 import AppButton from '../../../../src/components/AppButton';
 import AppHeader from '../../../../src/components/AppHeader';
 import AppAlert from '../../../../src/components/AppAlert';
-import { addDevice } from '../../../../src/services/deviceService';
+import {
+  addDevice,
+  DEVICE_NAME_MAX_LENGTH,
+  DEVICE_NAME_MIN_LENGTH,
+} from '../../../../src/services/deviceService';
 import { errorMessage } from '../../../../src/services/api';
 import { formatDate } from '../../../../src/utils/date';
 import { colors, radius, spacing, typography } from '../../../../src/theme';
@@ -93,6 +97,9 @@ export default function AddDeviceScreen() {
     if (!trimmedName) {
       setNameError('Ingresá el nombre de quien usa el celular.');
       valid = false;
+    } else if (trimmedName.length < DEVICE_NAME_MIN_LENGTH) {
+      setNameError('El nombre tiene que tener al menos 2 caracteres.');
+      valid = false;
     }
     if (!birthDateText) {
       setBirthDateError('Ingresá la fecha de nacimiento.');
@@ -105,10 +112,18 @@ export default function AddDeviceScreen() {
 
     setLoading(true);
     try {
-      const { device, linkCode } = await addDevice(trimmedName, toIsoDate(parsedBirthDate));
+      const { device, linkCode, linkCodeExpiresAt } = await addDevice(
+        trimmedName,
+        toIsoDate(parsedBirthDate),
+      );
       router.replace({
         pathname: '/(main)/(tabs)/dispositivos/device-success',
-        params: { name: device.name || trimmedName, linkCode, deviceId: device.id },
+        params: {
+          name: device.name || trimmedName,
+          linkCode,
+          deviceId: device.id,
+          ...(linkCodeExpiresAt ? { linkCodeExpiresAt } : null),
+        },
       });
     } catch (error) {
       setSubmitError(
@@ -155,6 +170,7 @@ export default function AddDeviceScreen() {
             value={deviceName}
             onChangeText={handleNameChange}
             autoCapitalize="words"
+            maxLength={DEVICE_NAME_MAX_LENGTH}
             error={nameError || undefined}
             editable={!loading}
           />

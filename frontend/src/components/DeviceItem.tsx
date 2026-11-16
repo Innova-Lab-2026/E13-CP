@@ -67,7 +67,7 @@ export default function DeviceItem({
     >
       <View style={styles.leftContainer}>
         <View style={[styles.avatar, { backgroundColor: config.avatar }]}>
-          <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
+          <Text style={styles.avatarText}>{name.trim().charAt(0).toUpperCase() || '?'}</Text>
         </View>
 
         <View style={styles.infoContainer}>

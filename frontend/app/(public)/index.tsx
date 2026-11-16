@@ -1,18 +1,32 @@
+import { useEffect } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { Redirect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppButton from "../../src/components/AppButton";
+import LinkWithCodeEntry from "../../src/components/LinkWithCodeEntry";
 import { useSession } from "../../src/services/session";
+import {
+  acknowledgeDeviceSessionEnd,
+  useDeviceSession,
+} from "../../src/services/deviceSession";
 import { homeRouteFor } from "../../src/navigation";
 import { colors, spacing, typography } from "../../src/theme";
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { session, loading } = useSession();
+  const { deviceSession, loading: deviceLoading } = useDeviceSession();
+  const ready = !loading && !deviceLoading;
 
-  // Con sesión guardada se salta la bienvenida y se va a la pantalla que corresponde.
-  if (!loading && session) {
-    return <Redirect href={homeRouteFor(session)} />;
+  // Si se llegó acá al salir del modo protegido, las guardias ya cumplieron.
+  useEffect(() => {
+    acknowledgeDeviceSessionEnd();
+  }, []);
+
+  // Con sesión guardada (de la persona adulta o de un celular vinculado con un
+  // código) se salta la bienvenida y se va a la pantalla que corresponde.
+  if (ready && (session || deviceSession)) {
+    return <Redirect href={homeRouteFor(session, deviceSession)} />;
   }
 
   return (
@@ -42,7 +56,7 @@ export default function WelcomeScreen() {
       </View>
 
       <View style={styles.footer}>
-        {loading ? (
+        {!ready ? (
           <ActivityIndicator color={colors.text} accessibilityLabel="Cargando" />
         ) : (
           <>
@@ -57,6 +71,7 @@ export default function WelcomeScreen() {
               accessibilityLabel="Ya tengo una cuenta, ir a iniciar sesión"
               onPress={() => router.push("/login")}
             />
+            <LinkWithCodeEntry onPress={() => router.push("/vincular")} />
           </>
         )}
       </View>

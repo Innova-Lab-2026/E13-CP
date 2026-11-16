@@ -12,6 +12,7 @@ export default function ConfiguracionLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="mi-cuenta" />
       <Stack.Screen name="sitios" />
+      <Stack.Screen name="sugerir-sitio" />
       <Stack.Screen name="ayuda" />
       <Stack.Screen name="terminos" />
       <Stack.Screen name="mejorar" />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AppButton from "../../src/components/AppButton";
 import AppAlert from "../../src/components/AppAlert";
@@ -17,6 +17,7 @@ import {
 } from "../../src/services/deviceService";
 import { verifySecurityPin } from "../../src/services/auth";
 import { updateSession, useSession } from "../../src/services/session";
+import { useDeviceSession } from "../../src/services/deviceSession";
 import { ApiError, errorMessage } from "../../src/services/api";
 import { formatIsoDate } from "../../src/utils/date";
 import { colors, radius, shadow, spacing, typography } from "../../src/theme";
@@ -32,6 +33,7 @@ export default function LinkDeviceScreen() {
   const router = useRouter();
   const { data: devices, loading, error, reload } = useAsyncResource(getDevices, []);
   const { session } = useSession();
+  const { deviceSession } = useDeviceSession();
   const signedInWithGoogle = session?.authMethod === "google";
 
   const [step, setStep] = useState<Step>("choose");
@@ -47,6 +49,11 @@ export default function LinkDeviceScreen() {
   const pending = [...(devices ?? [])].sort(
     (a, b) => Number(a.status !== "pending") - Number(b.status !== "pending"),
   );
+
+  // Un celular ya vinculado con un código no usa esta vinculación con la cuenta.
+  if (deviceSession) {
+    return <Redirect href="/protected" />;
+  }
 
   async function handleConfirm() {
     if (!selected || submitting) return;

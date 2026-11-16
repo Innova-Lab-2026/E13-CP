@@ -81,14 +81,81 @@ export interface Device {
   fechaNacimiento: string;
   /**
    * Código de vinculación de 8 caracteres alfanuméricos.
-   * Lo usa la app del dispositivo protegido para identificar el perfil.
+   * Con él (y el PIN del adulto) el celular del menor se vincula sin que el
+   * adulto tenga que iniciar sesión ahí: POST /api/devices/claim.
    */
   linkCode: string;
+  /** Hasta cuándo sirve el código (ISO). Sin fecha, el código se considera vencido. */
+  linkCodeExpiresAt?: string;
+  /** Cuándo se usó o se invalidó el código (ISO). Un código usado no sirve más. */
+  linkCodeUsedAt?: string;
+  /** PIN incorrectos seguidos con el código vigente: a los 5 el código se invalida. */
+  linkFailedAttempts?: number;
+  /** Cuándo quedó vinculado el celular (ISO). Se borra al desvincularlo. */
+  linkedAt?: string;
+  /**
+   * SHA-256 (hex) de la credencial opaca del celular vinculado por código.
+   * El secreto en sí solo se entrega una vez, en la respuesta del claim.
+   */
+  deviceSecretHash?: string;
+  /** Cuándo se emitió la credencial vigente (ISO). */
+  deviceSecretIssuedAt?: string;
+  /**
+   * Cuándo el adulto (o el propio celular) lo desvinculó por última vez (ISO).
+   * Mientras siga pendiente con ese código, PATCH /:id/status no lo reactiva.
+   */
+  unlinkedAt?: string;
   /** Identificador del dispositivo para las notificaciones push (FCM). */
   deviceToken?: string;
   status: DeviceStatus;
   lastSeen: string;
   createdAt: string;
+}
+
+/**
+ * Forma pública de un dispositivo: lo que devuelven las respuestas de la API.
+ * Nunca incluye la credencial, el contador de intentos ni el deviceToken.
+ */
+export interface PublicDevice {
+  id: string;
+  responsibleId: string;
+  deviceName: string;
+  fechaNacimiento: string;
+  status: DeviceStatus;
+  lastSeen: string;
+  createdAt: string;
+  linkedAt?: string;
+  /** Solo si el dispositivo está pendiente y el código sigue vigente. */
+  linkCode?: string;
+  linkCodeExpiresAt?: string;
+}
+
+/** Motivos válidos de una sugerencia de sitio (pantalla "Sugerir un sitio"). */
+export const SUGGESTION_REASONS = [
+  'apuestas_ilegales',
+  'publicidad_apuestas',
+  'contenido_inapropiado',
+  'otro'
+] as const;
+
+export type SuggestionReason = typeof SUGGESTION_REASONS[number];
+
+/** Sitio que un adulto sugiere sumar a la lista; el equipo lo revisa con LOTBA. */
+export interface SiteSuggestion {
+  id: string;
+  responsibleId: string;
+  domain: string;
+  motivo: SuggestionReason;
+  info?: string;
+  createdAt: string;
+  status: 'pendiente';
+}
+
+/** Intentos fallidos de vinculación por código desde una misma IP (hash SHA-256). */
+export interface ClaimThrottleEntry {
+  count: number;
+  /** Inicio de la ventana de 15 minutos (ISO). */
+  firstAt: string;
 }
 
 export interface BlocklistItem {
@@ -196,6 +263,15 @@ class Database {
 
   public events: EventItem[] = [];
   public alerts: AlertItem[] = [];
+
+  /** Sugerencias de sitios enviadas desde la app, pendientes de revisar con LOTBA. */
+  public siteSuggestions: SiteSuggestion[] = [];
+
+  /**
+   * Intentos fallidos de POST /api/devices/claim por IP. La clave es el hash
+   * SHA-256 de la IP: la dirección en sí no se guarda.
+   */
+  public claimThrottle: Record<string, ClaimThrottleEntry> = {};
 
   constructor() {
     // La lista oficial se siembra desde la fuente versionada.

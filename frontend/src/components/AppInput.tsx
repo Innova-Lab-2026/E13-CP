@@ -16,7 +16,10 @@ type AppInputProps = {
   onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
   keyboardType?: "default" | "email-address" | "phone-pad" | "number-pad" | "url";
-  autoCapitalize?: "none" | "sentences" | "words";
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  /** Desactivarlo en códigos y direcciones, donde el corrector estorba. */
+  autoCorrect?: boolean;
+  maxLength?: number;
   error?: string;
   editable?: boolean;
 };
@@ -29,6 +32,8 @@ export default function AppInput({
   secureTextEntry = false,
   keyboardType = "default",
   autoCapitalize = "none",
+  autoCorrect,
+  maxLength,
   error,
   editable = true,
 }: AppInputProps) {
@@ -54,6 +59,8 @@ export default function AppInput({
           secureTextEntry={secureTextEntry && !passwordVisible}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
+          autoCorrect={autoCorrect}
+          maxLength={maxLength}
           editable={editable}
           accessibilityLabel={label}
         />

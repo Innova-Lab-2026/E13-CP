@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { clearSession, getSessionToken } from "./session";
+import { clearDeviceSession, getDeviceAccessToken } from "./deviceSession";
 
 /**
  * URL del backend. En producción se define con EXPO_PUBLIC_API_URL al compilar
@@ -48,9 +49,19 @@ export class ApiError extends Error {
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;
-  /** Envía el token de la sesión. Por defecto true. */
-  auth?: boolean;
+  /**
+   * Credencial que se envía. Por defecto true: el token de la sesión del adulto.
+   * "device": la credencial propia del celular protegido vinculado con un código.
+   */
+  auth?: boolean | "device";
 };
+
+/** El backend responde esto cuando la credencial del celular protegido ya no sirve. */
+function isDeviceUnlinkedError(data: unknown, message: string): boolean {
+  const code =
+    data !== null && typeof data === "object" ? (data as { code?: unknown }).code : undefined;
+  return code === "DEVICE_UNLINKED" || /ya no est[aá] vinculado/i.test(message);
+}
 
 export async function apiRequest<T>(
   path: string,
@@ -61,7 +72,13 @@ export async function apiRequest<T>(
     headers["Content-Type"] = "application/json";
   }
 
-  if (auth) {
+  if (auth === "device") {
+    const deviceToken = await getDeviceAccessToken();
+    if (!deviceToken) {
+      throw new ApiError("Este celular no está vinculado.", 401);
+    }
+    headers.Authorization = `Device ${deviceToken}`;
+  } else if (auth) {
     const token = await getSessionToken();
     if (!token) {
       throw new ApiError("Iniciá sesión para continuar.", 401);
@@ -101,13 +118,20 @@ export async function apiRequest<T>(
     // Token vencido o cuenta inexistente en el servidor: la sesión local ya no sirve.
     // (401 no se incluye: el backend también lo usa para PIN o contraseña incorrectos.)
     if (
-      auth &&
+      auth === true &&
       (response.status === 403 ||
         (response.status === 404 && rawError === "Responsible not found"))
     ) {
       // Un celular protegido conserva su modo y su perfil vinculado: al volver a
       // iniciar sesión con la misma cuenta sigue protegido sin revincularse.
       await clearSession({ keepDeviceBinding: true });
+    }
+
+    // La persona adulta desvinculó este celular (o regeneró su código): la
+    // credencial quedó revocada. Las guardias llevan a "Este celular fue desvinculado".
+    // Otros 401 de estas rutas son un PIN incorrecto y no cierran nada.
+    if (auth === "device" && response.status === 401 && isDeviceUnlinkedError(data, rawError)) {
+      await clearDeviceSession("unlinked");
     }
 
     throw new ApiError(ERROR_MESSAGES[rawError] ?? rawError, response.status);

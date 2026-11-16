@@ -23,10 +23,22 @@ npm test               # pruebas de integración (jest + supertest)
 |----------|-------------|---------|
 | `PORT` | Puerto del servidor | `3000` |
 | `NODE_ENV` | `development` \| `production` \| `test` | — |
-| `JWT_SECRET` | Clave de firma de los JWT | clave por defecto (**cambiar en despliegue**) |
-| `ADMIN_SECRET` | Secreto de las operaciones administrativas (sincronización de la lista oficial de LOTBA) | sin valor (la operación queda deshabilitada con `503`) |
+| `JWT_SECRET` | Clave de firma de los JWT | clave por defecto solo en desarrollo y tests; **obligatoria en producción** |
+| `ADMIN_SECRET` | Secreto de las operaciones administrativas (sincronización de la lista oficial de LOTBA y listado de sugerencias) | sin valor (la operación queda deshabilitada con `503`) |
+| `LINK_CODE_TTL_MINUTES` | Vigencia, en minutos, del código para vincular el celular del menor | `1440` (24 h) |
+| `TRUST_PROXY` | Proxies de confianza para `req.ip` (límite de intentos por IP de `POST /api/devices/claim`): saltos (`1`), `true`/`false` o IPs/subredes, como el `trust proxy` de Express | `1` en Vercel; `false` en los demás casos |
 
-> Si `JWT_SECRET` no está definido, el servidor emite un warning al arrancar y usa la clave por defecto. **Nunca despliegues así.**
+> Si `JWT_SECRET` no está definido y `NODE_ENV=production` o la app corre en Vercel (`VERCEL`), el
+> servidor **no arranca** (lanza un error al cargar). En desarrollo y tests emite un warning y usa la
+> clave por defecto.
+
+> Con `npm start` en un servidor propio **detrás de un proxy** (nginx, Caddy) que reescribe
+> `X-Forwarded-For`, definí `TRUST_PROXY=1`. Sin proxy, dejala vacía: si se confiara en
+> `X-Forwarded-For`, cualquiera podría esquivar el límite por IP cambiando ese header.
+
+> **Persistencia (Redis o Vercel Blob):** cada pedido lee el estado completo y lo guarda con una
+> escritura condicional (versión en Redis con un script Lua, `ifMatch` con el ETag en Blob). Si otra
+> instancia guardó en el medio, el pedido responde `503` y no pisa ese cambio.
 
 ### Colección Postman
 
@@ -219,7 +231,8 @@ La vigencia es de **7 días**. El claim `rol` es el que usa el cliente para deci
 
 | Middleware | Comportamiento |
 |------------|----------------|
-| `authenticateToken` | Exige `Authorization: Bearer <token>`. Inyecta `responsibleId`, `userEmail` y `rol` en `req`. Token ausente → `401`; token inválido/vencido → `403`. |
+| `authenticateToken` | Exige `Authorization: Bearer <token>`. Inyecta `responsibleId`, `userEmail` y `rol` en `req`. Token ausente o credencial de celular (`Device ...`) → `401`; token inválido/vencido → `403`. |
+| `authenticateDevice` | Exige `Authorization: Device <credencial>` (la que entrega `POST /api/devices/claim`). Inyecta `deviceId` y `responsibleId`. Credencial ausente, revocada, de un dispositivo pendiente o un `Bearer` → `401` `"Este celular ya no está vinculado"` (`code: "DEVICE_UNLINKED"`). |
 | `authorizeRoles(['responsable'])` | Restringe el acceso a los perfiles indicados. Se ejecuta siempre **después** de `authenticateToken`. Rol no autorizado → `403`. |
 
 ---
@@ -235,6 +248,8 @@ npm test
 | `src/__tests__/auth.test.ts` | BK-1.1 registro · BK-1.2 login · BK-1.3 modo de usuario · BK-1.4 middleware y roles |
 | `src/__tests__/blocklist.test.ts` | Consulta de dominios · dominios personalizados · estado de actualización · sincronización de la lista oficial |
 | `src/__tests__/app.test.ts` | Integración de health, auth, dispositivos, blocklist y eventos |
+| `src/__tests__/devices.claim.test.ts` | Vinculación por código · credencial del celular y rutas `/me` · regenerar código · `JWT_SECRET` en producción |
+| `src/__tests__/suggestions.test.ts` | Sugerir un sitio · límite diario · listado administrativo |
 
 ---
 
@@ -248,19 +263,29 @@ Ya implementados en el backend (aún sin pantallas conectadas en el cliente):
 | `POST` | `/api/devices/link` | Registra un dispositivo protegido (estado PENDING + linkCode) 🔒 |
 | `POST` | `/api/devices/confirm-link` | Confirma el vínculo validando el PIN (estado ACTIVE) 🔒 |
 | `GET` | `/api/devices` | Lista los dispositivos del responsable 🔒 |
-| `PATCH` | `/api/devices/:id/status` | Activa/desactiva un dispositivo 🔒 |
-| `POST` | `/api/blocklist/check` | Verifica si un dominio está bloqueado (público) |
+| `PATCH` | `/api/devices/:id/status` | Activa/desactiva un dispositivo; con `pending` lo desvincula 🔒 |
+| `POST` | `/api/devices/:id/link-code` | Genera un código de vinculación nuevo (si está vinculado, pide PIN y lo desvincula) 🔒 |
+| `POST` | `/api/devices/claim` | Vincula el celular del menor con código + PIN (público) |
+| `GET` | `/api/devices/me` | Estado del celular vinculado 📱 |
+| `GET` | `/api/devices/me/blocklist` | Lista de bloqueo del celular (oficial + personalizada del adulto) 📱 |
+| `POST` | `/api/devices/me/events` | Registra un evento del celular 📱 |
+| `POST` | `/api/devices/me/verify-pin` | Verifica el PIN del adulto desde el celular 📱 |
+| `PATCH` | `/api/devices/me/status` | Pausa o reactiva la protección con el PIN 📱 |
+| `POST` | `/api/devices/me/unlink` | Desvincula el celular con el PIN 📱 |
+| `POST` | `/api/blocklist/check` | Verifica si un dominio está bloqueado (público; con credencial suma los personalizados) |
+| `POST` | `/api/blocklist/suggestions` | Sugiere un sitio para revisar con LOTBA 🔒 |
+| `GET` | `/api/blocklist/suggestions` | Lista las sugerencias para revisarlas ⚙️ |
 | `GET` | `/api/blocklist` | Lista de bloqueo oficial + personalizada 🔒 |
 | `GET` | `/api/blocklist/status` | Estado de actualización de la lista de bloqueo 🔒 |
 | `POST` | `/api/blocklist/sync/official` | Sincroniza el listado oficial de LOTBA ⚙️ |
 | `POST` | `/api/blocklist/custom` | Agrega un dominio personalizado 🔒 |
 | `DELETE` | `/api/blocklist/custom/:id` | Elimina un dominio personalizado 🔒 |
-| `POST` | `/api/events` | Registra un evento de seguridad |
+| `POST` | `/api/events` | Registra un evento de seguridad (público, legado: lo usan los APK ya instalados) |
 | `GET` | `/api/events` | Eventos del responsable (filtro por `deviceId`) 🔒 |
 | `GET` | `/api/events/alerts` | Alertas del responsable 🔒 |
 | `PATCH` | `/api/events/alerts/:id/read` | Marca una alerta como leída 🔒 |
 
-🔒 = requiere `Authorization: Bearer <JWT>` · ⚙️ = requiere `x-admin-secret`.
+🔒 = requiere `Authorization: Bearer <JWT>` · 📱 = requiere `Authorization: Device <credencial>` · ⚙️ = requiere `x-admin-secret`.
 
 ---
 
@@ -406,11 +431,23 @@ Permite mostrar en la app el estado de actualización de la lista de bloqueo.
 | `responsibleId` | `string` | UUID del responsable dueño |
 | `deviceName` | `string` | Nombre del dispositivo (ej. "Tablet de Sofía") |
 | `fechaNacimiento` | `string` | Fecha de nacimiento del menor (YYYY-MM-DD) |
-| `linkCode` | `string` | Código de vinculación alfanumérico (8 chars) |
-| `deviceToken` | `string?` | Token FCM para notificaciones push |
+| `linkCode` | `string` | Código de vinculación alfanumérico (8 chars, sin I, O, 0 ni 1) |
+| `linkCodeExpiresAt` | `string?` (ISO 8601) | Vencimiento del código (`LINK_CODE_TTL_MINUTES`) |
+| `linkCodeUsedAt` | `string?` (ISO 8601) | Cuándo se usó o se invalidó el código |
+| `linkFailedAttempts` | `number?` | PIN incorrectos con el código vigente (**nunca se devuelve**) |
+| `linkedAt` | `string?` (ISO 8601) | Cuándo quedó vinculado el celular |
+| `deviceSecretHash` | `string?` | SHA-256 de la credencial del celular (**nunca se devuelve**) |
+| `deviceSecretIssuedAt` | `string?` (ISO 8601) | Cuándo se emitió la credencial vigente |
+| `deviceToken` | `string?` | Token FCM para notificaciones push (**nunca se devuelve**) |
 | `status` | `'pending' \| 'active' \| 'inactive'` | Estado del dispositivo |
 | `lastSeen` | `string` (ISO 8601) | Última actividad |
 | `createdAt` | `string` (ISO 8601) | Fecha de alta |
+
+Todas las respuestas que devuelven dispositivos pasan por `toPublicDevice`
+(`services/device.service.ts`): `linkCode` y `linkCodeExpiresAt` aparecen **solo** si el
+dispositivo está `pending` y el código sigue vigente y sin usar. Los dispositivos creados antes
+de que existiera el vencimiento no tienen `linkCodeExpiresAt`: se toman como vencidos y el adulto
+genera uno nuevo con `POST /api/devices/:id/link-code`.
 
 Valores de `status` normalizados case-insensitivamente: `active`/`activo`, `inactive`/`disabled`/`inactivo`, `pending`/`pendiente`.
 
@@ -445,17 +482,20 @@ protegido usará para identificar el perfil.
     "fechaNacimiento": "2015-08-12",
     "status": "pending",
     "linkCode": "XK9M2P7R",
+    "linkCodeExpiresAt": "2026-...",
     "responsibleId": "uuid",
     "createdAt": "2026-..."
   },
   "deviceId": "uuid",
-  "linkCode": "XK9M2P7R"
+  "linkCode": "XK9M2P7R",
+  "linkCodeExpiresAt": "2026-..."
 }
 ```
 
 También crea una alerta `DEVICE_PENDING` para el responsable.
 
-**Errores:** `400` deviceName o fechaNacimiento ausentes / formato inválido · `401` sin token · `403` token inválido.
+**Errores:** `400` deviceName o fechaNacimiento ausentes / formato inválido / nombre de menos de 2 o
+más de 40 caracteres (`"El nombre tiene que tener entre 2 y 40 caracteres"`) · `401` sin token · `403` token inválido.
 
 ---
 
@@ -527,7 +567,8 @@ Activa o desactiva la protección del dispositivo.
 { "status": "inactive" }
 ```
 
-Valores admitidos: `active` | `inactive` (case-insensitive).
+Valores admitidos: `active` | `inactive` | `pending` (case-insensitive). `pending` **desvincula**
+el celular (lo usa `unlinkDevice` en la app): revoca su credencial y genera un código nuevo.
 
 **Response `200 OK`**
 
@@ -536,6 +577,145 @@ Valores admitidos: `active` | `inactive` (case-insensitive).
 ```
 
 **Errores:** `400` status inválido · `401` sin token · `403` token inválido · `404` dispositivo no encontrado o no pertenece al responsable.
+
+---
+
+## Vinculación por código (celular del menor)
+
+Camino recomendado para proteger el celular del menor **sin que el adulto inicie sesión ahí**.
+El flujo anterior (`POST /api/devices/confirm-link` con la sesión del adulto) sigue funcionando igual.
+
+1. El adulto crea el dispositivo (`POST /api/devices/link`) y recibe un `linkCode` de 8 caracteres
+   que vence a las `LINK_CODE_TTL_MINUTES` (24 h por defecto).
+2. En el celular del menor se ingresa el código y el PIN del adulto (`POST /api/devices/claim`).
+3. El backend devuelve una **credencial opaca** (`deviceAccessToken`) que el celular guarda y
+   manda en cada pedido como `Authorization: Device <credencial>`. Solo se guarda su SHA-256.
+4. El celular usa las rutas `/api/devices/me/*`. Esa credencial no sirve en las rutas del adulto,
+   y el JWT del adulto no sirve en `/me`.
+
+### `POST /api/devices/claim` (público)
+
+**Request**
+
+```json
+{ "linkCode": "xk9m-2p7r", "pin": "4829" }
+```
+
+El código se normaliza a mayúsculas, sin espacios ni guiones.
+
+**Response `200 OK`**
+
+```json
+{
+  "message": "Vinculación confirmada",
+  "device": { "id": "uuid", "deviceName": "Celular de Sofi", "status": "active", "linkedAt": "2026-..." },
+  "deviceAccessToken": "credencial-opaca-base64url"
+}
+```
+
+Nunca devuelve `responsibleId`, `linkCode` ni `fechaNacimiento`. El dispositivo pasa a `active`, el
+código queda usado y el adulto recibe una alerta `DEVICE_LINKED` (y un push si tiene token).
+
+**Errores:**
+- `400` `"Revisá el código: tiene 8 letras y números"` · PIN que no tiene 4 dígitos
+- `401` `"El código o el PIN no son correctos, o el código venció."`: mismo mensaje para código
+  inexistente, vencido, usado, PIN incorrecto o responsable sin PIN (no da pistas)
+- `429` `"Demasiados intentos. Probá de nuevo en unos minutos."`: más de 10 intentos fallidos en
+  15 minutos desde la misma IP (se guarda el SHA-256 de la IP, no la IP)
+- `429` PIN del adulto bloqueado (mismo bloqueo de 5 intentos / 15 minutos que el resto de la app)
+
+A los **5 PIN incorrectos** con un mismo código, el código se invalida y el adulto tiene que
+generar uno nuevo.
+
+### Rutas del celular (`Authorization: Device <credencial>`) 📱
+
+| Método | Ruta | Request | Response |
+|--------|------|---------|----------|
+| `GET` | `/api/devices/me` | | `{ device: { id, deviceName, status, lastSeen, linkedAt } }`. Actualiza `lastSeen` (latido). |
+| `GET` | `/api/devices/me/blocklist` | | Misma forma que `GET /api/blocklist`: lista oficial + personalizados del adulto dueño. |
+| `POST` | `/api/devices/me/events` | `{ eventType, domain?, details }` | `201 { event }`. El dispositivo sale de la credencial; genera alertas igual que `POST /api/events`. |
+| `POST` | `/api/devices/me/verify-pin` | `{ pin }` | `200 { valid: true }` · `401` · `429` |
+| `PATCH` | `/api/devices/me/status` | `{ status: "active" \| "inactive", pin }` | `{ device }`. Registra `PROTECTION_MODIFIED`. |
+| `POST` | `/api/devices/me/unlink` | `{ pin }` | `200`. Revoca la credencial, el dispositivo vuelve a `pending` con código nuevo y el adulto recibe una alerta `DEVICE_UNLINKED`. |
+
+Credencial ausente, revocada o de un dispositivo pendiente → `401`
+`{ "error": "Este celular ya no está vinculado", "code": "DEVICE_UNLINKED" }`: la app borra la
+sesión del celular. Un PIN incorrecto también responde `401`, pero con `"code": "INVALID_PIN"`,
+para que la app no lo confunda con la desvinculación.
+
+`POST /api/blocklist/check` acepta la misma credencial: con ella suma los sitios personalizados
+del adulto dueño. `POST /api/events` (público, con `deviceId` en el cuerpo) se mantiene por
+compatibilidad con los APK ya instalados.
+
+### `POST /api/devices/:id/link-code` 🔒
+
+Genera un código nuevo con vigencia completa.
+
+- Dispositivo `pending`: no pide nada más.
+- Dispositivo vinculado (`active` o `inactive`): exige `{ "pin": "4829" }`, **revoca la credencial**
+  del celular y lo deja `pending` (es la forma de desvincularlo desde la app del adulto).
+
+**Response `200 OK`**
+
+```json
+{ "message": "Código de vinculación generado", "linkCode": "Q7MZ3KXP", "linkCodeExpiresAt": "2026-...", "device": { ... } }
+```
+
+**Errores:** `400` falta el PIN (dispositivo vinculado) · `401` PIN incorrecto · `404` dispositivo
+de otra cuenta · `409` el adulto no configuró PIN · `429` PIN bloqueado.
+
+---
+
+## Sugerir un sitio
+
+### `POST /api/blocklist/suggestions` 🔒
+
+El adulto propone un sitio para sumar a la lista. No bloquea nada por sí sola: queda `pendiente`
+hasta que el equipo la revise y la envíe a LOTBA.
+
+**Request**
+
+```json
+{ "url": "https://www.sitio-de-apuestas.com/ruleta", "motivo": "apuestas_ilegales", "info": "Lo vi en una publicidad" }
+```
+
+| Campo | Reglas |
+|-------|--------|
+| `url` | Obligatoria. Se guarda el dominio pelado (`sitio-de-apuestas.com`): sin protocolo, ruta, puerto ni `www.`. |
+| `motivo` | `apuestas_ilegales` \| `publicidad_apuestas` \| `contenido_inapropiado` \| `otro` |
+| `info` | Opcional, hasta 500 caracteres. |
+
+**Response `201 Created`**
+
+```json
+{
+  "message": "Sugerencia enviada",
+  "suggestion": {
+    "id": "uuid",
+    "responsibleId": "uuid",
+    "domain": "sitio-de-apuestas.com",
+    "motivo": "apuestas_ilegales",
+    "info": "Lo vi en una publicidad",
+    "createdAt": "2026-...",
+    "status": "pendiente"
+  }
+}
+```
+
+**Errores:** `400` `"Por favor, ingresá la URL del sitio."` · dirección que no es un sitio ·
+`"Por favor, seleccioná el motivo."` · `info` de más de 500 caracteres · `401` sin sesión ·
+`429` más de 20 sugerencias en 24 horas.
+
+### `GET /api/blocklist/suggestions` ⚙️
+
+Listado para revisar las sugerencias (más nuevas primero). Acepta `?status=pendiente`.
+Requiere `x-admin-secret`, como la sincronización de la lista oficial.
+
+```json
+{ "total": 1, "suggestions": [ { "id": "uuid", "domain": "sitio-de-apuestas.com", "motivo": "apuestas_ilegales", "status": "pendiente", ... } ] }
+```
+
+**Errores:** `401` sin secreto o secreto incorrecto · `503` si `ADMIN_SECRET` no está configurado.
 
 ---
 
@@ -550,4 +730,6 @@ npm test
 | `src/__tests__/auth.test.ts` | BK-1.1 registro · BK-1.2 login · BK-1.3 modo de usuario · BK-1.4 middleware y roles |
 | `src/__tests__/blocklist.test.ts` | Consulta de dominios · dominios personalizados · estado de actualización · sincronización de la lista oficial |
 | `src/__tests__/devices.test.ts` | BK-2.1 PIN · BK-2.2 link device · BK-2.3 confirm-link · BK-2.4 list y status |
+| `src/__tests__/devices.claim.test.ts` | Vinculación por código · credencial del celular y rutas `/me` · regenerar código · `JWT_SECRET` en producción |
+| `src/__tests__/suggestions.test.ts` | Sugerir un sitio · límite diario · listado administrativo |
 | `src/__tests__/app.test.ts` | Integración de health, auth, dispositivos, blocklist y eventos |

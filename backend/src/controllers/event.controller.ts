@@ -1,55 +1,16 @@
 import { Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import { db, EventItem, AlertItem } from '../config/db';
+import { db } from '../config/db';
 import { AuthRequest } from '../middleware/auth.middleware';
-import {
-  sendPushNotification,
-  getResponsiblePushToken,
-  CRITICAL_EVENT_TYPES,
-  getCriticalAlertMessage,
-  CriticalEventType
-} from '../services/push.service';
+import { isSecurityEventType, recordDeviceEvent } from '../services/event.service';
 
-const SECURITY_EVENT_TYPES = [
-  'SITE_BLOCKED',
-  'UNINSTALL_ATTEMPT',
-  'APP_INSTALL_ATTEMPT',
-  'BYPASS_ATTEMPT',
-  'ACCESS_ATTEMPT',
-  'PROTECTION_MODIFIED'
-] as const;
-
-export type SecurityEventType = typeof SECURITY_EVENT_TYPES[number];
+export type { SecurityEventType } from '../services/event.service';
 
 /**
- * Eventos que generan una alerta para el adulto. Además de los críticos
- * (que también envían push) se mantienen ACCESS_ATTEMPT, el nombre anterior de
- * SITE_BLOCKED que siguen enviando los APK ya instalados, y los intentos de
- * evasión o de instalación.
+ * POST /api/events (público, legado)
+ * Se mantiene por compatibilidad con los APK ya instalados, que mandan el
+ * deviceId en el cuerpo. Los celulares vinculados por código usan
+ * POST /api/devices/me/events, que toma el dispositivo de la credencial.
  */
-const ALERT_EVENT_TYPES: readonly SecurityEventType[] = [
-  ...CRITICAL_EVENT_TYPES,
-  'ACCESS_ATTEMPT',
-  'APP_INSTALL_ATTEMPT',
-  'BYPASS_ATTEMPT'
-];
-
-const alertMessageFor = (eventType: SecurityEventType, deviceName: string, domain?: string) => {
-  switch (eventType) {
-    case 'SITE_BLOCKED':
-    case 'ACCESS_ATTEMPT':
-      return `Intento de acceso bloqueado al sitio ${domain || 'restringido'} desde el dispositivo ${deviceName}.`;
-    case 'UNINSTALL_ATTEMPT':
-      return `¡Alerta de seguridad! Intento de desinstalación detectado en el dispositivo ${deviceName}.`;
-    case 'APP_INSTALL_ATTEMPT':
-      return `Intento de instalación de aplicación no autorizada detectado en el dispositivo ${deviceName}.`;
-    case 'BYPASS_ATTEMPT':
-      return `¡Alerta de seguridad! Intento de evasión o bypass detectado en el dispositivo ${deviceName}.`;
-    default:
-      return `Evento de seguridad detectado en el dispositivo ${deviceName}.`;
-  }
-};
-
 export const recordEvent = async (req: AuthRequest, res: Response) => {
   try {
     const { deviceId, eventType, domain, details } = req.body;
@@ -58,7 +19,7 @@ export const recordEvent = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'deviceId, eventType, and details are required' });
     }
 
-    if (!SECURITY_EVENT_TYPES.includes(eventType as SecurityEventType)) {
+    if (!isSecurityEventType(eventType)) {
       return res.status(400).json({ error: 'Invalid eventType' });
     }
 
@@ -67,45 +28,7 @@ export const recordEvent = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Device not found' });
     }
 
-    const newEvent: EventItem = {
-      id: uuidv4(),
-      deviceId,
-      eventType: eventType as SecurityEventType,
-      domain,
-      details,
-      timestamp: new Date().toISOString()
-    };
-
-    db.events.push(newEvent);
-
-    // Los eventos de seguridad generan una alerta; los críticos además envían push.
-    if (ALERT_EVENT_TYPES.includes(newEvent.eventType as SecurityEventType)) {
-      const newAlert: AlertItem = {
-        id: uuidv4(),
-        responsibleId: device.responsibleId,
-        deviceId: device.id,
-        alertType: eventType,
-        message: alertMessageFor(newEvent.eventType as SecurityEventType, device.deviceName, domain),
-        read: false,
-        createdAt: new Date().toISOString()
-      };
-
-      db.alerts.push(newAlert);
-    }
-
-    const criticalEventType = eventType as CriticalEventType;
-    if (CRITICAL_EVENT_TYPES.includes(criticalEventType)) {
-      // Enviar push notification (graceful: no romper si falla)
-      const pushToken = getResponsiblePushToken(device.responsibleId);
-      if (pushToken) {
-        const notification = getCriticalAlertMessage(
-          criticalEventType,
-          device.deviceName,
-          domain
-        );
-        sendPushNotification(pushToken, notification);
-      }
-    }
+    const newEvent = recordDeviceEvent({ device, eventType, domain, details });
 
     return res.status(201).json({
       message: 'Event recorded successfully',
