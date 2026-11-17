@@ -15,32 +15,36 @@ Aplicación para que madres, padres y personas adultas a cargo **bloqueen los si
 La misma app tiene dos modos. Cada celular elige el suyo la primera vez que se usa:
 
 - **Modo adulto responsable.** En tu celular o en la web app creás tu cuenta (con correo y contraseña o con **Continuar con Google**) y un PIN de 4 dígitos, cargás el perfil de cada hijo o hija y recibís las alertas y el historial.
-- **Modo dispositivo protegido.** En el celular del menor iniciás sesión con **tu** cuenta, elegís su perfil y confirmás con tu PIN. A partir de ahí, una VPN local de Android filtra por DNS los dominios del listado. La navegación no pasa por ningún servidor nuestro.
+- **Modo dispositivo protegido.** Se vincula el celular del menor de una de dos formas:
+  - **Con un código (recomendado).** Al cargar el perfil, la app le muestra al adulto un código de 8 caracteres que vence en 24 horas. En el celular del menor se toca **«Vincular con un código»**, se escribe el código y el PIN del adulto, y listo. La cuenta del adulto no queda abierta en ese celular: el celular recibe una credencial propia, revocable, que solo sirve para su estado, la lista de bloqueo y sus eventos.
+  - **Iniciando sesión con la cuenta del adulto.** Se elige el perfil del menor y se confirma con el PIN.
+
+  A partir de ahí, una VPN local de Android filtra por DNS los dominios del listado. La navegación no pasa por ningún servidor nuestro. Para pausar la protección o desvincular el celular siempre hace falta el PIN del adulto.
 
 ```mermaid
 flowchart TD
-    A[Bienvenida y onboarding] --> B{¿Tiene cuenta?}
-    B -- No --> C[Crear cuenta]
-    B -- Sí --> D[Iniciar sesión]
-    C --> E[Selección de modo]
-    D --> E
-    E -- Adulto responsable --> F[Crear PIN de seguridad]
+    A[Bienvenida y onboarding] --> B{¿Qué celular es?}
+    B -- El del adulto --> C[Crear cuenta o iniciar sesión]
+    C --> F[Crear PIN de seguridad]
     F --> G[Inicio: dispositivos, alertas e historial]
-    G --> H[Agregar dispositivo: nombre y fecha de nacimiento]
-    H --> I[Perfil creado: pasos y código de vinculación]
-    E -- Dispositivo protegido --> J[Elegir el perfil del menor]
-    J --> K[Confirmar con el PIN del adulto]
-    K -- PIN incorrecto --> K
-    K -- PIN correcto --> L[Celular protegido: VPN local activa]
+    G --> H[Agregar perfil: nombre y fecha de nacimiento]
+    H --> I[Código de vinculación: copiar o compartir]
+    B -- El del menor --> V[Vincular con un código]
+    I -. el adulto le pasa el código .-> V
+    V --> K[Código + PIN del adulto]
+    K -- incorrecto: 5 intentos como máximo --> K
+    K -- correcto --> L[Celular protegido: VPN local activa]
+    C -. alternativa: modo dispositivo protegido .-> J[Elegir perfil y confirmar con el PIN]
+    J --> L
     L -- Intento de entrar a un sitio del listado --> M[Pantalla de sitio bloqueado]
-    M -. evento ACCESS_ATTEMPT .-> N[(API)]
+    M -. evento SITE_BLOCKED .-> N[(API)]
     L -. PIN incorrecto al salir: BYPASS_ATTEMPT .-> N
-    N -. alerta .-> G
+    N -. alerta y push .-> G
 ```
 
 ### Qué se registra y qué no
 
-- **Se registra:** los intentos de entrar a un sitio bloqueado, los cambios en la protección y los PIN incorrectos al intentar salir del modo protegido.
+- **Se registra:** los eventos del catálogo del Hito 3: intento de entrar a un sitio bloqueado (`SITE_BLOCKED`), intento de desinstalar (`UNINSTALL_ATTEMPT`), intento de evasión o PIN incorrecto al salir (`BYPASS_ATTEMPT`), intento de instalar una app (`APP_INSTALL_ATTEMPT`) y cambios en la protección (`PROTECTION_MODIFIED`). Los de seguridad generan una alerta para el adulto, y los críticos además una notificación push (hoy simulada: falta conectar Firebase o Expo Push). `ACCESS_ATTEMPT`, el nombre anterior de `SITE_BLOCKED`, se sigue aceptando por los APK ya instalados.
 - **No se registra:** el resto de la navegación, los mensajes, las fotos ni la ubicación. El detalle está en [Data Analytics/plan-de-datos-y-telemetria.md](Data%20Analytics/plan-de-datos-y-telemetria.md).
 
 ## Pantallas
@@ -67,19 +71,35 @@ Capturas de la web app, tomadas con el recorrido automático de [`docs/e2e`](doc
 |---|---|---|---|
 | <img src="docs/screenshots/18-home-con-dispositivo.png" width="190"> | <img src="docs/screenshots/19-alertas.png" width="190"> | <img src="docs/screenshots/20-detalle-alerta.png" width="190"> | <img src="docs/screenshots/21-historial.png" width="190"> |
 
-| Configuración | Ayuda |
-|---|---|
-| <img src="docs/screenshots/22-configuracion.png" width="190"> | <img src="docs/screenshots/23-ayuda.png" width="190"> |
+| Configuración | Ayuda | Sugerir un sitio |
+|---|---|---|
+| <img src="docs/screenshots/22-configuracion.png" width="190"> | <img src="docs/screenshots/23-ayuda.png" width="190"> | <img src="docs/screenshots/30-sugerir-sitio.png" width="190"> |
+
+#### Vincular con un código
+
+| Código para el adulto | Vincular este celular | Código o PIN incorrecto |
+|---|---|---|
+| <img src="docs/screenshots/24-codigo-de-vinculacion.png" width="190"> | <img src="docs/screenshots/25-vincular-con-codigo.png" width="190"> | <img src="docs/screenshots/26-vincular-con-codigo-error.png" width="190"> |
+
+| Celular protegido | Sitio bloqueado | Alerta para el adulto |
+|---|---|---|
+| <img src="docs/screenshots/27-home-protegido-con-codigo.png" width="190"> | <img src="docs/screenshots/28-sitio-bloqueado-con-codigo.png" width="190"> | <img src="docs/screenshots/29-alertas-segundo-celular.png" width="190"> |
+
+En la web, la pantalla «Vinculá este celular» avisa que el navegador no bloquea sitios. Si se abre desde el navegador de un Android, ofrece abrir la app o descargarla, para que el código no se gaste en un navegador.
 
 ### En Android (APK, emulador con Android 15)
 
-| Vinculación con PIN | Permiso de VPN del sistema | Celular protegido |
+| Vincular con un código | Celular protegido (VPN activa) | Pausar pide el PIN |
+|---|---|---|
+| <img src="docs/screenshots/android/02-c-vincular-con-codigo.png" width="190"> | <img src="docs/screenshots/android/04-c-protegido-vpn-activa.png" width="190"> | <img src="docs/screenshots/android/05-c-pausar-con-pin.png" width="190"> |
+
+| Vinculación iniciando sesión | Permiso de VPN del sistema | Celular protegido |
 |---|---|---|
 | <img src="docs/screenshots/android/04-vinculacion-pin.png" width="190"> | <img src="docs/screenshots/android/07-permiso-vpn.png" width="190"> | <img src="docs/screenshots/android/08-protegido-vpn-activa.png" width="190"> |
 
-Con la VPN activa, `bplay.bet.ar` (listado de LOTBA) deja de resolver en todo el celular y `google.com` sigue funcionando. Lo verifica [`docs/e2e/android_e2e.py`](docs/e2e/android_e2e.py) con adb sobre el emulador.
+Con la VPN activa, `bplay.bet.ar` (listado de LOTBA) deja de resolver en todo el celular y `google.com` sigue funcionando. Lo verifican con adb sobre el emulador [`docs/e2e/android_e2e.py`](docs/e2e/android_e2e.py) (vinculación iniciando sesión) y [`docs/e2e/android_codigo_e2e.py`](docs/e2e/android_codigo_e2e.py) (vinculación por código, VPN y pausa con PIN).
 
-El recorrido automático de la web cubre el flujo completo con dos navegadores, uno para el adulto y otro para el celular del menor:
+El recorrido automático de la web cubre el flujo completo con tres navegadores: el del adulto, un celular vinculado iniciando sesión y otro vinculado con el código:
 
 ```bash
 cd docs/e2e && npm i playwright && npx playwright install chromium
@@ -100,12 +120,27 @@ E13-Control-Parental/
 ├── backend/               API Express + TypeScript (Vercel serverless)
 │   └── src/config/lotbaDomains.ts  Listado oficial de LOTBA (generado)
 ├── Data Analytics/        Plan de datos (#7) y limpieza de la lista de LOTBA (#9)
-└── docs/                  Capturas y recorrido automático
+├── Testing QA/            Estrategia, criterios, riesgos, trazabilidad y evidencias de QA (Hito 1)
+└── docs/                  Capturas y recorridos automáticos (web y Android)
 ```
 
-- **Frontend:** React Native con Expo Router. Las mismas pantallas se compilan a APK y a web (`expo export -p web`, servida en `/app`). Los colores, la tipografía y los radios salen del UI Kit del Figma (`frontend/src/theme.ts`).
-- **Backend:** Express con JWT y bcrypt para la contraseña y el PIN. En Vercel corre como función serverless. Como cada pedido puede caer en una instancia distinta, el estado se guarda en un blob privado de Vercel Blob (`BLOB_READ_WRITE_TOKEN`), o en Upstash Redis si están `KV_REST_API_URL` y `KV_REST_API_TOKEN`. En desarrollo usa la memoria. Ver `backend/src/config/persistence.ts`.
-- **Bloqueo:** el celular protegido baja el listado (`GET /api/blocklist`) y se lo pasa a la VPN local, que responde NXDOMAIN a esos dominios y a sus subdominios.
+- **Frontend:** React Native con Expo Router. Las mismas pantallas se compilan a APK y a web (`expo export -p web`, servida en `/app`). Los colores, la tipografía y los radios salen del UI Kit del Figma (`frontend/src/theme.ts`). La sesión del adulto vive en AsyncStorage; la credencial del celular vinculado por código, en SecureStore (en la web, en localStorage).
+- **Backend:** Express con JWT y bcrypt para la contraseña y el PIN. En Vercel corre como función serverless. Como cada pedido puede caer en una instancia distinta, el estado se guarda en un blob privado de Vercel Blob (`BLOB_READ_WRITE_TOKEN`), o en Upstash Redis si están `KV_REST_API_URL` y `KV_REST_API_TOKEN`. La escritura es condicional (ETag de Blob o versión en Redis): si otra instancia guardó en el medio, el pedido responde 503 en lugar de pisar ese cambio. En desarrollo usa la memoria. Ver `backend/src/config/persistence.ts`.
+- **Bloqueo:** el celular protegido baja el listado (`GET /api/blocklist`, o `GET /api/devices/me/blocklist` si se vinculó con código, que suma los sitios personalizados del adulto) y se lo pasa a la VPN local, que responde NXDOMAIN a esos dominios y a sus subdominios.
+
+### API del celular vinculado con código
+
+| Endpoint | Autenticación | Para qué |
+|---|---|---|
+| `POST /api/devices/claim` | Pública (código + PIN) | Vincula y devuelve la credencial del celular, una sola vez |
+| `GET /api/devices/me` | `Authorization: Device …` | Estado del celular (también sirve como señal de vida) |
+| `GET /api/devices/me/blocklist` | `Device` | Listado oficial más los sitios personalizados del adulto |
+| `POST /api/devices/me/events` | `Device` | Registra un evento del catálogo |
+| `POST /api/devices/me/verify-pin` · `PATCH /api/devices/me/status` · `POST /api/devices/me/unlink` | `Device` + PIN del adulto | Verificar el PIN, pausar o reanudar, desvincular |
+| `POST /api/devices/:id/link-code` | JWT del adulto | Código nuevo; si el celular estaba vinculado, pide el PIN y revoca la credencial |
+| `POST /api/blocklist/suggestions` · `GET` (admin) | JWT del adulto · `ADMIN_SECRET` | Sugerir un sitio y revisar las sugerencias para enviarlas a LOTBA |
+
+**Seguridad de la vinculación.** El código se genera con `crypto.randomInt` (32⁸ combinaciones), vence a las 24 horas (`LINK_CODE_TTL_MINUTES`) y se invalida después de 5 intentos fallidos. Además, hay límites por PIN del adulto (5 intentos y 15 minutos de bloqueo) y por IP (10 intentos cada 15 minutos). El intento se cuenta antes de comparar, para que los pedidos en paralelo no salteen el límite. La credencial del celular se guarda solo como hash, se compara en tiempo constante y no sirve en las rutas del adulto, ni el JWT del adulto en las del celular. `trust proxy` se activa solo en Vercel o con `TRUST_PROXY`. En producción, el backend no arranca sin `JWT_SECRET`.
 
 ## Desarrollo local
 
@@ -166,9 +201,12 @@ Para crear el cliente: en Google Cloud Console configurá la pantalla de consent
 ```bash
 cd frontend
 EXPO_PUBLIC_API_URL=https://baprotege-api.vercel.app npx expo prebuild -p android --clean
-cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
+  -Dorg.gradle.jvmargs="-Xmx3g" -Dorg.gradle.workers.max=2
 # app/build/outputs/apk/release/app-release.apk
 ```
+
+Con 8 GB de RAM, no compiles el APK mientras corre otro proceso pesado (otro build o un render), porque WSL se puede quedar sin memoria. `expo-secure-store` y `expo-clipboard` son módulos nativos: después de agregarlos o actualizarlos hay que volver a compilar el APK.
 
 El APK de prueba se firma con la clave de debug. Para publicarlo en Google Play hace falta una clave de release propia (o `eas build`).
 
@@ -179,6 +217,20 @@ cd frontend
 EXPO_PUBLIC_API_URL=https://baprotege-api.vercel.app npm run build:web
 # dist/ = landing en "/" + web app en "/app"; vercel.json define los rewrites
 ```
+
+## Integración de las ramas del equipo
+
+Esta rama (`feat/figma-landing-webapp`, PR #48) incluye lo de todas las ramas del repo. Al 16/11/2026, solo tres traían cambios nuevos:
+
+| Rama | Qué se tomó | Cómo |
+|---|---|---|
+| `main` | Documentación de QA del Hito 1 (`Testing QA/`) | Merge. `frontend/src/services/auth.ts` quedó con la versión de esta rama, que ya incluía lo del Hito 1. |
+| `Hito3-FiltradoDNS-VPN-Eventos-Alertas-Auditoria` | Servicio de push, `POST /api/devices/push-token`, catálogo de eventos, historial ordenado y filtrable por categoría, tests | Merge con ajustes: se sigue aceptando `PROTECTION_MODIFIED` (lo envía la app) y los tipos anteriores siguen generando alerta. El test de dominio personalizado ahora consulta con el token de la cuenta, porque los sitios personalizados de un adulto no se bloquean para todos. |
+| `13-front-vinculación-entre-dispositivos-y-estado-de-protección` (PR #30) | Vincular el celular sin la cuenta del adulto, «Sugerir un sitio», onboarding con scroll y validación del nombre | Reimplementado, sin merge. La rama confirmaba la vinculación con un endpoint público y un PIN de 4 dígitos, sin límite de intentos. Además, sus pantallas eran anteriores al diseño del Figma y tenía commiteado un JWT firmado con la clave por defecto. |
+
+Las demás ramas (`development`, `12-front-navegación-onboarding`, `Hito-1…`, `Hito-2…`, `backend-semana1`, `feat/vpn-local-android`) ya estaban incluidas.
+
+**Pruebas:** `backend` tiene 246 tests (`npm test`). Se suman el recorrido web con Playwright y los dos recorridos de Android con adb.
 
 ## Datos
 
