@@ -1,7 +1,9 @@
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AppButton from "../src/components/AppButton";
+import { colors, radius, spacing, typography } from "../src/theme";
 
 export default function NotFoundScreen() {
   const router = useRouter();
@@ -21,22 +23,14 @@ export default function NotFoundScreen() {
           <Text style={styles.errorCode}>404</Text>
         </View>
 
-        <Text style={styles.title}>¡Ups! Esta página se perdió en el camino.</Text>
-        <Text style={styles.message}>
-          La dirección que buscás no existe o fue movida. En BA Protege+
-          estamos para acompañarte y cuidar a tu familia en el mundo digital.
+        <Text style={styles.title} accessibilityRole="header">
+          No encontramos esta pantalla.
         </Text>
+        <Text style={styles.message}>Volvé al inicio para seguir.</Text>
 
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.replace("/")}
-          style={({ pressed }) => [
-            styles.button,
-            pressed && styles.buttonPressed,
-          ]}
-        >
-          <Text style={styles.buttonText}>Volver al inicio</Text>
-        </Pressable>
+        <View style={styles.button}>
+          <AppButton title="Volver al inicio" onPress={() => router.replace("/")} />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -45,14 +39,14 @@ export default function NotFoundScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 28,
-    paddingVertical: 32,
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.xxxl,
   },
   logo: {
     width: 150,
@@ -64,47 +58,28 @@ const styles = StyleSheet.create({
     height: 132,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 66,
-    backgroundColor: "#FFF7CC",
+    borderRadius: radius.pill,
+    backgroundColor: colors.brandSoft,
     marginBottom: 28,
   },
   errorCode: {
-    color: "#1C1C1C",
+    ...typography.display,
     fontSize: 40,
-    fontWeight: "800",
   },
   title: {
-    color: "#1C1C1C",
-    fontSize: 25,
-    fontWeight: "800",
-    lineHeight: 32,
+    ...typography.display,
     textAlign: "center",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   message: {
+    ...typography.body,
     maxWidth: 360,
-    color: "#777777",
-    fontSize: 15,
-    lineHeight: 23,
     textAlign: "center",
     marginBottom: 30,
   },
   button: {
-    minHeight: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "stretch",
+    alignSelf: "center",
     maxWidth: 360,
-    borderRadius: 11,
-    backgroundColor: "#FFD900",
-    paddingHorizontal: 24,
-  },
-  buttonPressed: {
-    opacity: 0.75,
-  },
-  buttonText: {
-    color: "#1C1C1C",
-    fontSize: 15,
-    fontWeight: "700",
+    width: "100%",
   },
 });

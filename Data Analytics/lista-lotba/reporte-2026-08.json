@@ -1,0 +1,298 @@
+{
+  "periodo": "2026-08",
+  "archivo_blacklist": "Sitios bloqueados - Agosto(Hoja1).csv",
+  "archivo_legales": "Lista de sitios legales.odt",
+  "encabezado": "LINK",
+  "filas_leidas": 2115,
+  "formatos": {
+    "sin esquema": 16,
+    "con www.": 764,
+    "con esquema (http/https)": 2099,
+    "con ruta después del dominio": 284
+  },
+  "duplicados_exactos": 7,
+  "duplicados_tras_normalizar": 24,
+  "rechazados": 1,
+  "dominios_unicos": 2090,
+  "ilegales": 2076,
+  "licenciados": 14,
+  "subdominios_ya_cubiertos": 42,
+  "tlds_top": [
+    [
+      "com",
+      1126
+    ],
+    [
+      "net",
+      79
+    ],
+    [
+      "ar",
+      66
+    ],
+    [
+      "bet",
+      66
+    ],
+    [
+      "io",
+      55
+    ],
+    [
+      "pro",
+      49
+    ],
+    [
+      "uk",
+      36
+    ],
+    [
+      "club",
+      36
+    ],
+    [
+      "lat",
+      31
+    ],
+    [
+      "eu",
+      31
+    ],
+    [
+      "co",
+      29
+    ],
+    [
+      "vip",
+      29
+    ],
+    [
+      "top",
+      28
+    ],
+    [
+      "casino",
+      27
+    ],
+    [
+      "life",
+      26
+    ]
+  ],
+  "operadores_legales": [
+    "Bet365",
+    "Betano",
+    "Betsson",
+    "Bplay",
+    "Super 7",
+    "Jugadón",
+    "Betfun",
+    "Codere",
+    "BetWarrior",
+    "Casino Buenos Aires Online",
+    "PlayUZU",
+    "Beturf"
+  ],
+  "operadores_legales_sin_dominio_en_blacklist": [],
+  "bet_ar_sin_licencia_en_odt": [
+    "betway.bet.ar",
+    "tuagencialotba.bet.ar"
+  ],
+  "detalle_rechazados": [
+    {
+      "linea": 1719,
+      "original": "https://play.google.com/store/apps/details?id=com.nsus.clubgg",
+      "motivo": "plataforma de uso general: bloquearla por DNS cortaría todo el servicio"
+    }
+  ],
+  "detalle_duplicados": [
+    {
+      "linea": 233,
+      "original": "HTTPS://CASINOBETCAVE.COM/?ID=4149683",
+      "dominio": "casinobetcave.com",
+      "primera_linea": 161
+    },
+    {
+      "linea": 465,
+      "original": "HTTPS://WWW.MYBET.COM/EN",
+      "dominio": "mybet.com",
+      "primera_linea": 43
+    },
+    {
+      "linea": 641,
+      "original": "https://www.arcanebet.com/",
+      "dominio": "arcanebet.com",
+      "primera_linea": 220
+    },
+    {
+      "linea": 757,
+      "original": "https://cbet.gg/en-US",
+      "dominio": "cbet.gg",
+      "primera_linea": 712
+    },
+    {
+      "linea": 758,
+      "original": "https://casino-zeus.ola.click/",
+      "dominio": "casino-zeus.ola.click",
+      "primera_linea": 711
+    },
+    {
+      "linea": 760,
+      "original": "https://ganaencasa.io/",
+      "dominio": "ganaencasa.io",
+      "primera_linea": 748
+    },
+    {
+      "linea": 1260,
+      "original": "https://www.platinumplaycasino.com/",
+      "dominio": "platinumplaycasino.com",
+      "primera_linea": 985
+    },
+    {
+      "linea": 1264,
+      "original": "https://es.tradacasino.com/",
+      "dominio": "es.tradacasino.com",
+      "primera_linea": 1193
+    },
+    {
+      "linea": 1282,
+      "original": "https://www.tioricojuegos.com/",
+      "dominio": "tioricojuegos.com",
+      "primera_linea": 745
+    },
+    {
+      "linea": 1305,
+      "original": "https://ciudadbet.com",
+      "dominio": "ciudadbet.com",
+      "primera_linea": 1207
+    },
+    {
+      "linea": 1312,
+      "original": "https://carnaval.bet/",
+      "dominio": "carnaval.bet",
+      "primera_linea": 1286
+    },
+    {
+      "linea": 1480,
+      "original": "https://elixbet.net/main",
+      "dominio": "elixbet.net",
+      "primera_linea": 783
+    },
+    {
+      "linea": 1537,
+      "original": "https://granposeidon.com/",
+      "dominio": "granposeidon.com",
+      "primera_linea": 1316
+    },
+    {
+      "linea": 1657,
+      "original": "https://liveplay365.com/",
+      "dominio": "liveplay365.com",
+      "primera_linea": 1449
+    },
+    {
+      "linea": 1668,
+      "original": "https://www.celuapuestas.xyz/",
+      "dominio": "celuapuestas.xyz",
+      "primera_linea": 1646
+    },
+    {
+      "linea": 1765,
+      "original": "https://ganamos.la/",
+      "dominio": "ganamos.la",
+      "primera_linea": 1727
+    },
+    {
+      "linea": 1791,
+      "original": "https://www.celuapuestas.ink/",
+      "dominio": "celuapuestas.ink",
+      "primera_linea": 1665
+    },
+    {
+      "linea": 1803,
+      "original": "https://celuapuestas.ink/",
+      "dominio": "celuapuestas.ink",
+      "primera_linea": 1665
+    },
+    {
+      "linea": 1950,
+      "original": "https://www.casino.org/argentina/",
+      "dominio": "casino.org",
+      "primera_linea": 702
+    },
+    {
+      "linea": 2004,
+      "original": "https://www.cupper.bet/",
+      "dominio": "cupper.bet",
+      "primera_linea": 1239
+    },
+    {
+      "linea": 2020,
+      "original": "https://www.casinozeta20.pw/",
+      "dominio": "casinozeta20.pw",
+      "primera_linea": 1989
+    },
+    {
+      "linea": 2042,
+      "original": "https://j-ugabet.com/",
+      "dominio": "j-ugabet.com",
+      "primera_linea": 1764
+    },
+    {
+      "linea": 2046,
+      "original": "http://juego-bet.cl/",
+      "dominio": "juego-bet.cl",
+      "primera_linea": 1842
+    },
+    {
+      "linea": 2101,
+      "original": "https://rainbet.com/",
+      "dominio": "rainbet.com",
+      "primera_linea": 917
+    }
+  ],
+  "detalle_cubiertos": {
+    "ar.1xbet.com": "1xbet.com",
+    "ar.melbet.com": "melbet.com",
+    "bingo.millionaire.co.uk": "millionaire.co.uk",
+    "blog.ar.jugabet.com": "ar.jugabet.com",
+    "blog.j-ugabet.com": "j-ugabet.com",
+    "bol.1xbet.com": "1xbet.com",
+    "br.melbet.com": "melbet.com",
+    "casino.foxycasino.com": "foxycasino.com",
+    "casino.netbet.com": "netbet.com",
+    "casino.partycasino.com": "partycasino.com",
+    "es.888casino.com": "888casino.com",
+    "es.europalace.com": "europalace.com",
+    "es.ggpoker.com": "ggpoker.com",
+    "es.partypoker.com": "partypoker.com",
+    "es.platinumplaycasino.com": "platinumplaycasino.com",
+    "es.tradacasino.com": "tradacasino.com",
+    "join.casino.com": "casino.com",
+    "lobby.slotlux.com": "slotlux.com",
+    "lp.betglobal.com": "betglobal.com",
+    "m.betboro.com": "betboro.com",
+    "m.mystake.com": "mystake.com",
+    "m.mystake.win": "mystake.win",
+    "play.casinovibes.com": "casinovibes.com",
+    "play.roundercasino.com": "roundercasino.com",
+    "sports.br.betboo.com": "br.betboo.com",
+    "sports.sportium.es": "sportium.es",
+    "win.jugabet.cl": "jugabet.cl",
+    "www1.24hrsbets.io": "24hrsbets.io",
+    "www1.apostando.fun": "apostando.fun",
+    "www1.bet30.click": "bet30.click",
+    "www1.bet30.games": "bet30.games",
+    "www1.bet32.pro": "bet32.pro",
+    "www1.bet71.pro": "bet71.pro",
+    "www1.casinozeta.io": "casinozeta.io",
+    "www1.casinozeus.icu": "casinozeus.icu",
+    "www1.celuapuestas.io": "celuapuestas.io",
+    "www1.celuapuestas.pro": "celuapuestas.pro",
+    "www1.cleopatrabet.io": "cleopatrabet.io",
+    "www1.fortubet.io": "fortubet.io",
+    "www1.ganaencasa.la": "ganaencasa.la",
+    "www1.konabet.info": "konabet.info",
+    "www1.picantesports.net": "picantesports.net"
+  }
+}

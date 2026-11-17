@@ -1,148 +1,159 @@
-//Creamos esta carpeta y archivo para dejar aislada la llamada a la API. Hoy devuelve datos de prueba. Cuando backend en Node.js tenga listo el endpoint POST /api/devices/link, cambiamos este archivo.
-// src/services/deviceService.ts
+import { apiRequest } from "./api";
 
-export type DeviceStatus = 'active' | 'pending' | 'disabled';
+/**
+ * Estado del dispositivo tal como lo muestra la app.
+ * El backend usa `inactive`; en la interfaz se representa como `disabled`.
+ */
+export type DeviceStatus = "active" | "pending" | "disabled";
 
 export interface Device {
   id: string;
   name: string;
   status: DeviceStatus;
+  /** Fecha de nacimiento del menor en formato AAAA-MM-DD. */
   birthDate?: string;
+  /**
+   * Código de vinculación de 8 caracteres para el celular del menor. El backend
+   * solo lo manda mientras el perfil está pendiente y el código sigue vigente.
+   */
+  linkCode?: string;
+  /** Vencimiento del código (ISO). */
+  linkCodeExpiresAt?: string;
+  /** Cuándo se vinculó el celular (ISO). Falta en los perfiles vinculados antes de los códigos. */
+  linkedAt?: string;
+  lastSeen?: string;
+  createdAt?: string;
 }
 
-export type DeviceActivityVariant =
-  | 'blocked'
-  | 'alert'
-  | 'settings'
-  | 'protected';
+/** Nombre del perfil: entre 2 y 40 caracteres, igual que valida el backend. */
+export const DEVICE_NAME_MIN_LENGTH = 2;
+export const DEVICE_NAME_MAX_LENGTH = 40;
 
-export interface DeviceActivity {
+export type ApiDevice = {
   id: string;
-  variant: DeviceActivityVariant;
-  title: string;
-  description: string;
-  time: string;
-  date: string;
-}
-
-export interface LinkInitResponse {
-  pin: string;
-  tempDeviceId: string;
-}
-
-const devicesInMemory: Device[] = [
-  { id: '1', name: 'Paula', status: 'active' },
-  { id: '2', name: 'Ramiro', status: 'active' },
-  { id: '3', name: 'Lorena', status: 'pending' },
-];
-
-const deviceActivities: Record<string, DeviceActivity[]> = {
-  '1': [
-    {
-      id: 'paula-1',
-      variant: 'blocked',
-      title: 'Sitio web bloqueado',
-      description: 'Se bloqueó el acceso a un sitio restringido.',
-      time: '10:42',
-      date: 'Hoy',
-    },
-    {
-      id: 'paula-2',
-      variant: 'alert',
-      title: 'Intento de acceso bloqueado',
-      description: 'Se detectó un intento de acceso a contenido restringido.',
-      time: '10:15',
-      date: 'Hoy',
-    },
-    {
-      id: 'paula-3',
-      variant: 'protected',
-      title: 'Protección activada',
-      description: 'La protección está activa en este dispositivo.',
-      time: '18:20',
-      date: 'Ayer',
-    },
-  ],
-  '2': [
-    {
-      id: 'ramiro-1',
-      variant: 'blocked',
-      title: 'Sitio web bloqueado',
-      description: 'Se bloqueó el acceso a un sitio restringido.',
-      time: '14:25',
-      date: 'Hoy',
-    },
-    {
-      id: 'ramiro-2',
-      variant: 'settings',
-      title: 'Configuración actualizada',
-      description: 'Se actualizaron los ajustes de protección.',
-      time: '12:30',
-      date: 'Ayer',
-    },
-  ],
-  '3': [
-    {
-      id: 'lorena-1',
-      variant: 'protected',
-      title: 'Perfil creado',
-      description: 'El perfil está pendiente de vinculación con un dispositivo.',
-      time: '09:30',
-      date: 'Hoy',
-    },
-  ],
+  deviceName: string;
+  fechaNacimiento?: string;
+  status: "pending" | "active" | "inactive";
+  linkCode?: string;
+  linkCodeExpiresAt?: string;
+  linkedAt?: string;
+  lastSeen?: string;
+  createdAt?: string;
 };
 
-export function getDevices(): Device[] {
-  return devicesInMemory.map((device) => ({ ...device }));
+export function toDevice(device: ApiDevice): Device {
+  return {
+    id: device.id,
+    name: device.deviceName,
+    status: device.status === "inactive" ? "disabled" : device.status,
+    birthDate: device.fechaNacimiento,
+    linkCode: device.linkCode,
+    linkCodeExpiresAt: device.linkCodeExpiresAt,
+    linkedAt: device.linkedAt,
+    lastSeen: device.lastSeen,
+    createdAt: device.createdAt,
+  };
 }
 
-export function getDeviceActivities(deviceId: string): DeviceActivity[] {
-  return (deviceActivities[deviceId] ?? []).map((activity) => ({ ...activity }));
+export async function getDevices(): Promise<Device[]> {
+  const data = await apiRequest<{ devices: ApiDevice[] }>("/api/devices");
+  return data.devices.map(toDevice);
 }
 
-export function getDeviceById(deviceId: string): Device | undefined {
-  const device = devicesInMemory.find((item) => item.id === deviceId);
-  return device ? { ...device } : undefined;
+export async function getDeviceById(deviceId: string): Promise<Device | undefined> {
+  const devices = await getDevices();
+  return devices.find((device) => device.id === deviceId);
 }
 
-export function addDevice(name: string, birthDate?: string): Device {
+export type LinkCode = {
+  linkCode: string;
+  linkCodeExpiresAt?: string;
+};
+
+/**
+ * Crea el perfil del dispositivo protegido. Queda pendiente hasta que el celular
+ * del menor se vincule con el código y el PIN del adulto.
+ */
+export async function addDevice(
+  name: string,
+  birthDate: string,
+): Promise<{ device: Device } & LinkCode> {
   const trimmedName = name.trim();
-  if (!trimmedName) {
-    throw new Error('Ingresá un nombre para el dispositivo.');
+  if (trimmedName.length < DEVICE_NAME_MIN_LENGTH) {
+    throw new Error("El nombre tiene que tener al menos 2 caracteres.");
   }
 
-  const device: Device = {
-    id: `local-${Date.now()}-${devicesInMemory.length}`,
-    name: trimmedName,
-    status: 'pending',
-    birthDate,
+  const data = await apiRequest<{
+    device: ApiDevice;
+    linkCode: string;
+    linkCodeExpiresAt?: string;
+  }>("/api/devices/link", {
+    method: "POST",
+    body: { deviceName: trimmedName, fechaNacimiento: birthDate },
+  });
+  return {
+    device: toDevice(data.device),
+    linkCode: data.linkCode,
+    linkCodeExpiresAt: data.linkCodeExpiresAt ?? data.device.linkCodeExpiresAt,
   };
-  devicesInMemory.push(device);
-  return { ...device };
 }
 
-export const requestLinkingPin = async (deviceName: string, deviceType: string): Promise<LinkInitResponse> => {
-  // Simulamos la respuesta del backend Node.js
-  console.log('Enviando datos al backend:', { deviceName, deviceType });
-
-
-// Luego se reemplazaria para hacer una llamada real al backend usando fetch o axios, por ejemplo:
-// const response = await fetch('/api/devices/link', {
-//   method: 'POST',
-//   headers: { 'Content-Type': 'application/json' },
-//   body: JSON.stringify({ deviceName, deviceType }),
-// });
-// const data = await response.json();
-// return data;
-
-  // Retornamos un PIN de 4 dígitos de prueba
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        pin: '4829',
-        tempDeviceId: 'dev_temp_001',
-      });
-    }, 1000);
+/**
+ * Genera un código de vinculación nuevo para el perfil. Si el celular ya estaba
+ * vinculado hace falta el PIN del adulto: el servidor revoca la credencial de ese
+ * celular, que deja de estar protegido, y el perfil vuelve a quedar pendiente.
+ */
+export async function generateLinkCode(
+  deviceId: string,
+  pin?: string,
+): Promise<{ device: Device } & LinkCode> {
+  const data = await apiRequest<{
+    linkCode: string;
+    linkCodeExpiresAt?: string;
+    device: ApiDevice;
+  }>(`/api/devices/${encodeURIComponent(deviceId)}/link-code`, {
+    method: "POST",
+    body: pin ? { pin } : {},
   });
-};
+  return {
+    device: toDevice(data.device),
+    linkCode: data.linkCode,
+    linkCodeExpiresAt: data.linkCodeExpiresAt,
+  };
+}
+
+/** Confirma el vínculo desde el celular del menor con el PIN del adulto. */
+export async function confirmDeviceLink(
+  deviceId: string,
+  pin: string,
+): Promise<Device> {
+  const data = await apiRequest<{ device: ApiDevice }>("/api/devices/confirm-link", {
+    method: "POST",
+    body: { deviceId, pin },
+  });
+  return toDevice(data.device);
+}
+
+/**
+ * Desvincula el perfil del celular protegido: vuelve a quedar pendiente para que
+ * otro celular (o el mismo) pueda vincularse de nuevo con el PIN.
+ */
+export async function unlinkDevice(deviceId: string): Promise<Device> {
+  const data = await apiRequest<{ device: ApiDevice }>(
+    `/api/devices/${encodeURIComponent(deviceId)}/status`,
+    { method: "PATCH", body: { status: "pending" } },
+  );
+  return toDevice(data.device);
+}
+
+/** Activa o pausa la protección de un dispositivo ya vinculado. */
+export async function setDeviceProtection(
+  deviceId: string,
+  active: boolean,
+): Promise<Device> {
+  const data = await apiRequest<{ device: ApiDevice }>(
+    `/api/devices/${encodeURIComponent(deviceId)}/status`,
+    { method: "PATCH", body: { status: active ? "active" : "inactive" } },
+  );
+  return toDevice(data.device);
+}

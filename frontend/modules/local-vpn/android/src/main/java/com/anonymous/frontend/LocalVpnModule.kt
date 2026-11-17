@@ -1,4 +1,3 @@
-
 package com.anonymous.frontend
 
 import android.app.Activity
@@ -20,40 +19,6 @@ class LocalVpnModule : Module() {
 
     override fun definition() = ModuleDefinition {
         Name("LocalVpn")
-        val startVpn: suspend () -> Boolean = startVpn@{
-            val context =
-                appContext.reactContext
-                    ?: throw IllegalStateException("React context is unavailable.")
-
-            if (VpnService.prepare(context) != null) {
-                val permissionGranted =
-                    vpnPermissionLauncher.launch(VpnPermissionRequest)
-                if (!permissionGranted) {
-                    return@startVpn false
-                }
-            }
-
-            val intent = LocalVpnService.createIntent(context)
-            context.getSharedPreferences(
-                LocalVpnService.PREFERENCES_NAME,
-                Context.MODE_PRIVATE
-            ).edit().putBoolean(LocalVpnService.RUNNING_KEY, false).apply()
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
-
-            repeat(50) {
-                if (LocalVpnService.isRunning(context)) {
-                    return@startVpn true
-                }
-                delay(100)
-            }
-
-            throw IllegalStateException("The local VPN service could not be started.")
-        }
 
         RegisterActivityContracts {
             vpnPermissionLauncher =
@@ -61,20 +26,59 @@ class LocalVpnModule : Module() {
         }
 
         Function("isVpnRunning") {
-            val context =
-                appContext.reactContext
-                    ?: throw IllegalStateException("React context is unavailable.")
-            LocalVpnService.isRunning(context)
+            LocalVpnService.isRunning(requireContext())
         }
 
-        AsyncFunction("startVpn") Coroutine(startVpn)
+        // Recibe desde JS la lista de dominios bloqueados. Si llega vacía, el
+        // servicio usa la lista de respaldo incluida en la app.
+        AsyncFunction("startVpn") Coroutine { domains: List<String> ->
+            startVpn(domains)
+        }
 
         Function("stopVpn") {
-            val context =
-                appContext.reactContext
-                    ?: throw IllegalStateException("React context is unavailable.")
+            val context = requireContext()
             context.stopService(LocalVpnService.createIntent(context))
         }
+    }
+
+    private fun requireContext(): Context =
+        appContext.reactContext
+            ?: throw IllegalStateException("React context is unavailable.")
+
+    private suspend fun startVpn(domains: List<String>): Boolean {
+        val context = requireContext()
+
+        if (VpnService.prepare(context) != null) {
+            val permissionGranted =
+                vpnPermissionLauncher.launch(VpnPermissionRequest)
+            if (!permissionGranted) {
+                return false
+            }
+        }
+
+        // La lista queda en SharedPreferences para que el servicio la recupere
+        // también cuando Android lo reinicia sin Intent (START_STICKY).
+        LocalVpnService.saveBlockedDomains(context, domains)
+        context.getSharedPreferences(
+            LocalVpnService.PREFERENCES_NAME,
+            Context.MODE_PRIVATE
+        ).edit().putBoolean(LocalVpnService.RUNNING_KEY, false).apply()
+
+        val intent = LocalVpnService.createIntent(context)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
+
+        repeat(50) {
+            if (LocalVpnService.isRunning(context)) {
+                return true
+            }
+            delay(100)
+        }
+
+        throw IllegalStateException("The local VPN service could not be started.")
     }
 }
 

@@ -4,6 +4,8 @@ import { db, buildOfficialBlocklistItems } from '../config/db';
 import { CURRENT_OFFICIAL_BLOCKLIST } from '../config/blocklistSource';
 
 const ADMIN_SECRET = 'secreto-de-pruebas-admin';
+/** Dominio real del listado de LOTBA (agosto 2026) usado como referencia en los tests. */
+const OFFICIAL_DOMAIN = '1xbet.com';
 
 beforeAll(() => {
   process.env.ADMIN_SECRET = ADMIN_SECRET;
@@ -38,20 +40,20 @@ describe('Blocklist - consulta de dominios', () => {
   test('POST /api/blocklist/check bloquea un dominio oficial y devuelve la categoria', async () => {
     const res = await request(app)
       .post('/api/blocklist/check')
-      .send({ domain: 'apuestasilegalesba.com' });
+      .send({ domain: OFFICIAL_DOMAIN });
 
     expect(res.status).toBe(200);
     expect(res.body.isBlocked).toBe(true);
     expect(res.body.blocked).toBe(true);
     expect(res.body.matchType).toBe('LOTBA_OFFICIAL');
-    expect(res.body.categoria).toBe('Apuestas');
-    expect(res.body.matchedDomain).toBe('apuestasilegalesba.com');
+    expect(res.body.categoria).toBe('Apuestas ilegales');
+    expect(res.body.matchedDomain).toBe(OFFICIAL_DOMAIN);
   });
 
   test('POST /api/blocklist/check detecta el dominio dentro de una URL completa', async () => {
     const res = await request(app)
       .post('/api/blocklist/check')
-      .send({ domain: 'https://www.apuestasilegalesba.com/juego?x=1' });
+      .send({ domain: `https://www.${OFFICIAL_DOMAIN}/juego?x=1` });
 
     expect(res.status).toBe(200);
     expect(res.body.isBlocked).toBe(true);
@@ -78,10 +80,10 @@ describe('Blocklist - consulta de dominios', () => {
   test('POST /api/blocklist/check normaliza el dominio a minúsculas', async () => {
     const res = await request(app)
       .post('/api/blocklist/check')
-      .send({ domain: '  APUESTASILEGALESBA.COM  ' });
+      .send({ domain: `  ${OFFICIAL_DOMAIN.toUpperCase()}  ` });
 
     expect(res.status).toBe(200);
-    expect(res.body.domain).toBe('apuestasilegalesba.com');
+    expect(res.body.domain).toBe(OFFICIAL_DOMAIN);
     expect(res.body.isBlocked).toBe(true);
   });
 });
@@ -123,7 +125,7 @@ describe('Blocklist - dominios personalizados', () => {
     const res = await request(app)
       .post('/api/blocklist/custom')
       .set('Authorization', `Bearer ${token}`)
-      .send({ domain: 'apuestasilegalesba.com' });
+      .send({ domain: OFFICIAL_DOMAIN });
 
     expect(res.status).toBe(400);
   });
@@ -237,7 +239,7 @@ describe('Blocklist - sincronización de la lista oficial', () => {
       expect.arrayContaining(['nuevooficial.com', 'otrooficial.net'])
     );
     expect(res.body.sync.removed).toEqual(
-      expect.arrayContaining(['apuestasilegalesba.com'])
+      expect.arrayContaining([OFFICIAL_DOMAIN])
     );
 
     const official = db.blocklist.filter(item => item.type === 'LOTBA_OFFICIAL');
@@ -276,7 +278,7 @@ describe('Blocklist - sincronización de la lista oficial', () => {
     expect(log.requestedBy).toBe('nahir');
     expect(log.totalOfficial).toBe(1);
     expect(log.added).toContain('nuevooficial.com');
-    expect(log.removed).toContain('apuestasilegalesba.com');
+    expect(log.removed).toContain(OFFICIAL_DOMAIN);
   });
 
   test('POST /api/blocklist/sync/official sin secreto administrativo devuelve 401', async () => {
@@ -316,5 +318,29 @@ describe('Blocklist - sincronización de la lista oficial', () => {
     expect(res.status).toBe(200);
     expect(res.body.sync.version).toBe(CURRENT_OFFICIAL_BLOCKLIST.version);
     expect(res.body.sync.totalOfficial).toBe(CURRENT_OFFICIAL_BLOCKLIST.domains.length);
+  });
+});
+
+describe('Blocklist - listado real de LOTBA', () => {
+  test('el listado oficial vigente proviene del archivo de LOTBA y no tiene duplicados', () => {
+    const domains = CURRENT_OFFICIAL_BLOCKLIST.domains.map(d => d.domain);
+    expect(domains.length).toBeGreaterThan(2000);
+    expect(new Set(domains).size).toBe(domains.length);
+    expect(domains.every(d => d === d.toLowerCase() && !d.startsWith('www.') && !d.includes('/'))).toBe(true);
+  });
+
+  test('los operadores con licencia quedan en su propia categoría', async () => {
+    const res = await request(app).post('/api/blocklist/check').send({ domain: 'www.bplay.bet.ar' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.isBlocked).toBe(true);
+    expect(res.body.categoria).toBe('Apuestas con licencia (+18)');
+  });
+
+  test('una URL puntual de Google Play no bloquea toda la tienda', async () => {
+    const res = await request(app).post('/api/blocklist/check').send({ domain: 'play.google.com' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.isBlocked).toBe(false);
   });
 });

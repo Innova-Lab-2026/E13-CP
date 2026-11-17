@@ -8,6 +8,13 @@ export default function PublicLayout() {
       <Stack.Screen name="onboarding2" />
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
+      <Stack.Screen name="mode" />
+      <Stack.Screen name="pin-setup" />
+      {/* Celular del menor: vincular con un código y aviso de desvinculado. */}
+      <Stack.Screen name="vincular" />
+      <Stack.Screen name="desvinculado" />
+      {/* Vuelta del ingreso con Google. */}
+      <Stack.Screen name="auth/google" />
     </Stack>
   );
 }

@@ -1,0 +1,8366 @@
+{
+  "version": "2026-08",
+  "source": "LOTBA - Sitios bloqueados - Agosto(Hoja1).csv",
+  "domains": [
+    {
+      "domain": "1-win-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1-win.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1-win.ci",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1-win.cm",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1-win.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1-win.com.mx",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1-win.net.br",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1-win.ng",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1-x-bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "10bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1126bets10.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "123bingoonline.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "123loterias.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "12bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "14red.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "156bets10.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "18bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "194bets10.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1betplay.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1gocasino13.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1gocasino55.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1jugabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1jugarbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1redbet132.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1ugabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1w.run",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wanzf.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wbhk.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wbkur.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wbscw.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wcgax.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wdge.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wdyqa.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wegmr.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1weoky.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wesa.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wfrw.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wfuqm.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wfzed.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wgamf.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wgczk.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wgei.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wgzok.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1whxee.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1whxi.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wicdn.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wijl.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-ar-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-ar.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-argentina.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-argentina.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-argentino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-bet-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-bet.am",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-bet.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-bet.kg",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-casino.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-online-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win-uzb.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.ca",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.co.tz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.com.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.com.mx",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.ec",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.ge",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.global",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.kr",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.md",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.net.ci",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.net.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.pe",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.tj",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win.uy",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1win1.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1winar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1winbet-argentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wincasino.pe",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1winenlinea.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wins.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1winx.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1winx.com.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wjlc.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wjntk.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wjqrg.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wjyjz.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wkinw.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wkzlg.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wlbs.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wlfyd.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wlgxm.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wlpj.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wlttn.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wmbo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wmgrr.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1woodo.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1worso.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wpypd.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wqdrs.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wqkor.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wqppo.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wqsg.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wqumw.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wraua.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wrjkf.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wrnxf.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wrywi.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wshnt.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wsymb.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wtobq.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wtvnu.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wulzs.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wupy.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wuvwf.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wvanh.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wvixw.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wvnpj.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wxht.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wxtt.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wyvz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wyybt.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wzho.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1wzirk.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1x-slots.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xbet.mx",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xbet91.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xbetarge.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xbets-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xbit1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xcasino-917228.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-17762.bar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-41992.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-529281.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-546003.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-660473.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-67924.bar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-69889.bar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-86262.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-87822.bar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-91450.world",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xlite-99363.bar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslot.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslot45360.world",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslots-ar.app",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslots-casino.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslots-casino.com.br",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslots.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslots.global",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslots.poker",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslots.revistasaberes.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslotsar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "1xslotss.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "20bet.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "20bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "20beta.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "20betto.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "21bets.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "21casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "22bet-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "22bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "22bet.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "22bet21.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "22bet4fun.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "22magic365.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "232vivo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "24hrsbets.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "24hrsbets.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "24hrsbets.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "24pokies.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "24vipcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "24vivo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "2mil1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "30bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "32red.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "360a.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "377bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "463siemprepaga.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "4ases.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "4crownscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "4fun.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "5bonuses.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "777ars.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "777fortunavip.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "777juegos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "777tip.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "7bets.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "7bitcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "7sultanscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "888bingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "888casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "888ladies.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "888sport.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "888sport.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "9mgo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "9mgo.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "abcislands.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "accessbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "aceluckycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "action3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "adjarabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "admbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "admbet888.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "admiralg.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "africa1x2.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "agrupate.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "aguayeducacion.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ahtigames.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "airbet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ajugar.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ajugar.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ajugar.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "aladdinsgoldcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "alfcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "allrightcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "allslotscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "allspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "allwin.one",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "allwinscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "alpacabet.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "alwaysvegas.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "america777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "anarchycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "angliabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "aplaycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apolloslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apolofish.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "aposta.la",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apostamos.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apostamos.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apostando.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apostando.la",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apostando.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "app.jugaloahora.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta07.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta24.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta360-544104.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta360-70123.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta360-casino2.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta360-casino3.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta360.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta360ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta360brazil.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuesta360pe.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestaexitosa.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestaexitosa.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestafuerte.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestalos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestars.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestasfutbol.org.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestashouse.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestashouse3.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestaya.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "apuestele.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ar-1xbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ar-xbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ar.1x-bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ar.1xbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ar.jugabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ar.melbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ar.mystakebonus.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "arcanebet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "arescasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "arg-1xbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "arg.1x-bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "argenbet.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "argenbet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "argentinacasinos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "aria-group-2.vercel.app",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "asesdelnorte.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "atenas.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "atlanticspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "avabet-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "awrora.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "azarlatino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "azarlatino.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "azarlatino1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "azarlatino2.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "azarlatino3.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "azarlatino4.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "azarlatino5.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "aztec3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "azuresummit.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "b30pro.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "b7casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "babe.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bachabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ballroom3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bandidosbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bandidosbet.site",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "baocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "batikpoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "batikpoker.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "batikpokerlink.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bc.game",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcga.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgame.sk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgame.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgame52.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgame53.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgame55.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgame56.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgame61.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgame62.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcgamein1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bcvn2.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bdmbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "beltway.tur.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bestbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bestbet360.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bestonlinecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet-30.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet-71.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet-boom.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet.win.argocasinowin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet07go.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet1234.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet17.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet17.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet20luckx.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet22.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet22.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet22.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet24.games",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet2fun9.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet2u.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.ai",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.blog",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.click",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.games",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.gold",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.sbs",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.solutions",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.space",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.store",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.us",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet300.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet300.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30casino.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30gold.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30pro.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30pro.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet30vip.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet32.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet32.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet32.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet32.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet365.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "bet71-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet71.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet71.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet71.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet71.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet71.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet777.store",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet90.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet91.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet91.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet9ja.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bet9k.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betadonis.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betados.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betamerica.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betamo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betano.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "betanysports.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betatcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betbord.biz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betboro.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betbox.zone",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betbright.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betbyrne.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betcart.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betcasinoking.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betchain.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betchan.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betcityrus.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betcoin.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betcoin.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betcomets.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betcos2.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betcris.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betdaq.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "beteando.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betelite.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betfair.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betfree.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betfun-argentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betfun.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "betfunargentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betfury.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betglobal.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betgol777.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betgold.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bethard.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bethomeoficial.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betico24.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betinglat.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betingmac.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betinia.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betiro.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betitall.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betitor.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.blog",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.games",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.review",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjam.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betjamonline.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betland.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betlive.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betlivecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betmotion.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betnspin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betnumbers.gr",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betnuvo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "beton.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betonaces.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betonline.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betonlineok.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betonwin.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betowi.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betpack.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betphoenix.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betprime.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betpro30.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betrebels.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betregal.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betroom.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betrust.biz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bets-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bets.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betsafe.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betsamerica007.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betshop.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betsloty.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betsolino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betspin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betspino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betsson.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "betswagger.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bett30.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bettabets.co.za",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bettilt99.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bettwostar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "beturf.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "betus.com.pa",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betusracing.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betvoyager.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betwarrior.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "betway.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "betwaypartnersafrica.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betwinner-02072.bar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betwinner-34476.bar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betwinner-670239.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betwinner-72427.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betwinner-89818.bar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betwinner.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betwinner1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betxchange.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betxspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betybet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betzard.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "betzest.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bianca463.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bidbingo.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bigboibets.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bigfishcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bikinislots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bingo.millionaire.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bingodiamond.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bingohearts.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bingoloft.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bingozino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "birigol.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bitcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bitcasino.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bitcoinpenguin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bitruby.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bitsler.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bitstarz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bitstarzm3.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bitz8.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bizzocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "blackdiamondcasino.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "blackjackballroom.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "blightybingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "blog.ar.jugabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "blog.j-ugabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "blogabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bloodwindow.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "blueday.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "blueday.uno",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bluefoxcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bm.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "boaboa.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bobcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bodog.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bodog.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bol.1xbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bombastic.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bonanzagame.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bonibet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bonusgrupo91.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bookmaker.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "boombangcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "boomerang-bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bovada.lv",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "boylesports.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bplay.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "br.betboo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "br.melbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "brazino777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "brazino777.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bronzecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "brossbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bubblesbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "buckybingo.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "buffaloplay.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "buffbet.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bullskings.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bumbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "burancasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "busr.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "bwin.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cactus.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cadoola.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "caibo.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "caipiria.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "caletao.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "caliente.mx",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cambelbet.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camel-bet.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camelbet.biz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camelbet.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camelbet.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camelbet.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camelbet.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camelbet.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camelbet2.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "camelbet8.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "campeonbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "campobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "capibarabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "capibet.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "captaincooks3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "captainjackcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "carasycaretas2037.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "carbongaming.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cargasgrupo91.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "carnaval.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casdep.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cashed.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casholotcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cashpoint.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cashpotcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casibet.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casibet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casigo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casilando.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casillion.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casimba.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinia.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-jugabets.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-online-ar.it.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-selector.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-tiger-club.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-tigerclub.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.cc",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.cloud",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino-zeus.ola.click",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.33.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.8xwins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.chanz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.foxycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.mobilewins.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.mx",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.netbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino.partycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino132.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino132.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino132.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino132.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino32.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino32.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino33.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino33.la",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino33.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino33.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino33.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino33.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino365online.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino365online.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino365online.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino365online1.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino365vip.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino365vip.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino440.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino60.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino77.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino777.be",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino777.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casino91.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoaction.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoalto.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoazteka.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinobetcave.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinobuenosairesonline.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "casinocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinocerise.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinocolumbus.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinodays.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoeltaura.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoenchile.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoepoca.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoestrella.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoextra.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinofans.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinofenix.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinofiz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinofox.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinogalaxy.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoganaya.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinogb.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinogofish.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinohermes.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoinfinity.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoirishluck.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinolavida.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoloco.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoluck.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinomidas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinomonaco.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinonapoli.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinonight.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoonline365.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinopower.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinopro.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinopro.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoreal.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoroom.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinoroyalclub.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinosbigwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinosieger.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinostars.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinostugan.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinosuperlines.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinothor.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinotiger-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinotiger-argentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinotiger-club.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinotiger.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinotropez.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinovibes.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinovolcano.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinovolcano.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozera.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta20.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta28.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta30.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeta8.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.fyi",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.icu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.ink",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.la",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.space",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.store",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus10.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus24.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus28.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casinozeus8.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "caspbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "casumo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "causabet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "caxino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "caz-win.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cbet.gg",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cdinastyok.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuesta.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas-com.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.app",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.biz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.bond",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.ink",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.sbs",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.space",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.world",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas1.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "celuapuestas20.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "centrebet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "challenge3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "chitchatbingo.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ciberking.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cinuree6.shop",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "circovip.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "circovip.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "circovip.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "circovip.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "citygame.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ciudadbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ckcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "classic3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cleopatrabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cleopatrabet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cleopatrabet.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cleopatrabet.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cleopatrabet.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cleopatrabet.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cloudbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "club32.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "club365.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "club365.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "clubplayercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "clubriches.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "clubterra.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "clubworldcasinos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "co-jugabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cobraya.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cocoacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cocobongo.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cocogames.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "codere.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "coderego.shop",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "codereza.shop",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "coinbet24.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "coinbets777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "coinkings.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "colosseum3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "colossusbets.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "conquercasino.casino-pp.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "conunova.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "coolcatcampaign.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "corevia24.shop",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cosmors3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "costagames.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "country3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "crazyfox.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "crazyluckcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cresuscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cristalwin.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cronosplay.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "crownbet.com.au",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "crowngreen20.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "crownplay.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "crypto.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "crypto1xbit.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cryptocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cryptoleo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cryptorush.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cryptoslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cryptowins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cslotv.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cuatrobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cupper.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cuscocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "cyber.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "d2b787.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "d4d011.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "da2bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dabberbingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dadosbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dadosbet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dafabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dailyspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "daleplay.plus",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dare.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dashcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dasistcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "davincisgold.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dazzlecasino.casino-pp.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dblatina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dblation.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dcmetrometrics.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ddb787.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dealerscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dejavu.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "delorocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "denderacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "depobet.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "depobet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "desertnightscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dfkaya.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "diamdesk.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "diamond7casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "diamondreels.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dixon.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dobleonada.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "doblewin.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "doctorspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "domgame.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "donbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "donbet.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "donscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "doradobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dosdoscruzados.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dosdoscruzadosvip.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dovebingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dragonaraonline.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dragonslotss1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "drakecasino.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dreamjackpot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dreamslatam.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dreamvegas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dreamz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "drf.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "drift.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "driftcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "drueckglueck.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "duckyluck.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dude11.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "dude2.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "duelbits.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "duelbits.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "duobetz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "duxenvivo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "easterbingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "eclipsecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "efbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "eg1xbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "egypt777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "el-patron.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "eldiariodeljuicio.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "eldoah.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "elixbet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "eljoker.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "elrey.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "elsidelrio.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "elzorro.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "emergencias911.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "emme.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "emme8.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "emperor3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "emucasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "en.goldenrivieracasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "energycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "epicwin200vip.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.888casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.coinpoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.europalace.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.ggpoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.gratorama.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.lottokings.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.my-stake.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.partypoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.platinumplaycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.royalvegascasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.scratchmania.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.tradacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.unibet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "es.winspark.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "eskimocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "esmeralda.uno",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "estrella777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ethplay.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "eurobet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "eurobetscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "europacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "europalace.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "europebet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "euslot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "everumcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "evobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "exbeteu.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "exclusivebet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "extravegas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fairbet216.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fanbit.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fantasticbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fastpay-casino1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "favbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "flappycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "flipwager.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "flowbets.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "flowerbet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "flowerbet.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "flycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "foggybet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "footballpools.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "foroapuestas.forobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortu-bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet-co-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet-co.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.app",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.space",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortubet.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortunabet777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortunajuegos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortunazoar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortuneclock.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortunejack.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fortuneroomcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "foxybingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "foxycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fraga334.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "frank.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "frankcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "frankclubcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "frankfred.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "freakyaces.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fresh.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "freshbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "freshcasino.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fruityking.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fsn.juga.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fugazzetta.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "full10poker.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "fulltilt.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "funcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "g885.city",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "galabingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "galacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "galaksipoker.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "galaxyspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "galemartin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "galeraverde.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gama-casinos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gama.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gamblecity.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gamblezen.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gamdom.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gamegram.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gametwist.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gamingclub.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gamix.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gana-en-casa.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gana365.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaaqui.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaen-casa.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaen.casa",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa-co.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa-online.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.ai",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.la",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.space",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.us",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaencasa8.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaexpress.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos.biz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos.bz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos.la",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos365.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos365.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamos365.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosco.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosnet.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosnet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosnet.fit",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosnet.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosnet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosnet.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosnet.one",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosnet.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganamosvip.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gananencasa.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaste.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaya.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaycobra.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganaycobra.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gangsta.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganotodo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ganotodo1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gardelcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "garden-hil.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gate777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gauchobet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gbctlatina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gdaycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gg6.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ggpoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gldnbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "glimmercasino.casino-pp.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "glimmercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "global.parimatch.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goalbetint.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "godluck.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "godmoney.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenbet2.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenclub.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenfox.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldengenie.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenladycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenlion.im",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenpalace.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenreef3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenroyaloficial.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldenstar-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldentiger.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldentiger3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldfortunecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldmancasino.casino-pp.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldmancasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldmatic.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldrush.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goldspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "goralbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gospin.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gossipslots.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gotospin.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "grafcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "granawins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "grandesloterias.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "grandfortunecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "grandhotel3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "grandhotelcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "grandivy.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "grandmondial.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "grandmondial3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "granmontecarlo.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "granolimpo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "granposeidon.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "granposeidon.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "granposeidon.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "granposeidon.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "granzeus.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "greenbet.site",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "greenbet.uno",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "greenhouse.show",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gtbets.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gtcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "gwbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hallabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hallabet.shop",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hashlucky.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hatbet56.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hawai.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hbet63.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "heavychips.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hellocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "herake.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "heraplay.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hexabet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "highnooncasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "highroller.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hippozino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hititbet406.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hititbet513.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hititbet518.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hititbet519.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hititbet520.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hititbet532.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hititbet537.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hititbet559.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "houseofjack.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "houseofspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hoyganas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hpibet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hugewin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hydracasino.tech",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "hypercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ice-casino34.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "icecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ikibu.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ilucki.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "imandeexitos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "infinitygame.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "inmerion.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "inmmerion.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "instantactionsports.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "interbet.co.za",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "intercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "intertops.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "interwetten.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ivi-betplayx.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ivibet.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ivivet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "iwildcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "j-ugabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackmillion.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpot247.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpotcapital.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpotcity.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpotcity.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpotcitycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpotfrenzy.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpotjuegos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpotknights.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jackpotparadise.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jazzyspins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jenningsbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jetspin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jettbet.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jewelrybet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "join.casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "joker8.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jokerapuestas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jokerbet.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jokercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jokersino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "joliebistro.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jonnyjackpot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "joocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "joya.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "joycasino-e.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "joyfulbet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jpquinteros.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ju-gabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juegaenlinea.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juegasi.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juegaygana.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juegaygana.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juego-bet.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juego-bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juegodorado.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juegofacil.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juegoredsf.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juegostoken.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jug-abet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "juga.bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabet-app.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabet-argentina-online.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabet-col.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabet.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabet.mx",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabetargentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabetargentinacasinoonline.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabetcasino-argentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugabetonline-argentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugadon.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "jugaenhorus.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugaenvivo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugalodos-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugamax.com.py",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugamos.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugamos.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugando.cloud",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugando.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugarbet1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugaseguro.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugaseguro.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugavip.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugavip.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugavip.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugaygana.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jugbet.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jumanji.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "justbet.cx",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jvspin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "jvspin956056.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kadal.cloud",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kadal.la",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kadal.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kadal.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kaga88.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kaiserslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kajot-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kalshi.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "katsubet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kingamo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kingbillycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kingdomrs3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kingmaker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kingsofbets.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kingsofsport.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kirgo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "klirr.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.one",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "konabet.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kongoplay.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "kto.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "la-apuesta.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "labububet.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lacobra.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lacobra.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lafiestacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lamabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "las24casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lascaloneta.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lass777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lasvegas365.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "legzo.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lejackpot9.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lekkerbets.co.za",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lex-casino13.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "librabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lider-bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lionspin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "livebet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "livecasino24.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "livelycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "liveplay365.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "liveplay365.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "llamza.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lobby.slotlux.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lobobet.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lobobet.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "looselines.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "loot.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lordlucky.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lordofthespins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "loteriaelnegrito.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "loteriasargentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lotoland.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lottery24.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lotto-express.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lotto247.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lottosmile.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lowvig.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lp.betglobal.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lp.playoro.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lsbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lu16radiorn.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckland.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lucky-dragon.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lucky247.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lucky31.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lucky8.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckybay.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckybirdcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyblock.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyboycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckycity.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyday.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckygames.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyhandcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyhour.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyjungle.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckykgln.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckylouis.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckymeslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckymfss.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyniki.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckynuggetcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyredcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyreels.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckytigercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyuayu.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckywwbi.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luckyxakl.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lumibet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lunubet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luxucasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luxury3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luxurybet.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "luxxbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "lvbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "m.betboro.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "m.coyoteplay.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "m.mystake.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "m.mystake.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "m88.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "machancecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "madrush.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magesticlub.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "maggicocasino.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magicred.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magiplay.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magiplay.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magiplay.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magiplay.site",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magiplay.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magiplay.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "magyplay.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mailcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mainstagebingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "makocasino.casino-pp.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "malacoargentina.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "malibuclubcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "malinacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mamamiabingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mangowin777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "manhattanslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "marathonbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mariacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "martinron.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mascot.games",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "masterbets365.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "matchbook.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "maxbet.ro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "maxiplay.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "maxwin1nj.life",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mbafibed.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mbitcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mega7s.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megacasino.dk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megadice.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megafaraon-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megafaraon.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megafaraon.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megafaraon.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megafaraon.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megafonunla.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megapari-107481.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megapari-argentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megapari.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megapari.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megapari.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "megaslot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mejorescasasdeapuestas.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-10591.today",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-312756.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-349949.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-419270.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-54289.today",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-599119.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-751074.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-ar2.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-ar3.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-cm.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-ma.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet-srilanka.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet.mobi",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbet.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "melbetegypt.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "meridianbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "merlincasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "merrybet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "metalcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "metatokens.games",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "metawin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "miamicasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "miamiclubcasino.im",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "miamidice.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mibet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "micasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "millionaire.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "millonarios.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "millonarios.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "milyar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "miucasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mix4bet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "moneysaverbingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "monixbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "monkeytilt.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "monro.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "moonbingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mooneymaker.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mooneymakercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "moongames.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "moonwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mostbet-ag.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mostbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mozzartbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mp674327.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mr-bet.ca",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mr.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrbet-777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrbet-casinoplay.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrbet1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrbetchile.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrbetfun.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrbetgames.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrbetkasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrbets.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrgreen.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrjackvegas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrluck.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrmobi.casino-pp.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrrex.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrslot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mrwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mummysgold.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mundocasino.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mundocasino.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mundocasino.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mundocasino.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mundocasino.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "musichall3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mustangclub.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mybcasino.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mybet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "myempire.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mykiway5.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mystake.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mystake.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mystake.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mystake1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mystake1.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mystake4.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mystake6.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mystake6.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "mywin24.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nabcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nagapoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nags.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nairabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "narrow.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nationalcasino.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nationalcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "neonixcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "netbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nextbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nextcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nightrush.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nikbet.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nikbet.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nikibet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ninewin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ninjabet.it",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ninjacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ninlay.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nitrogensports.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nitrospins.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nobonuscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nomini.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "non-gamstop.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nordicasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nordicbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nordscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "norte.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "nostalgia3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "notitimba.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "novajackpot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oasiscasino.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oasisnet.app",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oasispro.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oasispro.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oc88.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "odin-play.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "odinplay.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ohmbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ohmyzino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "olimp.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "olimp.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "olybet.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "olympusbet.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "olympuscasino.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "omnislots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "one-vv1269.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "one-vv3103.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "one-vv9712.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "onedun.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "onewin.mx",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "online.racecards.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "orientxpresscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oropuro.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oropuro.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "osiriscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oxicamaras.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ozarkbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "oziriscsino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "palaceofchance.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "palmerbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "palomabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "palomabet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pampacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pampas.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "paradisecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "paradisewin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "paranosotras.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "parasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "parimatch-bonus.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "parimatch.co.tz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "parimatch111.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "paripesa-ag.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "paripesa.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "parklaneecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "parley.com.ve",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "partnerswinwinbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "partycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "partypoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "patagoniabet.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "patagoniabet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "peakyblinders.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "perseo.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "perseo2.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "phoenician3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "piabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "picante-sports.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "picantesports.biz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "picantesports.cloud",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "picantesports.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "picantesports.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "picantesports.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "piggspeak.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pin-up.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pin-up72h.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ping2win.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ping2win.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pinkgame.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pinkplay.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pinkrose.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pinkrose.uno",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pinkrosemania1.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pinkrosemania6.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pinnacle.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pixel.gg",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "planbcasino.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "planet7casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "planeta32.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "planeta32.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "planeta32.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "planeta32.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "planetabet.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "planetofbets.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "plata10.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "platinobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "platinoclub.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "platinoclub.cloud",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "platinoclub.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "platinoclub.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "platinumplaycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "platinumreels.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "play.casinovibes.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "play.mansioncasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "play.roundercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "play.siempregana.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playandwin.tel",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playbc1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playcity.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playfrank.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playgrand.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playio.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playmillion.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playmoola.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playojo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playoro.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playpalace.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playuzu.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "playvictoria.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playwplay.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "playzee.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "plutonos.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "plutonos.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pobeda.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "poker.nj.playmgm.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "poker88.gg",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pokerbet.games",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pokerbet.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pokerdelasamericas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pokerdevenezuela.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pokermatch.money",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pokerstars.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pokerstars.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pokerstarslearn.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "polymarket.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "powbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "powerbet777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "premiercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "primebetz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "prismcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "privecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pro333.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "prode24.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "profebet.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "profebet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "promo.eternalslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "propawin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pulpobet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "pumacasino.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "purecasinocalgary.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "qbcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "qqdombet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "qsuertudo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "quarzoazul.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "quarzored.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "quatro3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "queenpanther.ai",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "queenpanther.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "queenvegas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "quickwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "quiniela-ya.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "quinielaya.app",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rabona.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "racasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "racebets.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rainbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rainbet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rakebit.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rare.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ravenbet.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "raze.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "re1.click",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "redbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "redbullkings.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "redbullkings.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reddice.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "redelimperio.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "redflushcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "redhairbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "redjocker1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "redstarcasino.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reelfortune.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reelsofjoy.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reelspin.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reeltastic.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "regalamonedas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "regalamonedas.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "regularbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reloadbet8.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "revolutioncasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reydecopa.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reydecorazonesok.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reydereyes.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reyesdelasapuestas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reysanto.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "reysur.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rhino-play.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rhinoplay.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "richpalms.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "richreels3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rivalo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "riverbellecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rizzcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "roaring21.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "robinhood.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "robycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rocketwin.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rojabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rollino.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "roobet.bingo",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "roobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "roobet.juegos",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "roobet.party",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "roobetcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "roundercasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "roxypalace.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royal-amatista.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalacecampaign.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalacecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalamatista.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalclubenvivo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royaldiamante.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalesmeralda.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalfortune.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalgame.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalopalo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalplanetcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalspinz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "royalswipe.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rtbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rubet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rubyfortune.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "rubyslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "runechat.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "s01.amerio.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "saletimba.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "samiland.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sanluistv.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "savaspin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sb38313.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sbgglobal.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sbobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "scarlettcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "schmittscasino.casino-pp.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "seabet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sector.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sectorbet.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "secure.winspark.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sekabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "seven.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sfcoturf.netlify.app",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "share3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "shuffle.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "siemprebet.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "siemprebetinglat.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "silveroakcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "simacombet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "simbagames.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sirjackpot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sirwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "skybet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "skycity777.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slot.maxbet.rs",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotexo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotheist.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotjoint.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotland.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotlux.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotmadness.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotplanet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slots.inc",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slots999.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotscapital.lv",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotsmagic.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotsmillion.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotsofvegas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotsons.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotsvil.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slottica.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotuna.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "slotwolf.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "soccabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sol.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "solanabet.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "somoscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sootbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sorti365.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "soyjoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spacecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spacegroupok.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spanish.eurokingclub.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sparkleslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spartans.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spartanslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinamba.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinarium.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinarium1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinarium3.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinarium4.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spincasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinia.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinland.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinpalace.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinrider.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinroll.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinrollz.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinson.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinspace.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinsports.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spintropolis.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinupcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinvip.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spinzwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "splitacescasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sportdafa.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sportimba.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sportium.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sportpesa.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sports.br.betboo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sports.sportium.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sports.titanbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sportsbettingonline.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sportsspread.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sportsycasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "spreadex.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "springbokcasino.co.za",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stage.mrocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake-argentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.ac",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.bz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.ceo",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.games",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.jp",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.krd",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.mba",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.net.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake.pet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake1.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake1001.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake1002.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake1003.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake1004.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake1005.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake1021.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stake1022.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stakeprix.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stakes.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "staketr.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stakewin.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stanjames.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stanleybet.ro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "star-game.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "star-game.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "star-game.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "star-game.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stardreams.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stargame.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stargame.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "starsbet.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "starsbet.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "stupidcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "suertebet.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "suertecaba.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sugarcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sunbets.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "supabets.co.za",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "super7.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "super7a.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "super7a.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "superbet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "superbook.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "supercat-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "superentrada.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "superiorcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "superkasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "superlenny.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "superopro.cc",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "superpro.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "surfcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sv.winorama.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "sveacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "svenbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "swapcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "swiftcasino.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "swiper.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "taba.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "takbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "talismania.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tango.vin",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tangobet.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tangobet.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tangobet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tastybingo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "theclubargentina.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "thegreek.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "thelotter.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "thelotter.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "thespartanpoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "theweb.com.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "thorpro.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "thorvip.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "thorvip.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tigergaming.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "timberazo.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tinbet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tincabet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tioricojuegos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tipgol.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "titanpoker.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tokenwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tombriches.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topacio-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topacio-casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topacio.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topacio.me",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topacio.tv",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topacio.us",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topaciobet-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topaciobetonline.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topaciobets.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topaciobett.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topaciocasino.org",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topaciocasinoar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topaciocasinos.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topx12.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "topx13.top",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tornadobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "toshi.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tradacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trebol-bet.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trebol.ca",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trebol.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trebol.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trebolbet.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trebolbet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trebolbet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trebolbet.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tribet.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trillonario.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trinocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tripleaces.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tritiumcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tropicacasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "trueflip.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tsars.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ttr.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tuagencialotba.bet.ar",
+      "categoria": "Apuestas con licencia (+18)"
+    },
+    {
+      "domain": "tunbet400.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "tuprode.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "twin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "u8-ar.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ukclub3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "uniquecasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "universalslots.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "universegame.best",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "universegame.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "unl1mcasino.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "uslotu160.online",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "v8.game",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegas-365.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegas-365.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegas2web.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegas365.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegascoin1.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegascrestcasino.ag",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegaslegacy.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegasluck.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegaspalmscasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vegasy.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "velobet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "venus365.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "versus.es",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vgas3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vierklee-wetten.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vikingo-play.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vikingspin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "villento.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "villento3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vip.gorillaplay.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vip.millongol.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vip.safari-play.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vip32.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vip32.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vip32.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vip32.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vip32.ws",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "viperwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vipgames.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "viponlineok.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vipslots.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vipspel.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vipstakes.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "viranet.app",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "virtualcity3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "volltreffer.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vortexcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "voybet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "voyjugando.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vudu.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vulkanvegas.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "vv-ftend-1.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "w9.vnm999.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wagabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wagerinox.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wazamba.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wazbee.casino",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wcasino-online.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "webcasino365.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "webet98.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "welovelotto.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "what-buddha-said.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wikiluck.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wildblaster.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "williamhill.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "win.jugabet.cl",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "win.jugabet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "win1.ar",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "win11.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winadaycasino.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winbig21.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winclash.lat",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wingaga.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winking.rest",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winmasters.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winna.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winnerbet.com.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winnerslots.blocmatrix.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winningroom.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winnita.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winny.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winolot.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winsane.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winsly.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winss.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wintika.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wintingocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wintopia.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winuniquecasino-land.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winvegasplus-grade.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "winwin.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wishcasino.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wonaco.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wonbet.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wonbet.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wonclub.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wplay.co",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wsmcasino.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "wwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.24hrsbets.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.apostando.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.bet30.click",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.bet30.games",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.bet32.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.bet71.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.camelbet.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.casinozeta.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.casinozeus.ca",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.casinozeus.icu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.celuapuestas.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.celuapuestas.pro",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.cleopatrabet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.fortubet.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.ganaencasa.la",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.konabet.info",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.magiplay.fun",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www1.picantesports.net",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "www4.casino770.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "x7casino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "xspin.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "xwj9g3.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "xxzeus.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "yakocasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "ybets.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "yeticasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "yourbet.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "yourwin24.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "youwin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "yukongoldcasino.eu",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "yummygame.io",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zebracasino.pw",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zencasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zetcasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zeuscasino.bet",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zeuscasino.ink",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zeuscasino.live",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zeuscasino.vip",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zeuscasino.win",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zeuscasino.xyz",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zeusglory.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zeuswin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zodiac3.gameassists.co.uk",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zodiaccasino.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zonax.club",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zonaxsport.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zumospin.com",
+      "categoria": "Apuestas ilegales"
+    },
+    {
+      "domain": "zyngapoker.com",
+      "categoria": "Apuestas ilegales"
+    }
+  ]
+}

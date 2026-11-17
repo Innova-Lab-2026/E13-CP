@@ -1,6 +1,6 @@
-
 import { Pressable, View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { colors, radius, shadow, spacing } from "../../theme";
 
 export type HistoryVariant =
   | "blocked"
@@ -19,23 +19,23 @@ type HistoryCardProps = {
 
 const historyStyles = {
   blocked: {
-    backgroundColor: "#FEE2E2",
-    iconColor: "#DC2626",
+    backgroundColor: colors.dangerSoft,
+    iconColor: colors.danger,
     iconName: "ban",
   },
   alert: {
-    backgroundColor: "#FEE2E2",
-    iconColor: "#DC2626",
+    backgroundColor: colors.warningSoft,
+    iconColor: colors.warning,
     iconName: "alert-circle",
   },
   settings: {
-    backgroundColor: "#E5E7EB",
-    iconColor: "#475569",
+    backgroundColor: colors.surfaceMuted,
+    iconColor: colors.textMuted,
     iconName: "settings",
   },
   protected: {
-    backgroundColor: "#DCFCE7",
-    iconColor: "#16A34A",
+    backgroundColor: colors.successSoft,
+    iconColor: colors.success,
     iconName: "shield-checkmark",
   },
 } as const;
@@ -48,7 +48,7 @@ export default function HistoryCard({
   device,
   onPress,
 }: HistoryCardProps) {
-  const config = historyStyles[variant];
+  const config = historyStyles[variant] ?? historyStyles.settings;
 
   return (
     <Pressable
@@ -56,6 +56,8 @@ export default function HistoryCard({
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? "button" : undefined}
+      accessibilityLabel={`${title}. ${description}. ${device}, ${time}`}
+      accessibilityHint={onPress ? "Abre el detalle de la actividad" : undefined}
     >
       <View
         style={[
@@ -78,7 +80,9 @@ export default function HistoryCard({
 
       <View style={styles.rightContent}>
         <Text style={styles.time}>{time}</Text>
-        {onPress && <Text style={styles.arrow}>›</Text>}
+        {onPress ? (
+          <Ionicons name="chevron-forward" size={18} color={colors.textSubtle} />
+        ) : null}
       </View>
     </Pressable>
   );
@@ -88,16 +92,14 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: "#FFFFFF",
-    padding: 14,
-    borderRadius: 14,
-    marginBottom: 12,
-    gap: 12,
-    elevation: 2,
-    shadowColor: "#000000",
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    marginBottom: spacing.md,
+    gap: spacing.md,
+    ...shadow.card,
   },
   pressed: {
     opacity: 0.75,
@@ -105,38 +107,34 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 42,
     height: 42,
-    borderRadius: 21,
+    borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
   },
   content: {
     flex: 1,
-    gap: 4,
+    gap: spacing.xs,
   },
   title: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#202020",
+    color: colors.text,
   },
   description: {
     fontSize: 13,
-    color: "#555555",
+    lineHeight: 18,
+    color: colors.textMuted,
   },
   device: {
     fontSize: 12,
-    color: "#777777",
+    color: colors.textMuted,
   },
   time: {
     fontSize: 11,
-    color: "#777777",
+    color: colors.textMuted,
   },
   rightContent: {
     alignItems: "flex-end",
-    gap: 8,
-  },
-  arrow: {
-    fontSize: 18,
-    color: "#9CA3AF",
-    fontWeight: "bold",
+    gap: spacing.sm,
   },
 });

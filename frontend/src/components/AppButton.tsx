@@ -1,77 +1,92 @@
-
 import {
+  ActivityIndicator,
   Pressable,
   Text,
   StyleSheet,
 } from "react-native";
+import { colors, radius } from "../theme";
 
 type AppButtonProps = {
   title: string;
   onPress: () => void;
   disabled?: boolean;
-  variant?: "primary" |
-           "secondary"|
-           "tertiary";
+  loading?: boolean;
+  variant?: "primary" | "secondary" | "tertiary" | "danger";
+  accessibilityLabel?: string;
 };
 
 export default function AppButton({
   title,
   onPress,
   disabled = false,
+  loading = false,
   variant = "primary",
+  accessibilityLabel,
 }: AppButtonProps) {
+  const isDisabled = disabled || loading;
+
   return (
     <Pressable
-      style={[
+      style={({ pressed }) => [
         styles.button,
         styles[variant],
-        disabled && styles.disabled,
+        pressed && !isDisabled && styles.pressed,
+        isDisabled && styles.disabled,
       ]}
       onPress={onPress}
-      disabled={disabled}
-      accessibilityState={{ disabled }}
+      disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
     >
-      <Text
-        style={[
-          styles.text,
-          variant === "primary"
-            ? styles.primaryText
-            : styles.secondaryText,
-        ]}
-      >
-        {title}
-      </Text>
+      {loading ? (
+        <ActivityIndicator color={variant === "danger" ? colors.onDanger : colors.text} />
+      ) : (
+        <Text style={[styles.text, variant === "danger" && styles.dangerText]}>
+          {title}
+        </Text>
+      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
+    minHeight: 48,
     paddingVertical: 14,
     paddingHorizontal: 24,
-    borderRadius: 10,
+    borderRadius: radius.md,
     alignItems: "center",
+    justifyContent: "center",
+  },
+  pressed: {
+    opacity: 0.85,
   },
   disabled: {
     opacity: 0.5,
   },
   primary: {
-    backgroundColor: "#FACC15",
+    backgroundColor: colors.brand,
   },
+  // Botón secundario del UI Kit: crema con borde suave (Omitir, Crear cuenta).
   secondary: {
-    backgroundColor: "#FEF08A",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
+  // Botón de texto, para acciones de menor peso (Volver, Usar otra cuenta).
   tertiary: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "transparent",
+  },
+  danger: {
+    backgroundColor: colors.danger,
   },
   text: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.onBrand,
   },
-  primaryText: {
-    color: "#1F2937",
-  },
-  secondaryText: {
-    color: "#1F2937",
+  dangerText: {
+    color: colors.onDanger,
   },
 });
