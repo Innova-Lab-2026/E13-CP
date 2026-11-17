@@ -128,6 +128,30 @@ export const isAwaitingRelink = (device: Device): boolean =>
   !!device.unlinkedAt && isLinkCodeActive(device);
 
 /**
+ * true si el dispositivo ya está vinculado: activo o pausado ("inactive").
+ * Uno desvinculado vuelve a "pending" y se puede vincular de nuevo.
+ */
+export const isDeviceLinked = (device: Device): boolean => device.status !== 'pending';
+
+/**
+ * Busca un dispositivo ya vinculado (activo o pausado) del mismo responsable
+ * con ese deviceToken. Solo mira la cuenta del responsable: que el mismo
+ * celular esté en otra cuenta no se filtra ni se bloquea.
+ */
+export const findLinkedDeviceByToken = (
+  responsibleId: string,
+  deviceToken: string | undefined
+): Device | undefined => {
+  if (!deviceToken) return undefined;
+  return db.devices.find(
+    device =>
+      device.responsibleId === responsibleId &&
+      device.deviceToken === deviceToken &&
+      isDeviceLinked(device)
+  );
+};
+
+/**
  * Busca el dispositivo dueño de una credencial. Compara los hashes con
  * timingSafeEqual para no filtrar por tiempo cuánto coincidió.
  */

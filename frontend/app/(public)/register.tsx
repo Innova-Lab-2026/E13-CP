@@ -72,9 +72,8 @@ export default function RegisterScreen() {
     } else if (!EMAIL_REGEX.test(email.trim())) {
       next.email = "Ingresá un correo electrónico válido.";
     }
-    if (!phone.trim()) {
-      next.phone = "Ingresá tu teléfono.";
-    } else if (!isValidPhone(phone)) {
+    // El teléfono es opcional: solo se valida si la persona escribió algo.
+    if (phone.trim() && !isValidPhone(phone)) {
       next.phone = "Ingresá un número de teléfono válido.";
     }
     if (!password) {
@@ -132,7 +131,8 @@ export default function RegisterScreen() {
         name: `${name.trim()} ${lastName.trim()}`,
         email: email.trim(),
         password,
-        telefono: phone.trim(),
+        // Vacío no se manda: así la cuenta queda sin teléfono en vez de con "".
+        telefono: phone.trim() || undefined,
       });
       router.replace("/mode");
     } catch (error) {
@@ -212,7 +212,7 @@ export default function RegisterScreen() {
           />
           <AppInput
             label="Teléfono"
-            placeholder="Ingresá tu teléfono"
+            placeholder="Ingresá tu teléfono (opcional)"
             value={phone}
             onChangeText={(text) => {
               setPhone(text);
