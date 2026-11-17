@@ -8,8 +8,10 @@ import {
   checkResponsiblePin,
   consumeLinkCode,
   createDeviceAlert,
+  findLinkedDeviceByToken,
   findResponsibleDevice,
   isAwaitingRelink,
+  isDeviceLinked,
   isValidPin,
   issueLinkCode,
   normalizeDeviceStatus,
@@ -58,11 +60,24 @@ export const linkDevice = async (req: AuthRequest, res: Response) => {
       });
     }
 
+    // Un token vacío o solo con espacios cuenta como si no viniera.
+    const cleanToken =
+      typeof deviceToken === 'string' && deviceToken.trim() ? deviceToken.trim() : undefined;
+
+    // El mismo celular ya vinculado (activo o pausado) en esta cuenta no se
+    // registra dos veces. En otra cuenta sí se puede: no se filtra que exista.
+    if (findLinkedDeviceByToken(responsibleId, cleanToken)) {
+      return res.status(409).json({
+        error:
+          'Este celular ya está vinculado a tu cuenta. Si querés vincularlo de nuevo, primero desvinculalo.'
+      });
+    }
+
     const newDevice = buildPendingDevice({
       responsibleId,
       deviceName: cleanName,
       fechaNacimiento,
-      deviceToken: typeof deviceToken === 'string' ? deviceToken : undefined
+      deviceToken: cleanToken
     });
 
     db.devices.push(newDevice);
@@ -118,7 +133,9 @@ export const confirmDeviceLink = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Device not found or unauthorized' });
     }
 
-    if (device.status === 'active') {
+    // Activo o pausado ya está vinculado: no se puede volver a vincular ni
+    // pisar linkedAt. Para revincularlo, primero se desvincula (vuelve a pending).
+    if (isDeviceLinked(device)) {
       return res.status(409).json({ error: 'Device is already linked' });
     }
 

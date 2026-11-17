@@ -36,6 +36,14 @@ const linkDevice = async (token: string, overrides: any = {}) => {
     });
 };
 
+/** Confirma el vínculo de un dispositivo con el PIN del responsable. */
+const confirmLink = async (token: string, deviceId: string, pin = '4829') => {
+  return request(app)
+    .post('/api/devices/confirm-link')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ deviceId, pin });
+};
+
 beforeEach(() => {
   db.responsables = [];
   db.devices = [];
@@ -189,6 +197,96 @@ describe('BK-2.2 — Registro de dispositivo protegido (POST /api/devices/link)'
     expect(pendingAlert).toBeDefined();
   });
 
+  test('deviceToken de un celular ya vinculado del mismo responsable → 409 sin duplicar', async () => {
+    const { token } = await registerResponsible();
+    await setPin(token, '4829');
+
+    const linkRes = await linkDevice(token, { deviceToken: 'fcm-celu-sofia' });
+    await confirmLink(token, linkRes.body.device.id);
+
+    const res = await linkDevice(token, {
+      deviceName: 'Celu de Sofía',
+      deviceToken: 'fcm-celu-sofia'
+    });
+
+    expect(res.status).toBe(409);
+    expect(res.body.error).toMatch(/ya está vinculado a tu cuenta/);
+    expect(db.devices).toHaveLength(1);
+  });
+
+  test('deviceToken de un celular pausado del mismo responsable → 409', async () => {
+    const { token } = await registerResponsible();
+    await setPin(token, '4829');
+
+    const linkRes = await linkDevice(token, { deviceToken: 'fcm-celu-sofia' });
+    const deviceId = linkRes.body.device.id;
+    expect((await confirmLink(token, deviceId)).status).toBe(200);
+    const pauseRes = await request(app)
+      .patch(`/api/devices/${deviceId}/status`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'inactive' });
+    expect(pauseRes.body.device.status).toBe('inactive');
+
+    const res = await linkDevice(token, { deviceToken: 'fcm-celu-sofia' });
+
+    expect(res.status).toBe(409);
+    expect(db.devices).toHaveLength(1);
+  });
+
+  test('Mismo deviceToken vinculado en otra cuenta → 201 (no se bloquea ni se filtra)', async () => {
+    const { token: tokenA } = await registerResponsible('a@test.com');
+    const { token: tokenB } = await registerResponsible('b@test.com');
+    await setPin(tokenA, '4829');
+
+    const linkRes = await linkDevice(tokenA, { deviceToken: 'fcm-celu-sofia' });
+    expect((await confirmLink(tokenA, linkRes.body.device.id)).status).toBe(200);
+
+    const res = await linkDevice(tokenB, { deviceToken: 'fcm-celu-sofia' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.device.status).toBe('pending');
+    expect(res.body.device.responsibleId).not.toBe(linkRes.body.device.responsibleId);
+    expect(JSON.stringify(res.body)).not.toContain(linkRes.body.device.id);
+    expect(db.devices).toHaveLength(2);
+  });
+
+  test('deviceToken vacío o con espacios cuenta como ausente: no bloquea → 201', async () => {
+    const { token } = await registerResponsible();
+    await setPin(token, '4829');
+
+    const first = await linkDevice(token, { deviceToken: '   ' });
+    expect((await confirmLink(token, first.body.device.id)).status).toBe(200);
+    const second = await linkDevice(token, { deviceToken: '   ' });
+
+    expect(second.status).toBe(201);
+    expect(db.devices).toHaveLength(2);
+    expect(db.devices[0].deviceToken).toBeUndefined();
+  });
+
+  test('deviceToken con espacios alrededor se compara recortado → 409', async () => {
+    const { token } = await registerResponsible();
+    await setPin(token, '4829');
+
+    const first = await linkDevice(token, { deviceToken: 'fcm-celu-sofia' });
+    expect((await confirmLink(token, first.body.device.id)).status).toBe(200);
+    const res = await linkDevice(token, { deviceToken: '  fcm-celu-sofia  ' });
+
+    expect(res.status).toBe(409);
+    expect(db.devices).toHaveLength(1);
+  });
+
+  test('Sin deviceToken se pueden registrar varios dispositivos → 201', async () => {
+    const { token } = await registerResponsible();
+    await setPin(token, '4829');
+
+    const first = await linkDevice(token);
+    await confirmLink(token, first.body.device.id);
+    const second = await linkDevice(token);
+
+    expect(second.status).toBe(201);
+    expect(db.devices).toHaveLength(2);
+  });
+
   test('Requiere autenticación (sin token → 401)', async () => {
     const res = await request(app)
       .post('/api/devices/link')
@@ -265,6 +363,54 @@ describe('BK-2.3 — Confirmación de vínculo (POST /api/devices/confirm-link)'
       .send({ deviceId, pin: '4829' });
 
     expect(res.status).toBe(409);
+  });
+
+  test('Dispositivo pausado (inactive) → 409 y no pisa linkedAt', async () => {
+    const { token } = await registerResponsible();
+    await setPin(token, '4829');
+
+    const linkRes = await linkDevice(token);
+    const deviceId = linkRes.body.device.id;
+    const confirmRes = await confirmLink(token, deviceId);
+    const linkedAt = confirmRes.body.device.linkedAt;
+
+    const pauseRes = await request(app)
+      .patch(`/api/devices/${deviceId}/status`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'inactive' });
+    expect(pauseRes.body.device.status).toBe('inactive');
+
+    const res = await confirmLink(token, deviceId);
+
+    expect(res.status).toBe(409);
+    const stored = db.devices.find(d => d.id === deviceId);
+    expect(stored!.status).toBe('inactive');
+    expect(stored!.linkedAt).toBe(linkedAt);
+  });
+
+  test('Dispositivo desvinculado → se puede volver a vincular (200)', async () => {
+    const { token } = await registerResponsible();
+    await setPin(token, '4829');
+
+    const linkRes = await linkDevice(token, { deviceToken: 'fcm-celu-sofia' });
+    const deviceId = linkRes.body.device.id;
+    await confirmLink(token, deviceId);
+
+    // Generar un código nuevo con el PIN desvincula el celular: vuelve a pending.
+    const unlinkRes = await request(app)
+      .post(`/api/devices/${deviceId}/link-code`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ pin: '4829' });
+    expect(unlinkRes.status).toBe(200);
+    expect(unlinkRes.body.device.status).toBe('pending');
+
+    const res = await request(app)
+      .post('/api/devices/confirm-link')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ linkCode: unlinkRes.body.linkCode, pin: '4829' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.device.status).toBe('active');
   });
 
   test('Responsable sin PIN configurado → 409', async () => {

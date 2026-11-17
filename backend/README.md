@@ -495,7 +495,9 @@ protegido usará para identificar el perfil.
 También crea una alerta `DEVICE_PENDING` para el responsable.
 
 **Errores:** `400` deviceName o fechaNacimiento ausentes / formato inválido / nombre de menos de 2 o
-más de 40 caracteres (`"El nombre tiene que tener entre 2 y 40 caracteres"`) · `401` sin token · `403` token inválido.
+más de 40 caracteres (`"El nombre tiene que tener entre 2 y 40 caracteres"`) · `401` sin token · `403` token inválido ·
+`409` el `deviceToken` ya es de un dispositivo vinculado (activo o pausado) de la misma cuenta
+(en otra cuenta no se bloquea).
 
 ---
 
@@ -537,7 +539,8 @@ También crea una alerta `DEVICE_LINKED` para el responsable.
 - `400` deviceId/linkCode o pin ausentes
 - `401` PIN inválido
 - `404` dispositivo no encontrado o no pertenece al responsable
-- `409` dispositivo ya ACTIVE / responsable sin PIN configurado
+- `409` dispositivo ya vinculado (ACTIVE o pausado INACTIVE) / responsable sin PIN configurado.
+  Uno desvinculado vuelve a `pending` y se puede confirmar de nuevo.
 
 ---
 

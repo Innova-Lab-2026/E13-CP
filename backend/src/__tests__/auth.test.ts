@@ -130,6 +130,27 @@ describe('BK-1.1 - POST /api/auth/register', () => {
     expect(res.status).toBe(400);
   });
 
+  test('el teléfono es opcional: registra sin teléfono y devuelve 201', async () => {
+    const { telefono: _telefono, ...sinTelefono } = VALID_USER;
+    const res = await request(app).post('/api/auth/register').send(sinTelefono);
+
+    expect(res.status).toBe(201);
+    expect(res.body.responsible.telefono).toBeUndefined();
+    const stored = db.responsables.find(r => r.email === 'ana@mail.com');
+    expect(stored!.telefono).toBeUndefined();
+  });
+
+  test('el teléfono es opcional: acepta un teléfono vacío y devuelve 201', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ ...VALID_USER, telefono: '   ' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.responsible.telefono).toBeUndefined();
+    const stored = db.responsables.find(r => r.email === 'ana@mail.com');
+    expect(stored!.telefono).toBeUndefined();
+  });
+
   test('retorna 400 si esResponsable no es booleano', async () => {
     const res = await request(app)
       .post('/api/auth/register')

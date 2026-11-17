@@ -52,7 +52,7 @@
 |-------|-------|
 | Request | `{ "deviceName": "Tablet de Sofía", "fechaNacimiento": "2015-08-12" }` + JWT |
 | Respuesta éxito | `201 Created` + `{ device: { id, deviceName, fechaNacimiento, status: "pending", linkCode, responsibleId, createdAt }, deviceId, linkCode }` |
-| Respuesta error | `400` campos faltantes / formato inválido · `401` sin token · `403` token inválido |
+| Respuesta error | `400` campos faltantes / formato inválido · `401` sin token · `403` token inválido · `409` el `deviceToken` ya es de un dispositivo vinculado (activo o pausado) de la misma cuenta (en otra cuenta no se bloquea) |
 
 **Criterios de aceptación:**
 1. ✅ `status` inicial es `"pending"`.
@@ -74,7 +74,7 @@
 |-------|-------|
 | Request | `{ "deviceId": "uuid", "pin": "1234" }` o `{ "linkCode": "XK9M2P7R", "pin": "1234" }` + JWT |
 | Respuesta éxito | `200 OK` + `{ message: "Vinculación confirmada", device: { id, status: "active" } }` |
-| Respuesta error | `401` PIN inválido · `404` dispositivo no encontrado / no pertenece al responsable · `409` ya ACTIVE / responsable sin PIN |
+| Respuesta error | `401` PIN inválido · `404` dispositivo no encontrado / no pertenece al responsable · `409` ya vinculado (ACTIVE o pausado INACTIVE; para revincular, primero se desvincula y vuelve a PENDING) / responsable sin PIN |
 
 **Criterios de aceptación:**
 1. ✅ Valida PIN contra `pinHash` del responsable.

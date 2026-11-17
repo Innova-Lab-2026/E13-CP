@@ -158,7 +158,8 @@ export const registerResponsible = async (req: Request, res: Response) => {
       email: cleanEmail,
       passwordHash,
       name: fullName,
-      telefono: cleanPhone,
+      // Vacío o solo espacios: la cuenta queda sin teléfono (igual que en "Mi cuenta").
+      telefono: cleanPhone || undefined,
       rol,
       mode: 'adulto',
       createdAt: new Date().toISOString()
