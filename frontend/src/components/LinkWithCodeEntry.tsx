@@ -34,13 +34,17 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
+  // Acceso secundario y discreto, debajo de las acciones principales del Figma.
   prompt: {
     ...typography.body,
+    fontSize: 13,
+    lineHeight: 18,
     textAlign: "center",
   },
   link: {
     ...typography.label,
-    fontSize: 15,
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: "700",
     color: colors.text,
     textAlign: "center",
