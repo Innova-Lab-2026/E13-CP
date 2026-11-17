@@ -137,6 +137,13 @@
     .icon svg { width: 24px; height: 24px; }
     .bg-white { background: var(--white); }
 
+    /* Video */
+    .video-frame {
+      background: var(--text); border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow); aspect-ratio: 16 / 9;
+    }
+    .video-frame video { width: 100%; height: 100%; display: block; background: var(--text); }
+
     .privacy {
       background: var(--text); color: var(--white); border-radius: var(--radius-lg); padding: 28px 24px;
     }
@@ -203,6 +210,7 @@
         <img src="assets/protege-01.png" alt="BA Protege+" width="131" height="43">
       </a>
       <nav aria-label="Principal">
+        <a class="hide-sm" href="#video">Video</a>
         <a class="hide-sm" href="#como-funciona">Cómo funciona</a>
         <a class="hide-sm" href="#preguntas">Preguntas</a>
         <a href="/app/">Ingresar</a>
@@ -241,6 +249,19 @@
       </div>
     </div>
 
+    <section class="bg-white" id="video" aria-labelledby="video-titulo" style="padding-top:0">
+      <div class="wrap">
+        <h2 id="video-titulo">BA Protege+ en 2 minutos</h2>
+        <p class="section-lead">El problema, cómo funciona y por qué te sirve. Tiene subtítulos incorporados.</p>
+        <div class="video-frame">
+          <video controls preload="none" playsinline poster="assets/video-poster.jpg">
+            <source src="assets/baprotege-plus.mp4" type="video/mp4">
+            Tu navegador no puede reproducir el video. <a href="assets/baprotege-plus.mp4">Descargalo acá</a>.
+          </video>
+        </div>
+      </div>
+    </section>
+
     <section id="como-funciona" aria-labelledby="como-funciona-titulo">
       <div class="wrap">
         <h2 id="como-funciona-titulo">Cómo funciona</h2>
@@ -259,7 +280,7 @@
           <li class="tile">
             <span class="step-num" aria-hidden="true">3</span>
             <h3>Vinculá su celular</h3>
-            <p>Instalá la app de Android en su celular, elegí el modo dispositivo protegido e ingresá el código con tu PIN. Desde ahí, los sitios de apuestas quedan bloqueados.</p>
+            <p>Instalá la app de Android en su celular, tocá «Vincular con un código» y escribí el código con tu PIN. Tu cuenta no queda abierta en su celular, y los sitios de apuestas quedan bloqueados.</p>
           </li>
         </ol>
       </div>
@@ -327,7 +348,7 @@
           </details>
           <details>
             <summary>¿Puedo bloquear otros sitios además de los de LOTBA?</summary>
-            <p>Sí. Desde Configuración, en Sitios, podés agregar los sitios que quieras bloquear y quitarlos cuando quieras.</p>
+            <p>Sí. Desde Configuración, en Sitios, podés agregar los sitios que quieras bloquear y quitarlos cuando quieras. Si encontrás un sitio de apuestas que falta en el listado, sugerilo desde «Sugerir un sitio» y lo revisamos con LOTBA.</p>
           </details>
           <details>
             <summary>¿Puedo proteger más de un celular?</summary>
@@ -335,7 +356,7 @@
           </details>
           <details>
             <summary>¿Qué pasa si quiero dejar de usarla?</summary>
-            <p>Podés eliminar tu cuenta desde Configuración, en Eliminar cuenta. Te vamos a pedir tu contraseña para confirmarlo.</p>
+            <p>Podés eliminar tu cuenta desde Configuración, en Eliminar cuenta. Te vamos a pedir tu contraseña para confirmarlo (o tu PIN, si entraste con Google).</p>
           </details>
         </div>
       </div>
