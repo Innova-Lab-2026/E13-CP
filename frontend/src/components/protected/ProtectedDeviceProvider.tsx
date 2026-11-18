@@ -1,52 +1,40 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AppState,
-  Image,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Redirect, useFocusEffect, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import AppButton from "../../src/components/AppButton";
-import AppInput from "../../src/components/AppInput";
-import AppAlert from "../../src/components/AppAlert";
-import AppSwitch from "../../src/components/AppSwitch";
-import ConfirmModal from "../../src/components/ConfirmModal";
-import PinInput from "../../src/components/PinInput";
-import ScreenState from "../../src/components/ScreenState";
-import { useAsyncResource } from "../../src/hooks/useAsyncResource";
-import { useSession } from "../../src/services/session";
-import { clearDeviceSession, useDeviceSession } from "../../src/services/deviceSession";
-import { logout, verifySecurityPin } from "../../src/services/auth";
-import {
-  getDeviceById,
-  setDeviceProtection,
-  unlinkDevice,
-} from "../../src/services/deviceService";
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { AppState, Platform } from "react-native";
+import { Redirect, useRouter } from "expo-router";
+import ConfirmModal from "../ConfirmModal";
+import PinInput from "../PinInput";
+import { useAsyncResource } from "../../hooks/useAsyncResource";
+import { useSession } from "../../services/session";
+import { clearDeviceSession, useDeviceSession } from "../../services/deviceSession";
+import { logout, verifySecurityPin } from "../../services/auth";
+import { getDeviceById, setDeviceProtection, unlinkDevice } from "../../services/deviceService";
 import {
   getMyBlocklist,
   getMyDevice,
   recordMyEvent,
   setMyProtection,
   unlinkMe,
-} from "../../src/services/myDeviceService";
+} from "../../services/myDeviceService";
 import {
-  checkDomain,
   getBlocklist,
   recordDeviceEvent,
+  type BlocklistItem,
+  type BlocklistStatus,
   type SecurityEventType,
-} from "../../src/services/blocklistService";
-import { ApiError, errorMessage } from "../../src/services/api";
-import { formatDate } from "../../src/utils/date";
-import { normalizeDomain } from "../../src/utils/domain";
-import { colors, radius, shadow, spacing, typography } from "../../src/theme";
-import LocalVpnModule from "../../modules/local-vpn";
+} from "../../services/blocklistService";
+import { ApiError, errorMessage } from "../../services/api";
+import LocalVpnModule from "../../../modules/local-vpn";
 
-const IS_ANDROID = Platform.OS === "android";
+export const IS_ANDROID = Platform.OS === "android";
 
 /** Cada cuánto se vuelve a consultar el estado del perfil mientras la app está abierta. */
 const REMOTE_STATUS_INTERVAL_MS = 60_000;
@@ -57,9 +45,9 @@ const REMOTE_STATUS_INTERVAL_MS = 60_000;
  */
 type PinAction = "exit" | "pause" | "resume";
 
-type Feedback = { message: string; variant: "success" | "warning" | "error" | "info" };
+export type Feedback = { message: string; variant: "success" | "warning" | "error" | "info" };
 
-type DeviceEvent = { eventType: SecurityEventType; domain?: string; details: string };
+export type DeviceEvent = { eventType: SecurityEventType; domain?: string; details: string };
 
 const PIN_MODAL_TEXT: Record<PinAction, { title: string; message: string; confirm: string }> = {
   pause: {
@@ -81,6 +69,50 @@ const PIN_MODAL_TEXT: Record<PinAction, { title: string; message: string; confir
   },
 };
 
+type BlocklistData = { blocklist: BlocklistItem[]; status: BlocklistStatus };
+
+export type ProtectedDeviceState = {
+  /** Vinculado con un código (credencial propia del celular, rutas /me). */
+  isDevice: boolean;
+  deviceId: string;
+  deviceName?: string;
+  blocklist: {
+    data: BlocklistData | undefined;
+    loading: boolean;
+    error: string | null;
+    reload: () => Promise<void>;
+  };
+  totalSites: number;
+  /** Estado del perfil en el servidor ("active", "disabled"...). */
+  remoteStatus?: string;
+  /** La persona adulta pausó la protección desde su celular. */
+  pausedByAdult: boolean;
+  reloadRemote: () => Promise<void>;
+  /** Bloqueo real en Android (VPN local). En la web siempre es false. */
+  vpnOn: boolean;
+  vpnBusy: boolean;
+  vpnFeedback: Feedback | null;
+  /** Lo que pasa al tocar el interruptor: activar, o pedir el PIN para pausar/reactivar. */
+  handleVpnToggle: (next: boolean) => void;
+  /** Relee el estado de la VPN (puede cambiar desde los ajustes de Android). */
+  refreshVpn: () => void;
+  /** Registra un evento para la persona adulta sin frenar la pantalla si falla. */
+  recordSafely: (event: DeviceEvent) => Promise<void>;
+  /** Abre el pedido de PIN para salir del modo protegido. */
+  requestExit: () => void;
+};
+
+const ProtectedDeviceContext = createContext<ProtectedDeviceState | null>(null);
+
+/** Estado del celular protegido para las pantallas de las pestañas. */
+export function useProtectedDevice(): ProtectedDeviceState {
+  const value = useContext(ProtectedDeviceContext);
+  if (!value) {
+    throw new Error("useProtectedDevice se usa dentro de ProtectedDeviceProvider.");
+  }
+  return value;
+}
+
 function isRunningSafe(): boolean {
   try {
     return LocalVpnModule.isVpnRunning();
@@ -98,12 +130,20 @@ async function syncServerStatus(deviceId: string, active: boolean) {
   }
 }
 
+function blocklistSignature(data: BlocklistData, domainCount: number): string {
+  return `${domainCount}:${data.status.lastUpdated}:${data.status.totalCustom}`;
+}
+
 /**
- * Home del celular protegido. Funciona de dos formas:
+ * Estado compartido del celular protegido (lista de bloqueo, estado del perfil,
+ * VPN de Android y pedidos de PIN). Vive en el layout de las pestañas para que la
+ * sincronización con el servidor siga corriendo en cualquier pestaña.
+ *
+ * Funciona de dos formas:
  * - Vinculado con un código: usa la credencial propia del celular (rutas /me).
  * - Vinculado iniciando sesión con la cuenta de la persona adulta (forma anterior).
  */
-export default function ProtectedHomeScreen() {
+export default function ProtectedDeviceProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { session } = useSession();
   const { deviceSession } = useDeviceSession();
@@ -122,9 +162,6 @@ export default function ProtectedHomeScreen() {
   const totalSites = blocklist.data
     ? blocklist.data.status.totalOfficial + blocklist.data.status.totalCustom
     : 0;
-  const lastUpdated = blocklist.data?.status.lastUpdated
-    ? new Date(blocklist.data.status.lastUpdated)
-    : null;
 
   // Estado del perfil en el servidor: la persona adulta puede pausar o reactivar
   // la protección desde su celular, y este celular lo aplica al sincronizar.
@@ -151,11 +188,6 @@ export default function ProtectedHomeScreen() {
   const [vpnBusy, setVpnBusy] = useState(false);
   const [vpnFeedback, setVpnFeedback] = useState<Feedback | null>(null);
 
-  const [siteInput, setSiteInput] = useState("");
-  const [siteError, setSiteError] = useState("");
-  const [checking, setChecking] = useState(false);
-  const [siteFeedback, setSiteFeedback] = useState<Feedback | null>(null);
-
   const [pinAction, setPinAction] = useState<PinAction | null>(null);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState<string | null>(null);
@@ -165,8 +197,6 @@ export default function ProtectedHomeScreen() {
   const refreshVpn = useCallback(() => {
     if (IS_ANDROID) setVpnOn(isRunningSafe());
   }, []);
-
-  useFocusEffect(refreshVpn);
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (state) => {
@@ -216,7 +246,7 @@ export default function ProtectedHomeScreen() {
   const syncedSignature = useRef<string | null>(null);
   useEffect(() => {
     if (!IS_ANDROID || !blocklist.data || domains.length === 0) return;
-    const signature = `${domains.length}:${blocklist.data.status.lastUpdated}:${blocklist.data.status.totalCustom}`;
+    const signature = blocklistSignature(blocklist.data, domains.length);
     if (syncedSignature.current === signature || !isRunningSafe()) return;
     syncedSignature.current = signature;
     LocalVpnModule.startVpn(domains).catch(() => {
@@ -263,7 +293,7 @@ export default function ProtectedHomeScreen() {
         if (!isDevice) await syncServerStatus(linkedDeviceId, true);
         await reloadRemote();
         syncedSignature.current = blocklist.data
-          ? `${domains.length}:${blocklist.data.status.lastUpdated}:${blocklist.data.status.totalCustom}`
+          ? blocklistSignature(blocklist.data, domains.length)
           : null;
         setVpnFeedback({ message: "La protección está activa en este celular.", variant: "success" });
       } else {
@@ -433,198 +463,39 @@ export default function ProtectedHomeScreen() {
     });
   }
 
-  async function handleCheckSite() {
-    if (checking) return;
-    setSiteFeedback(null);
-    const domain = normalizeDomain(siteInput);
-    if (!domain) {
-      setSiteError("Ingresá un sitio válido, por ejemplo sitio.com.ar");
-      return;
-    }
+  const value: ProtectedDeviceState = {
+    isDevice,
+    deviceId: linkedDeviceId,
+    deviceName,
+    blocklist: {
+      data: blocklist.data,
+      loading: blocklist.loading,
+      error: blocklist.error,
+      reload: blocklist.reload,
+    },
+    totalSites,
+    remoteStatus,
+    pausedByAdult,
+    reloadRemote,
+    vpnOn,
+    vpnBusy,
+    vpnFeedback,
+    handleVpnToggle,
+    refreshVpn,
+    recordSafely,
+    requestExit: () => openPinModal("exit"),
+  };
 
-    setChecking(true);
-    try {
-      const result = await checkDomain(domain, isDevice ? "device" : true);
-      if (result.isBlocked) {
-        await recordSafely({
-          eventType: "SITE_BLOCKED",
-          domain: result.domain || domain,
-          details: "Intento de acceso a un sitio de la lista de bloqueo",
-        });
-        router.push({
-          pathname: "/protected/blocked",
-          params: { domain: result.domain || domain },
-        });
-      } else {
-        setSiteFeedback({ message: "Este sitio está permitido.", variant: "success" });
-      }
-    } catch (err) {
-      setSiteFeedback({
-        message: errorMessage(err, "No pudimos revisar el sitio. Intentá de nuevo."),
-        variant: "error",
-      });
-    } finally {
-      setChecking(false);
-    }
-  }
-
-  const protectionLabel = IS_ANDROID
-    ? vpnOn
-      ? "Activa"
-      : pausedByAdult
-        ? "Pausada por la persona adulta"
-        : "Pausada"
-    : "Disponible en la app de Android";
+  const modalText = PIN_MODAL_TEXT[pinAction ?? "exit"];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.logoContainer}>
-          <Image
-            source={require("../../assets/protege-01.png")}
-            style={styles.logo}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-            accessibilityLabel="BA Protege+"
-          />
-        </View>
-
-        {/* Tarjeta principal */}
-        <View style={styles.heroCard}>
-          <View style={[styles.heroIcon, vpnOn || !IS_ANDROID ? styles.heroIconOn : styles.heroIconOff]}>
-            <Ionicons
-              name={vpnOn || !IS_ANDROID ? "shield-checkmark" : "shield-outline"}
-              size={40}
-              color={vpnOn || !IS_ANDROID ? colors.successText : colors.warningText}
-            />
-          </View>
-          <Text style={styles.heroTitle} accessibilityRole="header">
-            {IS_ANDROID && !vpnOn
-              ? "La protección está pausada"
-              : "Este celular está protegido"}
-          </Text>
-          {deviceName ? (
-            <Text style={styles.heroSubtitle}>Perfil de {deviceName}</Text>
-          ) : null}
-
-          <View style={styles.statusRows}>
-            <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>Bloqueo de sitios</Text>
-              <View
-                style={[
-                  styles.badge,
-                  IS_ANDROID
-                    ? vpnOn
-                      ? styles.badgeOn
-                      : styles.badgeOff
-                    : styles.badgeNeutral,
-                ]}
-              >
-                <Text style={styles.badgeText}>{protectionLabel}</Text>
-              </View>
-            </View>
-
-            <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>Sitios en la lista</Text>
-              {blocklist.data ? (
-                <Text style={styles.statusValue}>{totalSites.toLocaleString("es-AR")}</Text>
-              ) : (
-                <Text style={styles.statusValue}>{blocklist.loading ? "..." : "-"}</Text>
-              )}
-            </View>
-          </View>
-
-          {lastUpdated && !Number.isNaN(lastUpdated.getTime()) ? (
-            <Text style={styles.caption}>
-              Listado oficial de LOTBA, actualizado el {formatDate(lastUpdated)}
-            </Text>
-          ) : null}
-        </View>
-
-        <ScreenState
-          error={blocklist.error}
-          onRetry={blocklist.reload}
-        />
-
-        {/* Control de la VPN (Android) o explicación (web) */}
-        {IS_ANDROID ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Protección en este celular</Text>
-            <Text style={styles.cardText}>
-              Bloquea los sitios de apuestas de la lista en todas las apps y navegadores.
-              Para pausarla hace falta el PIN de la persona adulta.
-            </Text>
-            {pausedByAdult && !vpnOn ? (
-              <AppAlert
-                variant="info"
-                message="La persona adulta pausó la protección desde su celular. Si querés, podés volver a activarla acá."
-              />
-            ) : null}
-            {!pausedByAdult && remoteStatus === "active" && !vpnOn && !vpnBusy ? (
-              <AppAlert
-                variant="warning"
-                message="La protección está activa en la cuenta de la persona adulta, pero el bloqueo está apagado en este celular. Activalo con el interruptor."
-              />
-            ) : null}
-            <AppSwitch
-              label="Bloqueo de sitios de apuestas"
-              accessibilityLabel={
-                deviceName ? `Protección de ${deviceName}` : "Bloqueo de sitios de apuestas"
-              }
-              value={vpnOn}
-              onValueChange={handleVpnToggle}
-              disabled={vpnBusy || (!vpnOn && !blocklist.data && blocklist.loading)}
-            />
-            {vpnBusy ? <Text style={styles.caption}>Activando la protección...</Text> : null}
-            {vpnFeedback ? (
-              <AppAlert message={vpnFeedback.message} variant={vpnFeedback.variant} />
-            ) : null}
-          </View>
-        ) : (
-          <AppAlert
-            variant="info"
-            message="En el navegador no podemos bloquear sitios. El bloqueo lo hace la app de BA Protege+ para Android, instalada en el celular. Acá podés probar si un sitio está en la lista."
-          />
-        )}
-
-        {/* Probar un sitio */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Probar un sitio</Text>
-          <Text style={styles.cardText}>
-            Escribí la dirección de un sitio para saber si está en la lista de bloqueo.
-          </Text>
-          <AppInput
-            label="Sitio web"
-            placeholder="sitio.com.ar"
-            value={siteInput}
-            onChangeText={(text) => {
-              setSiteInput(text);
-              setSiteError("");
-              setSiteFeedback(null);
-            }}
-            keyboardType="url"
-            error={siteError}
-          />
-          <AppButton title="Probar" onPress={handleCheckSite} loading={checking} />
-          {siteFeedback ? (
-            <AppAlert message={siteFeedback.message} variant={siteFeedback.variant} />
-          ) : null}
-        </View>
-
-        <View style={styles.exit}>
-          <AppButton
-            title="Salir del modo protegido"
-            variant="tertiary"
-            onPress={() => openPinModal("exit")}
-          />
-        </View>
-      </ScrollView>
-
+    <ProtectedDeviceContext.Provider value={value}>
+      {children}
       <ConfirmModal
         visible={pinAction !== null}
-        title={PIN_MODAL_TEXT[pinAction ?? "exit"].title}
-        message={PIN_MODAL_TEXT[pinAction ?? "exit"].message}
-        confirmLabel={PIN_MODAL_TEXT[pinAction ?? "exit"].confirm}
+        title={modalText.title}
+        message={modalText.message}
+        confirmLabel={modalText.confirm}
         onConfirm={handlePinConfirm}
         onCancel={closePinModal}
         destructive={pinAction !== "resume"}
@@ -633,133 +504,14 @@ export default function ProtectedHomeScreen() {
       >
         <PinInput
           value={pin}
-          onChange={(value) => {
-            setPin(value);
+          onChange={(next) => {
+            setPin(next);
             setPinError(null);
           }}
           label="PIN de la persona adulta"
           autoFocus
         />
       </ConfirmModal>
-    </SafeAreaView>
+    </ProtectedDeviceContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.backgroundWarm,
-  },
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxxl,
-    gap: spacing.lg,
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: spacing.sm,
-  },
-  logo: {
-    width: 125,
-    height: 55,
-  },
-  heroCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xxl,
-    alignItems: "center",
-    gap: spacing.sm,
-    ...shadow.card,
-  },
-  heroIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.pill,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.sm,
-  },
-  heroIconOn: {
-    backgroundColor: colors.successSoft,
-  },
-  heroIconOff: {
-    backgroundColor: colors.warningSoft,
-  },
-  heroTitle: {
-    ...typography.title,
-    textAlign: "center",
-  },
-  heroSubtitle: {
-    ...typography.body,
-    textAlign: "center",
-  },
-  statusRows: {
-    alignSelf: "stretch",
-    marginTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  statusRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    gap: spacing.md,
-  },
-  statusLabel: {
-    ...typography.label,
-  },
-  statusValue: {
-    ...typography.subtitle,
-  },
-  badge: {
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    flexShrink: 1,
-  },
-  badgeOn: {
-    backgroundColor: colors.successSoft,
-  },
-  badgeOff: {
-    backgroundColor: colors.warningSoft,
-  },
-  badgeNeutral: {
-    backgroundColor: colors.surfaceMuted,
-  },
-  badgeText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: colors.text,
-    textAlign: "right",
-  },
-  caption: {
-    ...typography.caption,
-    textAlign: "center",
-  },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xl,
-    gap: spacing.sm,
-    ...shadow.card,
-  },
-  cardTitle: {
-    ...typography.subtitle,
-  },
-  cardText: {
-    ...typography.body,
-    marginBottom: spacing.xs,
-  },
-  exit: {
-    marginTop: spacing.sm,
-  },
-});
