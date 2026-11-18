@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../../../src/components/AppHeader";
 import ScreenState from "../../../../src/components/ScreenState";
+import AddDeviceButton from "../../../../src/components/AddDeviceButton";
 import HistoryEventList from "../../../../src/components/historial/HistoryEventList";
 import HistoryFilters, {
   type HistoryDeviceOption,
@@ -114,7 +115,13 @@ export default function HistorialScreen() {
   };
 
   const singleDeviceName = focused?.name ?? (tab === "device" ? activeDeviceName : undefined);
-  const empty = emptyCopy(singleDeviceName, !focused && tab === "category");
+  const noDevices = !focused && tab === "device" && deviceOptions.length === 0;
+  const empty = noDevices
+    ? {
+        title: "Todavía no agregaste dispositivos",
+        text: "Agregá el celular de tu hijo o hija para ver acá su actividad.",
+      }
+    : emptyCopy(singleDeviceName, !focused && tab === "category");
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -154,8 +161,15 @@ export default function HistorialScreen() {
               />
             ) : null}
 
-            {visibleEvents.length === 0 ? (
-              <ScreenState isEmpty emptyTitle={empty.title} emptyText={empty.text} />
+            {visibleEvents.length === 0 || noDevices ? (
+              <>
+                <ScreenState isEmpty emptyTitle={empty.title} emptyText={empty.text} />
+                {noDevices ? (
+                  <AddDeviceButton
+                    onPress={() => router.push("/(main)/(tabs)/dispositivos/add-device")}
+                  />
+                ) : null}
+              </>
             ) : (
               <HistoryEventList
                 events={visibleEvents}

@@ -86,17 +86,14 @@ export default function HistoryFilters({
         />
       ) : null}
 
-      {tab === "device" ? (
-        devices.length > 0 ? (
-          <ChipRow
-            label="Dispositivo"
-            options={devices}
-            selectedId={selectedDeviceId}
-            onSelect={onDeviceChange}
-          />
-        ) : (
-          <Text style={styles.hint}>Todavía no agregaste dispositivos.</Text>
-        )
+      {/* Sin dispositivos, el aviso lo da el estado vacío de la pantalla. */}
+      {tab === "device" && devices.length > 0 ? (
+        <ChipRow
+          label="Dispositivo"
+          options={devices}
+          selectedId={selectedDeviceId}
+          onSelect={onDeviceChange}
+        />
       ) : null}
     </View>
   );
@@ -212,10 +209,5 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.8,
-  },
-  hint: {
-    marginTop: spacing.md,
-    fontSize: 13,
-    color: colors.textMuted,
   },
 });
