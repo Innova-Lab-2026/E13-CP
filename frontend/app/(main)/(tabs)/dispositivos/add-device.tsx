@@ -122,6 +122,7 @@ export default function AddDeviceScreen() {
           name: device.name || trimmedName,
           linkCode,
           deviceId: device.id,
+          created: '1',
           ...(linkCodeExpiresAt ? { linkCodeExpiresAt } : null),
         },
       });
