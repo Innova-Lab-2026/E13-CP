@@ -6,11 +6,12 @@ export default function ConfiguracionLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.background },
+        contentStyle: { backgroundColor: colors.backgroundWarm },
       }}
     >
       <Stack.Screen name="index" />
       <Stack.Screen name="mi-cuenta" />
+      <Stack.Screen name="privacidad" />
       <Stack.Screen name="sitios" />
       <Stack.Screen name="sugerir-sitio" />
       <Stack.Screen name="ayuda" />

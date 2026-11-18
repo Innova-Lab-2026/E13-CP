@@ -1,59 +1,58 @@
-import { useState, type ComponentProps } from "react";
+import { useState, type ReactNode } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter, type Href } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import AppHeader from "../../../../src/components/AppHeader";
 import ConfirmModal from "../../../../src/components/ConfirmModal";
 import { logout } from "../../../../src/services/auth";
-import { useSession } from "../../../../src/services/session";
 import { errorMessage } from "../../../../src/services/api";
 import { colors, radius, shadow, spacing, typography } from "../../../../src/theme";
 
-type IconName = ComponentProps<typeof Ionicons>["name"];
-
 type MenuRowProps = {
-  icon: IconName;
+  /** Ícono ya dibujado (Ionicons o MaterialCommunityIcons), de 20 px. */
+  icon: ReactNode;
   label: string;
-  description?: string;
+  hint?: string;
   onPress: () => void;
-  destructive?: boolean;
+  /** Círculo rojo suave, como la sirena de "¿Querés sugerir un sitio?" en el Figma. */
+  highlight?: boolean;
+  /** La última fila de la tarjeta no lleva separador. */
+  last?: boolean;
 };
 
-function MenuRow({ icon, label, description, onPress, destructive = false }: MenuRowProps) {
-  const tint = destructive ? colors.danger : colors.text;
+/** Fila del menú de Configuración: ícono en círculo, texto y chevron. */
+function MenuRow({ icon, label, hint, onPress, highlight = false, last = false }: MenuRowProps) {
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityHint={description}
+      accessibilityHint={hint}
     >
-      <View style={[styles.rowIcon, destructive && styles.rowIconDanger]}>
-        <Ionicons name={icon} size={20} color={tint} />
+      <View style={[styles.rowInner, !last && styles.rowDivider]}>
+        <View
+          style={[styles.rowIcon, highlight && styles.rowIconHighlight]}
+          accessibilityElementsHidden
+          importantForAccessibility="no"
+        >
+          {icon}
+        </View>
+        <Text style={styles.rowLabel}>{label}</Text>
+        <Ionicons name="chevron-forward" size={18} color={colors.text} />
       </View>
-      <View style={styles.rowText}>
-        <Text style={[styles.rowLabel, destructive && styles.rowLabelDanger]}>{label}</Text>
-        {description ? <Text style={styles.rowDescription}>{description}</Text> : null}
-      </View>
-      <Ionicons name="chevron-forward" size={18} color={destructive ? colors.danger : colors.textSubtle} />
     </Pressable>
   );
 }
 
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const letters = parts.slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "");
-  return letters.join("") || "?";
-}
+const ICON_SIZE = 20;
+const ICON_COLOR = colors.text;
 
 export default function ConfiguracionScreen() {
   const router = useRouter();
-  const { session } = useSession();
-  const profile = session?.profile;
 
   const [logoutVisible, setLogoutVisible] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -81,76 +80,47 @@ export default function ConfiguracionScreen() {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <AppHeader title="Configuración" hideBack />
 
-        <View style={styles.profileCard}>
-          <View style={styles.avatar} accessibilityElementsHidden importantForAccessibility="no">
-            <Text style={styles.avatarText}>{initials(profile?.name ?? "")}</Text>
-          </View>
-          <View style={styles.profileText}>
-            <Text style={styles.profileName} numberOfLines={1}>
-              {profile?.name ?? "Tu cuenta"}
-            </Text>
-            {profile?.email ? (
-              <Text style={styles.profileEmail} numberOfLines={1}>
-                {profile.email}
-              </Text>
-            ) : null}
-          </View>
-        </View>
-
-        <Text style={styles.sectionTitle}>Tu cuenta</Text>
-        <View style={styles.group}>
+        {/* Tarjeta principal: las filas del Figma, en el mismo orden. */}
+        <View style={styles.card}>
           <MenuRow
-            icon="person-outline"
+            icon={<Ionicons name="person-outline" size={ICON_SIZE} color={ICON_COLOR} />}
             label="Mi cuenta"
-            description="Nombre, teléfono y correo"
+            hint="Nombre, teléfono y correo"
             onPress={go("/(main)/(tabs)/configuracion/mi-cuenta")}
           />
           <MenuRow
-            icon="keypad-outline"
-            label="PIN de seguridad"
-            description="Cambiá el PIN de 4 dígitos de tu cuenta"
-            onPress={go("/pin-setup?change=1")}
-          />
-        </View>
-
-        <Text style={styles.sectionTitle}>Protección</Text>
-        <View style={styles.group}>
-          <MenuRow
-            icon="shield-checkmark-outline"
-            label="Sitios bloqueados"
-            description="Listado oficial de LOTBA y tus sitios agregados"
-            onPress={go("/(main)/(tabs)/configuracion/sitios")}
+            icon={<Ionicons name="lock-closed-outline" size={ICON_SIZE} color={ICON_COLOR} />}
+            label="Privacidad y seguridad"
+            hint="Cambiá el PIN de seguridad de tu cuenta"
+            onPress={go("/(main)/(tabs)/configuracion/privacidad")}
           />
           <MenuRow
-            icon="flag-outline"
-            label="Sugerir un sitio"
-            description="Contanos de un sitio de apuestas que no esté en la lista"
+            icon={
+              <MaterialCommunityIcons
+                name="alarm-light-outline"
+                size={ICON_SIZE}
+                color={colors.danger}
+              />
+            }
+            label="¿Querés sugerir un sitio?"
+            hint="Contanos de un sitio de apuestas que no esté en la lista"
             onPress={go("/(main)/(tabs)/configuracion/sugerir-sitio")}
-          />
-        </View>
-
-        <Text style={styles.sectionTitle}>Ayuda</Text>
-        <View style={styles.group}>
-          <MenuRow
-            icon="help-circle-outline"
-            label="Ayuda y preguntas frecuentes"
-            onPress={go("/(main)/(tabs)/configuracion/ayuda")}
+            highlight
           />
           <MenuRow
-            icon="document-text-outline"
+            icon={<Ionicons name="star-outline" size={ICON_SIZE} color={ICON_COLOR} />}
+            label="Ayudanos a mejorar"
+            onPress={go("/(main)/(tabs)/configuracion/mejorar")}
+          />
+          <MenuRow
+            icon={
+              <MaterialCommunityIcons name="shield-search" size={ICON_SIZE} color={ICON_COLOR} />
+            }
             label="Términos y políticas"
             onPress={go("/(main)/(tabs)/configuracion/terminos")}
           />
           <MenuRow
-            icon="chatbubble-ellipses-outline"
-            label="Ayudanos a mejorar"
-            onPress={go("/(main)/(tabs)/configuracion/mejorar")}
-          />
-        </View>
-
-        <View style={styles.group}>
-          <MenuRow
-            icon="log-out-outline"
+            icon={<Ionicons name="log-out-outline" size={ICON_SIZE} color={ICON_COLOR} />}
             label="Cerrar sesión"
             onPress={() => {
               setLogoutError(null);
@@ -158,10 +128,30 @@ export default function ConfiguracionScreen() {
             }}
           />
           <MenuRow
-            icon="trash-outline"
+            icon={<Ionicons name="close-circle-outline" size={ICON_SIZE} color={ICON_COLOR} />}
             label="Eliminar cuenta"
+            hint="Borra tu cuenta y desvincula tus dispositivos"
             onPress={go("/(main)/(tabs)/configuracion/eliminar-cuenta")}
-            destructive
+            last
+          />
+        </View>
+
+        {/* Lo que la app suma al Figma, en una tarjeta aparte y más discreta. */}
+        <Text style={styles.sectionTitle}>Más opciones</Text>
+        <View style={[styles.card, styles.cardSecondary]}>
+          <MenuRow
+            icon={
+              <Ionicons name="shield-checkmark-outline" size={ICON_SIZE} color={ICON_COLOR} />
+            }
+            label="Sitios bloqueados"
+            hint="Listado oficial de LOTBA y tus sitios agregados"
+            onPress={go("/(main)/(tabs)/configuracion/sitios")}
+          />
+          <MenuRow
+            icon={<Ionicons name="help-circle-outline" size={ICON_SIZE} color={ICON_COLOR} />}
+            label="Ayuda y preguntas frecuentes"
+            onPress={go("/(main)/(tabs)/configuracion/ayuda")}
+            last
           />
         </View>
       </ScrollView>
@@ -183,102 +173,69 @@ export default function ConfiguracionScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.backgroundWarm,
   },
   container: {
     flexGrow: 1,
     padding: spacing.xl,
     paddingBottom: spacing.xxxl,
   },
-  profileCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.lg,
+  card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.xxl,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xs,
     marginBottom: spacing.xl,
+    overflow: "hidden",
     ...shadow.card,
   },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.pill,
-    backgroundColor: colors.brand,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: colors.onBrand,
-  },
-  profileText: {
-    flex: 1,
-    gap: 2,
-  },
-  profileName: {
-    ...typography.subtitle,
-    fontSize: 18,
-  },
-  profileEmail: {
-    ...typography.body,
+  cardSecondary: {
+    shadowOpacity: 0,
+    elevation: 0,
   },
   sectionTitle: {
     ...typography.caption,
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.5,
+    color: colors.textMuted,
     marginBottom: spacing.sm,
     marginLeft: spacing.xs,
   },
-  group: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing.xl,
-    overflow: "hidden",
-  },
   row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    paddingVertical: spacing.md,
+    marginHorizontal: -spacing.lg,
     paddingHorizontal: spacing.lg,
-    minHeight: 56,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
   },
   rowPressed: {
     backgroundColor: colors.surfaceMuted,
   },
+  rowInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    minHeight: 56,
+    paddingVertical: spacing.xs,
+  },
+  rowDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
   rowIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.brandSoft,
+    width: 40,
+    height: 40,
+    borderRadius: radius.pill,
+    backgroundColor: colors.borderStrong,
     alignItems: "center",
     justifyContent: "center",
   },
-  rowIconDanger: {
+  rowIconHighlight: {
     backgroundColor: colors.dangerSoft,
   },
-  rowText: {
-    flex: 1,
-    gap: 2,
-  },
   rowLabel: {
-    ...typography.label,
+    flex: 1,
     fontSize: 15,
-  },
-  rowLabelDanger: {
-    color: colors.danger,
-  },
-  rowDescription: {
-    ...typography.caption,
-    color: colors.textMuted,
+    color: colors.text,
   },
 });

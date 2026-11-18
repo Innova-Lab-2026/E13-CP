@@ -149,6 +149,7 @@ type Snapshot = {
   blocklistSyncLog: typeof db.blocklistSyncLog;
   siteSuggestions: typeof db.siteSuggestions;
   claimThrottle: typeof db.claimThrottle;
+  feedback: typeof db.feedback;
   /**
    * Dominios personalizados. La lista oficial se toma del código salvo que se
    * haya sincronizado un período nuevo: en ese caso se guarda completa.
@@ -182,6 +183,7 @@ function toSnapshot(): Snapshot {
     blocklistSyncLog: db.blocklistSyncLog,
     siteSuggestions: db.siteSuggestions,
     claimThrottle: db.claimThrottle,
+    feedback: db.feedback,
     blocklist: officialWasSynced ? db.blocklist : db.blocklist.filter(item => item.type === 'CUSTOM')
   };
 }
@@ -197,6 +199,7 @@ function applySnapshot(snapshot: Snapshot): void {
   // Los estados guardados antes de estas funciones no traen los campos.
   db.siteSuggestions = snapshot.siteSuggestions ?? [];
   db.claimThrottle = snapshot.claimThrottle ?? {};
+  db.feedback = snapshot.feedback ?? [];
   const stored = snapshot.blocklist ?? [];
   db.blocklist = db.blocklistSyncLog.length > 0 ? stored : [...officialFromSource, ...stored];
 }
