@@ -1,5 +1,9 @@
-// Tipografía Inter (Figma). Se cargan los pesos que usa la app bajo una sola
-// familia "Inter", así `fontWeight` elige la variante en web y en Android.
+// Tipografía Inter (Figma).
+// - Web: los pesos que usa la app se cargan bajo una sola familia "Inter" y
+//   `fontWeight` elige la variante.
+// - Android: además, cada peso se registra con su propio nombre
+//   ("Inter_700Bold"...), que es lo que usa ThemedText según el `fontWeight`.
+import { Platform } from "react-native";
 import { FontDisplay, type FontFamilyDefinition } from "expo-font";
 import { Inter_400Regular } from "@expo-google-fonts/inter/400Regular";
 import { Inter_500Medium } from "@expo-google-fonts/inter/500Medium";
@@ -8,6 +12,7 @@ import { Inter_700Bold } from "@expo-google-fonts/inter/700Bold";
 import { Inter_800ExtraBold } from "@expo-google-fonts/inter/800ExtraBold";
 import { Inter_900Black } from "@expo-google-fonts/inter/900Black";
 import { FONT_FAMILY } from "./theme";
+import { INTER_WEIGHT_FAMILIES } from "./fontWeights";
 
 const face = (path: number, weight: number) => ({
   path,
@@ -17,16 +22,25 @@ const face = (path: number, weight: number) => ({
   display: FontDisplay.SWAP,
 });
 
-export const INTER_FONTS: FontFamilyDefinition[] = [
-  {
-    fontFamily: FONT_FAMILY,
-    fontDefinitions: [
-      face(Inter_400Regular, 400),
-      face(Inter_500Medium, 500),
-      face(Inter_600SemiBold, 600),
-      face(Inter_700Bold, 700),
-      face(Inter_800ExtraBold, 800),
-      face(Inter_900Black, 900),
-    ],
-  },
+const FACES: [number, keyof typeof INTER_WEIGHT_FAMILIES][] = [
+  [Inter_400Regular, 400],
+  [Inter_500Medium, 500],
+  [Inter_600SemiBold, 600],
+  [Inter_700Bold, 700],
+  [Inter_800ExtraBold, 800],
+  [Inter_900Black, 900],
 ];
+
+const SINGLE_FAMILY: FontFamilyDefinition = {
+  fontFamily: FONT_FAMILY,
+  fontDefinitions: FACES.map(([path, weight]) => face(path, weight)),
+};
+
+/** En Android, una familia por peso, con una sola variante cada una. */
+const PER_WEIGHT: FontFamilyDefinition[] = FACES.map(([path, weight]) => ({
+  fontFamily: INTER_WEIGHT_FAMILIES[weight],
+  fontDefinitions: [face(path, weight)],
+}));
+
+export const INTER_FONTS: FontFamilyDefinition[] =
+  Platform.OS === "web" ? [SINGLE_FAMILY] : [SINGLE_FAMILY, ...PER_WEIGHT];
