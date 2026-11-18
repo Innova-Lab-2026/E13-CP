@@ -74,7 +74,10 @@ export default function ProtectedHomeScreen() {
   const showFeedback =
     vpnFeedback && !(pausedByAdult && !vpnOn && vpnFeedback.variant === "info");
 
-  const lastUpdate = formatListUpdate(blocklist.data?.status.lastUpdated);
+  // Figma: "Última actualización - Hoy 9:40", la última vez que se trajo la lista.
+  const lastUpdate = formatListUpdate(
+    blocklist.data?.syncedAt ?? blocklist.data?.status.lastUpdated,
+  );
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>

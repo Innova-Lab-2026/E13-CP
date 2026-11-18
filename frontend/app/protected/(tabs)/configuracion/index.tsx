@@ -4,6 +4,7 @@ import { Text } from "../../../../src/components/ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import DeviceAvatar from "../../../../src/components/DeviceAvatar";
 import ProtectedScreenHeader from "../../../../src/components/protected/ProtectedScreenHeader";
 import {
   IS_ANDROID,
@@ -46,10 +47,6 @@ function SettingsRow({ icon, label, description, onPress, last = false }: Settin
   );
 }
 
-function initial(name: string | undefined): string {
-  return name?.trim().charAt(0).toUpperCase() || "?";
-}
-
 /**
  * Configuración del celular protegido (no tiene pantalla propia en el Figma:
  * sigue la Configuración de la persona adulta, una tarjeta con filas). Reúne lo
@@ -58,7 +55,7 @@ function initial(name: string | undefined): string {
  */
 export default function ProtectedSettingsScreen() {
   const router = useRouter();
-  const { deviceName, isDevice, vpnOn, pausedByAdult, blocklist, totalSites, requestExit } =
+  const { deviceId, deviceName, isDevice, vpnOn, pausedByAdult, blocklist, totalSites, requestExit } =
     useProtectedDevice();
 
   const protectedNow = IS_ANDROID ? vpnOn : !pausedByAdult;
@@ -69,9 +66,8 @@ export default function ProtectedSettingsScreen() {
         <ProtectedScreenHeader title="Configuración" />
 
         <View style={styles.profileCard}>
-          <View style={styles.avatar} accessibilityElementsHidden importantForAccessibility="no">
-            <Text style={styles.avatarText}>{initial(deviceName)}</Text>
-          </View>
+          {/* El mismo avatar de color que este perfil tiene en la app del adulto. */}
+          <DeviceAvatar seed={deviceId || deviceName || ""} size={52} />
           <View style={styles.profileText}>
             <Text style={styles.profileName} numberOfLines={1}>
               {deviceName ? `Perfil de ${deviceName}` : "Este dispositivo"}
@@ -155,19 +151,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     ...shadow.card,
   },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.pill,
-    backgroundColor: protectedColors.greenCircle,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: protectedColors.greenIcon,
-  },
   profileText: {
     flex: 1,
     gap: 3,
@@ -238,7 +221,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   rowLabel: {
-    fontSize: 15,
+    fontSize: 14,
     color: colors.text,
   },
   rowDescription: {

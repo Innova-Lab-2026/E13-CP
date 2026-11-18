@@ -51,10 +51,11 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
     paddingVertical: spacing.xs,
   },
+  // 28 px: cerca del título de las pantallas del adulto y del Figma.
   title: {
     ...typography.display,
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: "700",
     flexShrink: 1,
   },

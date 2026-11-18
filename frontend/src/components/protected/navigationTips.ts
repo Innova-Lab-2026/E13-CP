@@ -111,12 +111,12 @@ export const TIP_TOPICS: readonly TipTopic[] = [
         text: "Evitamos el acceso a los sitios del listado oficial de apuestas online de LOTBA.",
       },
       {
-        title: "Mantenemos la lista actualizada",
-        text: "La app descarga la versión más reciente del listado y suma los sitios que agregue la persona adulta.",
+        title: "Mantenemos nuestras listas actualizadas",
+        text: "La aplicación se actualiza regularmente con el listado oficial y los sitios que agregue la persona adulta.",
       },
       {
-        title: "Cuidamos tu privacidad",
-        text: "No leemos tus mensajes, tus fotos ni tu ubicación. El resto de internet funciona como siempre.",
+        title: "Te ayudamos a navegar más seguro",
+        text: "Para que puedas usar internet de forma tranquila: no leemos tus mensajes, tus fotos ni tu ubicación.",
       },
     ],
     reminder: "La protección funciona en segundo plano para que no tengas que preocuparte.",

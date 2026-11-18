@@ -69,7 +69,12 @@ const PIN_MODAL_TEXT: Record<PinAction, { title: string; message: string; confir
   },
 };
 
-type BlocklistData = { blocklist: BlocklistItem[]; status: BlocklistStatus };
+type BlocklistData = {
+  blocklist: BlocklistItem[];
+  status: BlocklistStatus;
+  /** Momento (ISO) en que este celular trajo la lista del servidor. */
+  syncedAt?: string;
+};
 
 export type ProtectedDeviceState = {
   /** Vinculado con un código (credencial propia del celular, rutas /me). */
@@ -151,8 +156,14 @@ export default function ProtectedDeviceProvider({ children }: { children: ReactN
   const deviceId = deviceSession?.deviceId ?? session?.linkedDeviceId;
   const deviceName = deviceSession?.deviceName ?? session?.linkedDeviceName;
 
+  // `syncedAt`: cuándo este celular trajo la lista por última vez. Es lo que
+  // muestra "Última actualización" en el Inicio (la fecha de la versión del
+  // listado puede tener meses y parecería desactualizado).
   const blocklist = useAsyncResource(
-    () => (isDevice ? getMyBlocklist() : getBlocklist()),
+    async (): Promise<BlocklistData> => ({
+      ...(await (isDevice ? getMyBlocklist() : getBlocklist())),
+      syncedAt: new Date().toISOString(),
+    }),
     [isDevice],
   );
   const domains = useMemo(

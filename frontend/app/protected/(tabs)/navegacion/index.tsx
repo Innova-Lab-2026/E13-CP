@@ -4,6 +4,8 @@ import { useRouter } from "expo-router";
 import InfoCard from "../../../../src/components/protected/InfoCard";
 import ProtectedScreenHeader from "../../../../src/components/protected/ProtectedScreenHeader";
 import { TIP_TOPICS } from "../../../../src/components/protected/navigationTips";
+import { toneColors } from "../../../../src/components/protected/palette";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, spacing } from "../../../../src/theme";
 
 /** "Navegá seguro" (Figma "Menú navegación - Protegido"): cuatro tarjetas de consejos. */
@@ -24,6 +26,17 @@ export default function ProtectedNavigationScreen() {
               title={topic.title}
               description={topic.summary}
               icon={topic.icon}
+              // Figma: "Cuidado con los engaños" lleva el octógono de advertencia
+              // (el mismo de "Intento de modificación" en el historial).
+              badge={
+                topic.id === "enganos" ? (
+                  <MaterialCommunityIcons
+                    name="alert-octagon-outline"
+                    size={22}
+                    color={toneColors(topic.tone).icon}
+                  />
+                ) : undefined
+              }
               tone={topic.tone}
               onPress={() =>
                 router.push({
