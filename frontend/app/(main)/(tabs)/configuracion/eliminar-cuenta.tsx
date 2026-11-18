@@ -42,7 +42,6 @@ export default function EliminarCuentaScreen() {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [deleted, setDeleted] = useState(false);
 
   // Trae el perfil vigente (actualiza la sesión) para saber si la cuenta tiene contraseña.
   useEffect(() => {
@@ -73,11 +72,12 @@ export default function EliminarCuentaScreen() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await deleteMyAccount(usesPin ? { pin } : { password });
+      await deleteMyAccount(usesPin ? { pin } : { password }, { clearLocalSession: false });
       setConfirmVisible(false);
       setPassword("");
       setPin("");
-      setDeleted(true);
+      // La confirmación es pública y cierra la sesión local al abrirse.
+      router.replace("/cuenta-eliminada");
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         setDeleteError(
@@ -96,29 +96,6 @@ export default function EliminarCuentaScreen() {
       setDeleting(false);
     }
   };
-
-  if (deleted) {
-    return (
-      <SafeAreaView style={[styles.safeArea, styles.successSafeArea]}>
-        <StatusBar style="dark" />
-        <View style={styles.successContainer}>
-          <View style={styles.successIcon}>
-            <Ionicons name="checkmark" size={40} color={colors.successText} />
-          </View>
-          <Text style={styles.successTitle} accessibilityRole="header">
-            Eliminamos tu cuenta
-          </Text>
-          <Text style={styles.successText}>
-            Borramos tu cuenta y todos sus datos. Gracias por haber usado BA Protege+ para
-            acompañar a tu familia. Si querés volver, podés crear una cuenta nueva cuando quieras.
-          </Text>
-          <View style={styles.successActions}>
-            <AppButton title="Ir al inicio de sesión" onPress={() => router.replace("/login")} />
-          </View>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -276,38 +253,5 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: spacing.sm,
-  },
-  successSafeArea: {
-    backgroundColor: colors.backgroundWarm,
-  },
-  successContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: spacing.xxl,
-    gap: spacing.lg,
-    backgroundColor: colors.backgroundWarm,
-  },
-  successIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.pill,
-    backgroundColor: colors.successSoft,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  successTitle: {
-    ...typography.display,
-    textAlign: "center",
-  },
-  successText: {
-    ...typography.body,
-    textAlign: "center",
-    maxWidth: 360,
-  },
-  successActions: {
-    width: "100%",
-    maxWidth: 420,
-    marginTop: spacing.md,
   },
 });
