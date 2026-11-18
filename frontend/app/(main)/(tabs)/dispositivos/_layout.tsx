@@ -13,6 +13,7 @@ export default function DeviceLayout() {
       <Stack.Screen name="add-device" />
       <Stack.Screen name="device-success" options={{ gestureEnabled: false }} />
       <Stack.Screen name="[deviceId]" />
+      <Stack.Screen name="historial/[deviceId]" />
     </Stack>
   );
 }

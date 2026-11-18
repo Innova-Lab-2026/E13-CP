@@ -1,4 +1,4 @@
-// Home del adulto responsable (Figma "Home").
+// Inicio del adulto responsable (Figma "Dashboard Responsable").
 import React, { useMemo } from "react";
 import {
   Image,
@@ -12,7 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import DeviceItem from "../../../../src/components/DeviceItem";
 import AddDeviceButton from "../../../../src/components/AddDeviceButton";
@@ -24,8 +24,15 @@ import { useSession } from "../../../../src/services/session";
 import { getDevices } from "../../../../src/services/deviceService";
 import { getAlerts, type Alert } from "../../../../src/services/alertService";
 import { getHistoryEvents } from "../../../../src/services/historyService";
-import { formatIsoDate } from "../../../../src/utils/date";
+import { statusSummary } from "../../../../src/utils/dispositivos";
 import { colors, radius, shadow, spacing, typography } from "../../../../src/theme";
+
+const HISTORY_PREVIEW = 3;
+
+/** Fondo del círculo del escudo: el verde de éxito, translúcido sobre la tarjeta verde. */
+const SUCCESS_ICON_BG = "rgba(22, 163, 74, 0.16)";
+const WARNING_ICON_BG = "rgba(217, 119, 6, 0.16)";
+const DANGER_ICON_BG = "rgba(220, 38, 38, 0.14)";
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -35,20 +42,17 @@ export default function DashboardScreen() {
   const devices = useAsyncResource(() => getDevices(), []);
   const alerts = useAsyncResource(() => getAlerts(), []);
   const history = useAsyncResource(
-    async () => (await getHistoryEvents()).slice(0, 2),
+    async () => (await getHistoryEvents()).slice(0, HISTORY_PREVIEW),
     [],
   );
 
   const deviceList = devices.data ?? [];
-  const protectedCount = deviceList.filter((device) => device.status === "active").length;
-  const hasUnread = (alerts.data ?? []).some((alert) => !alert.read);
+  const unreadCount = (alerts.data ?? []).filter((alert) => !alert.read).length;
 
-  // La alerta sin leer más reciente que pide intervención (las alertas vienen ordenadas de la más nueva a la más vieja).
+  // La alerta sin leer más reciente que pide intervención (desinstalación o
+  // evasión). Las alertas vienen ordenadas de la más nueva a la más vieja.
   const attentionAlert = useMemo<Alert | undefined>(
-    () =>
-      (alerts.data ?? []).find(
-        (alert) => !alert.read && (alert.type === "danger" || alert.type === "blocked"),
-      ),
+    () => (alerts.data ?? []).find((alert) => !alert.read && alert.type === "danger"),
     [alerts.data],
   );
 
@@ -64,46 +68,71 @@ export default function DashboardScreen() {
   };
 
   const goToAddDevice = () => router.push("/(main)/(tabs)/dispositivos/add-device");
+  const goToDevices = () => router.push("/(main)/(tabs)/dispositivos");
 
   const renderStatusCard = () => {
-    const total = deviceList.length;
-    const allProtected = total > 0 && protectedCount === total;
-    const subtitle =
-      total === 0
-        ? "Todavía no agregaste dispositivos."
-        : allProtected
-          ? "La protección está activa en todos."
-          : "Revisá los que todavía no están protegidos.";
+    const summary = statusSummary(deviceList);
+    const tone = {
+      success: {
+        card: colors.successSoft,
+        circle: SUCCESS_ICON_BG,
+        icon: colors.success,
+        name: "shield-checkmark-outline" as const,
+      },
+      warning: {
+        card: colors.warningSoft,
+        circle: WARNING_ICON_BG,
+        icon: colors.warningText,
+        name: "shield-outline" as const,
+      },
+      danger: {
+        card: colors.dangerSoft,
+        circle: DANGER_ICON_BG,
+        icon: colors.dangerText,
+        name: "shield-outline" as const,
+      },
+    }[summary.tone];
 
     return (
       <Pressable
-        style={({ pressed }) => [styles.statusCard, pressed && styles.pressed]}
-        onPress={() => router.push("/(main)/(tabs)/dispositivos")}
+        style={({ pressed }) => [
+          styles.statusCard,
+          { backgroundColor: tone.card },
+          pressed && styles.pressed,
+        ]}
+        onPress={goToDevices}
         accessibilityRole="button"
-        accessibilityLabel={`${protectedCount} de ${total} dispositivos protegidos. ${subtitle}`}
+        accessibilityLabel={`${summary.title}. ${summary.subtitle}. Ver dispositivos`}
       >
-        <View
-          style={[
-            styles.statusIcon,
-            { backgroundColor: allProtected ? colors.successSoft : colors.brandSoft },
-          ]}
-        >
-          <Ionicons
-            name={allProtected ? "shield-checkmark" : "shield-outline"}
-            size={22}
-            color={allProtected ? colors.successText : colors.text}
-          />
+        <View style={[styles.statusIcon, { backgroundColor: tone.circle }]}>
+          <Ionicons name={tone.name} size={26} color={tone.icon} />
         </View>
         <View style={styles.flex}>
-          <Text style={styles.statusTitle}>
-            {protectedCount} de {total} dispositivos protegidos
-          </Text>
-          <Text style={styles.statusSubtitle}>{subtitle}</Text>
+          <Text style={styles.statusTitle}>{summary.title}</Text>
+          <Text style={styles.statusSubtitle}>{summary.subtitle}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+        <Ionicons name="chevron-forward" size={18} color={colors.text} />
       </Pressable>
     );
   };
+
+  const renderSectionHeader = (title: string, onPress: () => void, a11y: string) => (
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionTitle} accessibilityRole="header">
+        {title}
+      </Text>
+      <Pressable
+        onPress={onPress}
+        style={styles.seeAll}
+        accessibilityRole="button"
+        accessibilityLabel={a11y}
+        hitSlop={8}
+      >
+        <Text style={styles.linkText}>Ver todo</Text>
+        <Ionicons name="chevron-forward" size={16} color={colors.text} />
+      </Pressable>
+    </View>
+  );
 
   const renderDevices = () => {
     if (devices.loading && devices.data === undefined) {
@@ -132,26 +161,14 @@ export default function DashboardScreen() {
       <>
         {renderStatusCard()}
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">
-            Mis dispositivos
-          </Text>
-          <Pressable
-            onPress={() => router.push("/(main)/(tabs)/dispositivos")}
-            accessibilityRole="button"
-            accessibilityLabel="Ver todos los dispositivos"
-            hitSlop={8}
-          >
-            <Text style={styles.linkText}>Ver todo</Text>
-          </Pressable>
-        </View>
+        {renderSectionHeader("Mis Dispositivos", goToDevices, "Ver todos los dispositivos")}
 
         {deviceList.map((device) => (
           <DeviceItem
             key={device.id}
+            deviceId={device.id}
             name={device.name}
             status={device.status}
-            birthDate={device.birthDate ? formatIsoDate(device.birthDate) : undefined}
             onPress={() =>
               router.push({
                 pathname: "/(main)/(tabs)/dispositivos/[deviceId]",
@@ -168,39 +185,36 @@ export default function DashboardScreen() {
 
   const renderAttention = () => {
     if (!attentionAlert) return null;
-    const isDanger = attentionAlert.type === "danger";
+    const message = attentionAlert.description.replace(/^¡Alerta de seguridad!\s*/, "");
+    const when =
+      attentionAlert.date === "Hoy"
+        ? attentionAlert.time
+        : `${attentionAlert.date} - ${attentionAlert.time}`;
 
     return (
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle} accessibilityRole="header">
-          Requiere tu atención
-        </Text>
-        <Pressable
-          style={({ pressed }) => [styles.attentionCard, pressed && styles.pressed]}
-          onPress={() =>
-            router.push({
-              pathname: "/(main)/(tabs)/inicio/[alertId]",
-              params: { alertId: attentionAlert.id },
-            })
-          }
-          accessibilityRole="button"
-          accessibilityLabel={`${attentionAlert.title}. ${attentionAlert.subtitle}. Ver detalle`}
-        >
-          <View style={styles.attentionIcon}>
-            <Ionicons name={isDanger ? "alert-circle" : "ban"} size={22} color={colors.danger} />
-          </View>
-          <View style={styles.flex}>
-            <Text style={styles.attentionTitle}>{attentionAlert.title}</Text>
-            <Text style={styles.attentionSubtitle} numberOfLines={2}>
-              {attentionAlert.subtitle}
-            </Text>
-            <Text style={styles.caption}>
-              {attentionAlert.date} · {attentionAlert.time}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-        </Pressable>
-      </View>
+      <Pressable
+        style={({ pressed }) => [styles.attentionCard, pressed && styles.pressed]}
+        onPress={() =>
+          router.push({
+            pathname: "/(main)/(tabs)/inicio/[alertId]",
+            params: { alertId: attentionAlert.id },
+          })
+        }
+        accessibilityRole="button"
+        accessibilityLabel={`${attentionAlert.title}. ${message}. ${when}. Ver detalle`}
+      >
+        <View style={styles.attentionIcon}>
+          <MaterialCommunityIcons name="alert-octagon-outline" size={28} color={colors.danger} />
+        </View>
+        <View style={styles.flex}>
+          <Text style={styles.attentionTitle}>{attentionAlert.title}</Text>
+          <Text style={styles.attentionSubtitle} numberOfLines={2}>
+            {message}
+          </Text>
+          <Text style={styles.attentionTime}>{when}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.text} />
+      </Pressable>
     );
   };
 
@@ -209,19 +223,11 @@ export default function DashboardScreen() {
 
     return (
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle} accessibilityRole="header">
-            Historial
-          </Text>
-          <Pressable
-            onPress={() => router.push("/(main)/(tabs)/historial")}
-            accessibilityRole="button"
-            accessibilityLabel="Ver todo el historial"
-            hitSlop={8}
-          >
-            <Text style={styles.linkText}>Ver todo</Text>
-          </Pressable>
-        </View>
+        {renderSectionHeader(
+          "Historial",
+          () => router.push("/(main)/(tabs)/historial"),
+          "Ver todo el historial",
+        )}
 
         {history.loading && history.data === undefined ? (
           <ScreenState loading />
@@ -239,8 +245,9 @@ export default function DashboardScreen() {
               key={event.id}
               variant={event.variant}
               title={event.title}
-              description={event.description}
-              time={`${event.date} · ${event.time}`}
+              // Figma: "Ramiro - apostando-sitio.com". El sitio solo, sin repetirlo entre paréntesis.
+              description={event.domain || event.description}
+              time={event.date === "Hoy" ? event.time : `${event.date} - ${event.time}`}
               device={event.device}
               onPress={() =>
                 router.push({
@@ -254,6 +261,8 @@ export default function DashboardScreen() {
       </View>
     );
   };
+
+  const badge = unreadCount > 9 ? "9+" : String(unreadCount);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -277,15 +286,23 @@ export default function DashboardScreen() {
             style={({ pressed }) => [styles.bellButton, pressed && styles.pressed]}
             onPress={() => router.push("/(main)/(tabs)/inicio/alerts")}
             accessibilityRole="button"
-            accessibilityLabel={hasUnread ? "Alertas, tenés alertas sin leer" : "Alertas"}
+            accessibilityLabel={
+              unreadCount > 0
+                ? `Alertas, ${unreadCount} sin leer`
+                : "Alertas"
+            }
             hitSlop={6}
           >
-            <Ionicons name="notifications-outline" size={22} color={colors.text} />
-            {hasUnread ? <View style={styles.bellDot} /> : null}
+            <Ionicons name="notifications-outline" size={28} color={colors.text} />
+            {unreadCount > 0 ? (
+              <View style={styles.bellBadge}>
+                <Text style={styles.bellBadgeText}>{badge}</Text>
+              </View>
+            ) : null}
           </Pressable>
         </View>
 
-        <GreetingHeader name={firstName} subtitle="Qué bueno tenerte de vuelta." />
+        <GreetingHeader name={firstName} />
 
         {renderDevices()}
         {renderAttention()}
@@ -318,72 +335,87 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   logo: {
-    width: 120,
-    height: 40,
+    width: 110,
+    height: 36,
   },
   bellButton: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
-  bellDot: {
+  bellBadge: {
     position: "absolute",
-    top: 8,
-    right: 9,
-    width: 9,
-    height: 9,
+    top: 4,
+    right: 2,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 4,
     borderRadius: radius.pill,
     backgroundColor: colors.danger,
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: colors.surface,
+    borderColor: colors.background,
+  },
+  bellBadgeText: {
+    fontSize: 10,
+    lineHeight: 12,
+    fontWeight: "800",
+    color: colors.onDanger,
   },
   statusCard: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-    marginBottom: spacing.xxl,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
     ...shadow.card,
   },
   statusIcon: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
   },
   statusTitle: {
-    ...typography.subtitle,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: "700",
+    color: colors.text,
   },
   statusSubtitle: {
-    ...typography.body,
-    marginTop: 2,
+    fontSize: 13,
+    color: colors.text,
+    marginTop: 4,
   },
   section: {
-    marginTop: spacing.xxl,
+    marginTop: spacing.md,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   sectionTitle: {
-    ...typography.subtitle,
-    marginBottom: spacing.xs,
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  seeAll: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    minHeight: 32,
   },
   linkText: {
-    ...typography.label,
-    textDecorationLine: "underline",
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.text,
   },
   emptyDevices: {
     backgroundColor: colors.surface,
@@ -418,32 +450,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.md,
     backgroundColor: colors.dangerSoft,
-    borderWidth: 1,
-    borderColor: colors.danger,
     borderRadius: radius.lg,
-    padding: spacing.lg,
-    marginTop: spacing.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadow.card,
   },
   attentionIcon: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface,
+    backgroundColor: DANGER_ICON_BG,
     alignItems: "center",
     justifyContent: "center",
   },
   attentionTitle: {
-    ...typography.label,
+    fontSize: 15,
+    fontWeight: "700",
     color: colors.dangerText,
-    fontWeight: "800",
   },
   attentionSubtitle: {
-    ...typography.body,
+    fontSize: 13,
+    lineHeight: 18,
     color: colors.text,
     marginTop: 2,
   },
-  caption: {
-    ...typography.caption,
+  attentionTime: {
+    fontSize: 12,
+    color: colors.textMuted,
     marginTop: 2,
   },
 });

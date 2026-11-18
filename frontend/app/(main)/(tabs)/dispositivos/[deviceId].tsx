@@ -1,19 +1,25 @@
-import { useEffect, useRef, useState } from 'react';
-import { AppState, View, Text, StyleSheet, ScrollView } from 'react-native';
+// Detalle por dispositivo (Figma "Detalle por dispositivo - Responsable"):
+// encabezado "Dispositivo de <nombre>", tarjeta resumen con la edad y las webs
+// bloqueadas en la semana, y el historial reciente. Debajo, discretos, quedan la
+// pausa de la protección y el desvincular con PIN, que Figma no muestra.
+import { useEffect, useRef, useState, type ComponentProps } from 'react';
+import { AppState, Pressable, View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
-import AppHeader from '../../../../src/components/AppHeader';
 import AppAlert from '../../../../src/components/AppAlert';
 import AppButton from '../../../../src/components/AppButton';
 import AppSwitch from '../../../../src/components/AppSwitch';
 import ConfirmModal from '../../../../src/components/ConfirmModal';
-import DeviceLinkSteps from '../../../../src/components/DeviceLinkSteps';
+import DeviceAvatar from '../../../../src/components/DeviceAvatar';
 import PinInput from '../../../../src/components/PinInput';
-import RestrictionSummaryCard from '../../../../src/components/RestrictionSummaryCard';
+import RestrictionSummaryCard, {
+  type MetricItem,
+} from '../../../../src/components/RestrictionSummaryCard';
 import ScreenState from '../../../../src/components/ScreenState';
-import HistoryCard from '../../../../src/components/historial/HistoryCard';
+import type { HistoryVariant } from '../../../../src/components/historial/HistoryCard';
 import { useAsyncResource } from '../../../../src/hooks/useAsyncResource';
 import {
   generateLinkCode,
@@ -21,17 +27,19 @@ import {
   setDeviceProtection,
   type Device,
 } from '../../../../src/services/deviceService';
-import { getDeviceActivities } from '../../../../src/services/historyService';
-import { ApiError, errorMessage } from '../../../../src/services/api';
+import { getDeviceActivities, type HistoryEvent } from '../../../../src/services/historyService';
+import { errorMessage } from '../../../../src/services/api';
+import { formatDate, formatDayLabel, formatTime } from '../../../../src/utils/date';
 import {
-  formatDate,
-  formatDayLabel,
-  formatIsoDate,
-  formatTime,
-} from '../../../../src/utils/date';
-import { colors, radius, spacing, typography } from '../../../../src/theme';
+  ageFromBirthDate,
+  countBlockedLastWeek,
+  formatRelativeTime,
+  plural,
+} from '../../../../src/utils/dispositivos';
+import { colors, radius, shadow, spacing, typography } from '../../../../src/theme';
 
-const MAX_ACTIVITIES = 10;
+/** Eventos que se muestran en el resumen; el resto, en "Ver todo". */
+const PREVIEW_ACTIVITIES = 5;
 
 /** Mientras el perfil está pendiente, cada cuánto se revisa si el celular ya se vinculó. */
 const PENDING_POLL_MS = 20_000;
@@ -42,11 +50,26 @@ const STATUS_TEXT: Record<Device['status'], string> = {
   disabled: 'Protección pausada',
 };
 
-function formatLastSeen(value?: string): string {
-  if (!value) return 'Sin registros';
+const STATUS_TONE = {
+  active: 'success',
+  pending: 'warning',
+  disabled: 'danger',
+} as const;
+
+type IconName = ComponentProps<typeof Ionicons>['name'];
+
+const ROW_ICON: Record<HistoryVariant, { name: IconName; color: string; background: string }> = {
+  blocked: { name: 'ban', color: colors.danger, background: colors.dangerSoft },
+  alert: { name: 'alert-circle-outline', color: colors.warning, background: colors.warningSoft },
+  settings: { name: 'settings-outline', color: colors.textMuted, background: colors.surfaceMuted },
+  protected: { name: 'shield-checkmark-outline', color: colors.success, background: colors.successSoft },
+};
+
+function formatLastSeen(value?: string): string | null {
+  if (!value) return null;
   const day = formatDayLabel(value);
   const time = formatTime(value);
-  if (!day) return 'Sin registros';
+  if (!day) return null;
   return time ? `${day} · ${time}` : day;
 }
 
@@ -74,10 +97,7 @@ export default function DeviceDetailScreen() {
   const [updating, setUpdating] = useState(false);
   const [protectionError, setProtectionError] = useState<string | null>(null);
   const [protectionNotice, setProtectionNotice] = useState<string | null>(null);
-
-  const [newCodeLoading, setNewCodeLoading] = useState(false);
   const [linkNotice, setLinkNotice] = useState<string | null>(null);
-  const [linkError, setLinkError] = useState<string | null>(null);
 
   const [unlinkVisible, setUnlinkVisible] = useState(false);
   const [unlinkPin, setUnlinkPin] = useState('');
@@ -89,9 +109,8 @@ export default function DeviceDetailScreen() {
   const deviceStatus = device?.status;
   const reloadDevice = deviceResource.reload;
 
-  // Con el código a la vista, el menor puede vincular su celular en cualquier
-  // momento: mientras esté pendiente se vuelve a consultar, para no seguir
-  // mostrando un código que ya se usó.
+  // Mientras esté pendiente se vuelve a consultar: el menor puede vincular su
+  // celular en cualquier momento.
   useEffect(() => {
     if (deviceStatus !== 'pending') return;
     const interval = setInterval(() => {
@@ -106,41 +125,30 @@ export default function DeviceDetailScreen() {
     };
   }, [deviceStatus, reloadDevice]);
 
-  // Si se vinculó con la pantalla abierta, se avisa en lugar del código.
+  // Si se vinculó con la pantalla abierta, se avisa.
   const previousStatus = useRef(deviceStatus);
   useEffect(() => {
     if (previousStatus.current === 'pending' && deviceStatus && deviceStatus !== 'pending') {
-      setLinkError(null);
       setLinkNotice(null);
       setProtectionNotice(`¡Listo! El celular de ${device?.name ?? 'tu hijo o hija'} ya está vinculado.`);
     }
     previousStatus.current = deviceStatus;
   }, [deviceStatus, device?.name]);
 
-  // Perfil pendiente: un código nuevo reemplaza al anterior, que deja de servir.
-  const handleNewCode = async () => {
-    if (!device || newCodeLoading) return;
-    setNewCodeLoading(true);
-    setLinkError(null);
-    setLinkNotice(null);
-    try {
-      await generateLinkCode(device.id);
-      await deviceResource.reload();
-      setLinkNotice('Generamos un código nuevo. El anterior ya no sirve.');
-    } catch (error) {
-      // Un 400 acá es que el celular se vinculó mientras tanto (ya no está
-      // pendiente y el backend pide el PIN para desvincular): se recarga.
-      if (error instanceof ApiError && error.status === 400) {
-        const fresh = await getDeviceById(device.id).catch(() => undefined);
-        if (fresh && fresh.status !== 'pending') {
-          await deviceResource.reload();
-          return;
-        }
-      }
-      setLinkError(errorMessage(error, 'No pudimos generar el código. Intentá de nuevo.'));
-    } finally {
-      setNewCodeLoading(false);
-    }
+  const goToLinkCode = () => {
+    if (!device) return;
+    router.push({
+      pathname: '/(main)/(tabs)/dispositivos/device-success',
+      params: { deviceId: device.id, name: device.name },
+    });
+  };
+
+  const goToHistory = () => {
+    if (!device) return;
+    router.push({
+      pathname: '/(main)/(tabs)/dispositivos/historial/[deviceId]',
+      params: { deviceId: device.id },
+    });
   };
 
   const openUnlink = () => {
@@ -172,9 +180,8 @@ export default function DeviceDetailScreen() {
       setUnlinkPin('');
       setProtectionNotice(null);
       await deviceResource.reload();
-      setLinkError(null);
       setLinkNotice(
-        `Desvinculaste el celular de ${device.name}. Si querés volver a vincularlo, usá este código nuevo.`,
+        `Desvinculaste el celular de ${device.name}. Si querés volver a vincularlo, tocá «Ver código de vinculación».`,
       );
     } catch (error) {
       setUnlinkPin('');
@@ -199,9 +206,7 @@ export default function DeviceDetailScreen() {
           : `Pausaste la protección de ${device.name}. Se aplica cuando su celular abre BA Protege+ con conexión, y podés volver a activarla cuando quieras.`,
       );
     } catch (error) {
-      setProtectionError(
-        errorMessage(error, 'No pudimos cambiar la protección. Intentá de nuevo.'),
-      );
+      setProtectionError(errorMessage(error, 'No pudimos cambiar la protección. Intentá de nuevo.'));
     } finally {
       setUpdating(false);
     }
@@ -216,14 +221,68 @@ export default function DeviceDetailScreen() {
     }
   };
 
+  const renderHistory = (current: Device) => {
+    const events = activitiesResource.data ?? [];
+    const isPending = current.status === 'pending';
+
+    return (
+      <View style={styles.historySection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle} accessibilityRole="header" numberOfLines={1}>
+            Historial de {current.name}
+          </Text>
+          {events.length > 0 ? (
+            <Pressable
+              onPress={goToHistory}
+              style={styles.seeAll}
+              accessibilityRole="button"
+              accessibilityLabel={`Ver todo el historial de ${current.name}`}
+              hitSlop={8}
+            >
+              <Text style={styles.seeAllText}>Ver todo</Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.text} />
+            </Pressable>
+          ) : null}
+        </View>
+
+        {events.length > 0 ? (
+          <View style={styles.historyCard}>
+            {events.slice(0, PREVIEW_ACTIVITIES).map((event, index) => (
+              <HistoryRow
+                key={event.id}
+                event={event}
+                last={index === Math.min(events.length, PREVIEW_ACTIVITIES) - 1}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(main)/(tabs)/historial/[historyId]',
+                    params: { historyId: event.id },
+                  })
+                }
+              />
+            ))}
+          </View>
+        ) : (
+          <ScreenState
+            loading={activitiesResource.loading && !activitiesResource.data}
+            error={!activitiesResource.data ? activitiesResource.error : null}
+            onRetry={activitiesResource.reload}
+            isEmpty={!!activitiesResource.data}
+            emptyTitle="Todavía no hay actividad"
+            emptyText={
+              isPending
+                ? 'Cuando vincules el celular, los eventos de este perfil van a aparecer acá.'
+                : 'Cuando se registren eventos de este dispositivo, los vas a encontrar acá.'
+            }
+          />
+        )}
+      </View>
+    );
+  };
+
   const renderContent = () => {
     if (firstLoad || (deviceResource.error && !device)) {
       return (
-        <ScreenState
-          loading={firstLoad}
-          error={deviceResource.error}
-          onRetry={deviceResource.reload}
-        />
+        <ScreenState loading={firstLoad} error={deviceResource.error} onRetry={deviceResource.reload} />
       );
     }
 
@@ -246,55 +305,81 @@ export default function DeviceDetailScreen() {
 
     const isPending = device.status === 'pending';
     const isProtected = device.status === 'active';
-    const birthDate = device.birthDate ? formatIsoDate(device.birthDate) : 'No especificada';
     const linkedAt = formatLinkedAt(device.linkedAt);
+    const lastSeen = formatLastSeen(device.lastSeen);
+    const age = ageFromBirthDate(device.birthDate);
+    const blockedThisWeek = countBlockedLastWeek(activitiesResource.data ?? [], device.id);
+
+    const metrics: MetricItem[] = [];
+    if (age !== null) {
+      metrics.push({
+        value: age,
+        unit: plural(age, 'año', 'años'),
+        accessibilityLabel: `${age} ${plural(age, 'año', 'años')}`,
+      });
+    }
+    if (!isPending) {
+      metrics.push({
+        sublabel: 'Esta semana',
+        value: activitiesResource.data ? blockedThisWeek : '…',
+        label: plural(blockedThisWeek, 'Web bloqueada', 'Webs bloqueadas'),
+        isDanger: blockedThisWeek > 0,
+        accessibilityLabel: activitiesResource.data
+          ? `Esta semana, ${blockedThisWeek} ${plural(blockedThisWeek, 'web bloqueada', 'webs bloqueadas')}`
+          : 'Cargando las webs bloqueadas de esta semana',
+      });
+    }
+
+    const subtitle = isPending
+      ? 'Celular sin vincular'
+      : linkedAt
+        ? `Vinculado el ${linkedAt}`
+        : 'Celular vinculado';
 
     return (
       <>
         <View style={styles.profileHeader}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {device.name.trim().charAt(0).toUpperCase() || '?'}
+          <DeviceAvatar seed={device.id} size={64} />
+          <View style={styles.flex}>
+            <Text style={styles.title} accessibilityRole="header">
+              Dispositivo de {device.name}
             </Text>
+            <Text style={styles.subtitle}>{subtitle}</Text>
           </View>
-          <Text style={styles.title} accessibilityRole="header">
-            {device.name}
-          </Text>
         </View>
 
-        {isPending ? (
-          <View style={styles.section}>
-            <AppAlert
-              variant="warning"
-              message={`El perfil de ${device.name} todavía no está vinculado. Seguí estos pasos en su celular para activar la protección.`}
-            />
-            {linkNotice ? <AppAlert variant="success" message={linkNotice} /> : null}
-            {linkError ? <AppAlert variant="error" message={linkError} /> : null}
-            <DeviceLinkSteps
-              name={device.name}
-              linkCode={device.linkCode}
-              linkCodeExpiresAt={device.linkCodeExpiresAt}
-              onNewCode={handleNewCode}
-              newCodeLoading={newCodeLoading}
-            />
-            <View style={styles.infoCard}>
-              <InfoRow label="Estado" value={STATUS_TEXT.pending} />
-              <InfoRow label="Fecha de nacimiento" value={birthDate} last />
-            </View>
-          </View>
-        ) : (
-          <>
-            <RestrictionSummaryCard
-              statusText={STATUS_TEXT[device.status]}
-              isProtected={isProtected}
-              metrics={[
-                { sublabel: 'Fecha de nacimiento', value: birthDate },
-                { sublabel: 'Última actividad', value: formatLastSeen(device.lastSeen) },
-              ]}
-            />
+        <RestrictionSummaryCard
+          statusText={STATUS_TEXT[device.status]}
+          tone={STATUS_TONE[device.status]}
+          metrics={metrics}
+        />
 
-            <View style={styles.protectionCard}>
-              <View style={styles.protectionText}>
+        {isPending ? (
+          <View style={styles.pendingCard}>
+            <Text style={styles.pendingTitle}>Falta vincular el celular de {device.name}</Text>
+            <Text style={styles.pendingText}>
+              Con el código de vinculación, la protección empieza a funcionar en su celular.
+            </Text>
+            {linkNotice ? <AppAlert variant="success" message={linkNotice} /> : null}
+            <AppButton
+              title="Ver código de vinculación"
+              onPress={goToLinkCode}
+              accessibilityLabel={`Ver el código de vinculación de ${device.name}`}
+            />
+          </View>
+        ) : null}
+
+        {protectionNotice ? <AppAlert variant="success" message={protectionNotice} /> : null}
+
+        {renderHistory(device)}
+
+        {!isPending ? (
+          <View style={styles.settings}>
+            <Text style={styles.settingsTitle} accessibilityRole="header">
+              Ajustes de la protección
+            </Text>
+            <View style={styles.protectionRow}>
+              <View style={styles.flex}>
                 <Text style={styles.protectionTitle}>Protección</Text>
                 <Text style={styles.protectionDescription}>
                   {isProtected
@@ -310,64 +395,24 @@ export default function DeviceDetailScreen() {
               />
             </View>
 
-            {protectionError && !confirmPauseVisible ? <AppAlert variant="error" message={protectionError} /> : null}
-            {protectionNotice ? <AppAlert variant="success" message={protectionNotice} /> : null}
+            {protectionError && !confirmPauseVisible ? (
+              <AppAlert variant="error" message={protectionError} />
+            ) : null}
 
-            <View style={[styles.infoCard, styles.section]}>
-              <InfoRow label="Estado" value={STATUS_TEXT[device.status]} />
-              {linkedAt ? <InfoRow label="Vinculación" value={`Vinculado el ${linkedAt}`} /> : null}
-              <InfoRow label="Fecha de nacimiento" value={birthDate} />
-              <InfoRow label="Última actividad" value={formatLastSeen(device.lastSeen)} last />
-            </View>
+            {lastSeen ? <Text style={styles.meta}>Última actividad: {lastSeen}</Text> : null}
 
-            <View style={styles.unlink}>
-              <AppButton
-                title="Desvincular este celular"
-                variant="secondary"
-                onPress={openUnlink}
-                accessibilityLabel={`Desvincular el celular de ${device.name}`}
-              />
-            </View>
-          </>
-        )}
-
-        <View style={styles.activitySection}>
-          <Text style={styles.sectionTitle}>Actividad de {device.name}</Text>
-          {activitiesResource.data && activitiesResource.data.length > 0 ? (
-            <>
-              {activitiesResource.data.slice(0, MAX_ACTIVITIES).map((activity) => (
-                <HistoryCard
-                  key={activity.id}
-                  variant={activity.variant}
-                  title={activity.title}
-                  description={activity.description}
-                  time={`${activity.date} · ${activity.time}`}
-                  device={device.name}
-                />
-              ))}
-              {activitiesResource.data.length > MAX_ACTIVITIES ? (
-                <AppButton
-                  title="Ver todo en Historial"
-                  variant="tertiary"
-                  onPress={() => router.push('/(main)/(tabs)/historial')}
-                />
-              ) : null}
-            </>
-          ) : (
-            <ScreenState
-              loading={activitiesResource.loading && !activitiesResource.data}
-              error={!activitiesResource.data ? activitiesResource.error : null}
-              onRetry={activitiesResource.reload}
-              isEmpty={!!activitiesResource.data}
-              emptyTitle="Todavía no hay actividad"
-              emptyText={
-                isPending
-                  ? 'Cuando vincules el celular, los eventos de este perfil van a aparecer acá.'
-                  : 'Cuando se registren eventos de este dispositivo, los vas a encontrar acá.'
-              }
-            />
-          )}
-        </View>
+            <Pressable
+              onPress={openUnlink}
+              style={styles.unlink}
+              accessibilityRole="button"
+              accessibilityLabel={`Desvincular el celular de ${device.name}`}
+              hitSlop={6}
+            >
+              <Ionicons name="unlink-outline" size={18} color={colors.dangerText} />
+              <Text style={styles.unlinkText}>Desvincular este celular</Text>
+            </Pressable>
+          </View>
+        ) : null}
       </>
     );
   };
@@ -377,7 +422,15 @@ export default function DeviceDetailScreen() {
       <StatusBar style="dark" />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <AppHeader title="Detalle del dispositivo" onBackPress={() => router.back()} />
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel="Volver"
+          hitSlop={8}
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </Pressable>
         {renderContent()}
       </ScrollView>
 
@@ -431,12 +484,42 @@ export default function DeviceDetailScreen() {
   );
 }
 
-function InfoRow({ label, value, last = false }: { label: string; value: string; last?: boolean }) {
+/** Fila compacta del historial reciente: ícono, título, detalle y tiempo relativo. */
+function HistoryRow({
+  event,
+  last,
+  onPress,
+}: {
+  event: HistoryEvent;
+  last: boolean;
+  onPress: () => void;
+}) {
+  const icon = ROW_ICON[event.variant] ?? ROW_ICON.settings;
+  const detail = event.domain || event.description;
+  const when = formatRelativeTime(event.timestamp);
+
   return (
-    <View style={[styles.infoRow, !last && styles.infoRowDivider]}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
-    </View>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, !last && styles.rowDivider, pressed && styles.pressed]}
+      accessibilityRole="button"
+      accessibilityLabel={`${event.title}. ${detail}. ${when}`}
+      accessibilityHint="Abre el detalle de la actividad"
+    >
+      <View style={[styles.rowIcon, { backgroundColor: icon.background }]}>
+        <Ionicons name={icon.name} size={20} color={icon.color} />
+      </View>
+      <View style={styles.flex}>
+        <Text style={styles.rowTitle} numberOfLines={1}>
+          {event.title}
+        </Text>
+        <Text style={styles.rowDetail} numberOfLines={1}>
+          {detail}
+        </Text>
+      </View>
+      <Text style={styles.rowTime}>{when}</Text>
+      <Ionicons name="chevron-forward" size={14} color={colors.text} />
+    </Pressable>
   );
 }
 
@@ -447,91 +530,173 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    padding: spacing.xl,
-    paddingBottom: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xxxl,
   },
-  profileHeader: {
-    alignItems: 'center',
-    marginBottom: spacing.xl,
+  flex: {
+    flex: 1,
   },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: radius.pill,
-    backgroundColor: colors.brandSoft,
-    justifyContent: 'center',
-    alignItems: 'center',
+  pressed: {
+    opacity: 0.75,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    padding: spacing.xs,
     marginBottom: spacing.sm,
   },
-  avatarText: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  title: {
-    ...typography.title,
-    textAlign: 'center',
-  },
-  section: {
-    gap: spacing.lg,
-  },
-  protectionCard: {
+  profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
+    marginBottom: spacing.lg,
+  },
+  title: {
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  subtitle: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  pendingCard: {
+    backgroundColor: colors.warningSoft,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.md,
+    marginTop: -spacing.md,
+    marginBottom: spacing.lg,
+  },
+  pendingTitle: {
+    ...typography.subtitle,
+  },
+  pendingText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.text,
+  },
+  historySection: {
+    marginTop: spacing.sm,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.xs,
+  },
+  sectionTitle: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  seeAll: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    minHeight: 32,
+  },
+  seeAllText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  historyCard: {
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.md,
+    ...shadow.card,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    minHeight: 52,
+    paddingVertical: spacing.sm,
+  },
+  rowDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  rowIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.xs,
+  },
+  rowTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  rowDetail: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  rowTime: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  settings: {
+    marginTop: spacing.xxl,
+    gap: spacing.md,
+  },
+  settingsTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.textMuted,
+    paddingHorizontal: spacing.xs,
+  },
+  protectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  protectionText: {
-    flex: 1,
-    gap: spacing.xs,
   },
   protectionTitle: {
-    ...typography.subtitle,
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text,
   },
   protectionDescription: {
     ...typography.caption,
     color: colors.textMuted,
     lineHeight: 17,
+    marginTop: 2,
   },
-  infoCard: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.sm,
-  },
-  infoRow: {
-    paddingVertical: spacing.md,
-    gap: 2,
-  },
-  infoRowDivider: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  infoLabel: {
+  meta: {
     ...typography.caption,
-  },
-  infoValue: {
-    ...typography.label,
-    fontSize: 15,
+    color: colors.textMuted,
+    paddingHorizontal: spacing.xs,
   },
   unlink: {
-    marginTop: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: spacing.xs,
+    minHeight: 44,
+    paddingHorizontal: spacing.xs,
   },
-  activitySection: {
-    marginTop: spacing.xxl,
-  },
-  sectionTitle: {
-    ...typography.subtitle,
-    fontSize: 17,
-    marginBottom: spacing.md,
+  unlinkText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.dangerText,
+    textDecorationLine: 'underline',
   },
   notFound: {
     gap: spacing.md,
