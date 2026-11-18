@@ -22,7 +22,7 @@ type HistoryCardProps = {
    * dispositivo ("Historial de Sofía", detalle del dispositivo).
    */
   hideDeviceName?: boolean;
-  /** Muestra el punto de "sin leer" (alertas). */
+  /** Alerta sin leer: fondo blanco y título en negrita. */
   unread?: boolean;
   /** Texto para lectores de pantalla al tocar. Por defecto, "Abre el detalle del evento". */
   accessibilityHint?: string;
@@ -44,7 +44,11 @@ export default function HistoryCard({
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.card, pressed && onPress && styles.pressed]}
+      style={({ pressed }) => [
+        styles.card,
+        unread && styles.cardUnread,
+        pressed && onPress && styles.pressed,
+      ]}
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? "button" : undefined}
@@ -56,18 +60,20 @@ export default function HistoryCard({
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.title, { color: look.titleColor }]} numberOfLines={1}>
+        <Text
+          style={[styles.title, unread && styles.titleUnread, { color: look.titleColor }]}
+          numberOfLines={1}
+        >
           {title}
         </Text>
         {line ? (
-          <Text style={styles.line} numberOfLines={1}>
+          <Text style={styles.line} numberOfLines={unread ? 2 : 1}>
             {line}
           </Text>
         ) : null}
         {time ? <Text style={styles.time}>{time}</Text> : null}
       </View>
 
-      {unread ? <View style={styles.unreadDot} /> : null}
       {onPress ? <Ionicons name="chevron-forward" size={18} color={colors.text} /> : null}
     </Pressable>
   );
@@ -118,10 +124,11 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     color: colors.textMuted,
   },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: radius.pill,
-    backgroundColor: colors.danger,
+  // Sin leer: fondo blanco y título más marcado, sin el punto rojo (Figma no lo tiene).
+  cardUnread: {
+    backgroundColor: colors.field,
+  },
+  titleUnread: {
+    fontWeight: "800",
   },
 });

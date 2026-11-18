@@ -1,6 +1,7 @@
 import { apiRequest } from "./api";
 import { getDevices } from "./deviceService";
 import { formatDayLabel, formatTime } from "../utils/date";
+import { EVENT_SHORT_DETAIL } from "../components/historial/historyFormat";
 
 export type AlertType = "danger" | "blocked" | "warning" | "info";
 
@@ -64,7 +65,7 @@ const ALERT_PRESENTATION: Record<string, Presentation> = {
   APP_INSTALL_ATTEMPT: {
     title: "Intento de modificación",
     type: "warning",
-    subtitle: withDetail("Instalación no autorizada"),
+    subtitle: withDetail(EVENT_SHORT_DETAIL.APP_INSTALL_ATTEMPT),
   },
   PROTECTION_MODIFIED: {
     title: "Intento de modificación",
@@ -100,7 +101,21 @@ function extractSite(message: string): string | undefined {
   return match?.[1];
 }
 
+/**
+ * Avisos informativos: crear un perfil y vincular un celular. No piden que el
+ * adulto haga nada, así que no van en "Mis alertas" ni suman a la campana (Figma
+ * "Alertas"); se ven en el Historial como "Perfil creado" y "Protección activada".
+ */
+const INFO_ALERT_TYPES = new Set(["DEVICE_PENDING", "DEVICE_LINKED"]);
+
+/** Alertas que pueden requerir algo del adulto: las de "Mis alertas" y la campana. */
 export async function getAlerts(): Promise<Alert[]> {
+  const alerts = await getAllAlerts();
+  return alerts.filter((alert) => !INFO_ALERT_TYPES.has(alert.alertType ?? ""));
+}
+
+/** Todas las alertas, incluidos los avisos informativos (para abrir su detalle). */
+async function getAllAlerts(): Promise<Alert[]> {
   const [data, devices] = await Promise.all([
     apiRequest<{ alerts: ApiAlert[] }>("/api/events/alerts"),
     getDevices(),
@@ -132,7 +147,7 @@ export async function getAlerts(): Promise<Alert[]> {
 }
 
 export async function getAlertById(alertId: string): Promise<Alert | undefined> {
-  const alerts = await getAlerts();
+  const alerts = await getAllAlerts();
   return alerts.find((alert) => alert.id === alertId);
 }
 

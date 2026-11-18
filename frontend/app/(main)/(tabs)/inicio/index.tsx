@@ -1,5 +1,5 @@
 // Inicio del adulto responsable (Figma "Dashboard Responsable").
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import {
   Image,
   Pressable,
@@ -23,7 +23,7 @@ import { useAsyncResource } from "../../../../src/hooks/useAsyncResource";
 import { useSession } from "../../../../src/services/session";
 import { getDevices } from "../../../../src/services/deviceService";
 import { getAlerts, type Alert } from "../../../../src/services/alertService";
-import { getHistoryEvents } from "../../../../src/services/historyService";
+import { getHistoryEvents, type HistoryEvent } from "../../../../src/services/historyService";
 import { statusSummary } from "../../../../src/utils/dispositivos";
 import { colors, radius, shadow, spacing, typography } from "../../../../src/theme";
 
@@ -34,6 +34,16 @@ const SUCCESS_ICON_BG = colors.successStrongSoft;
 const WARNING_ICON_BG = "rgba(233, 148, 12, 0.18)";
 const DANGER_ICON_BG = colors.dangerStrongSoft;
 
+/**
+ * El backend guarda el evento y su alerta por separado, con ids distintos: es el
+ * mismo si coinciden el perfil, el tipo y el momento (con unos segundos de margen).
+ */
+function isSameEvent(event: HistoryEvent, alert: Alert): boolean {
+  if (event.deviceId !== alert.deviceId || event.eventType !== alert.alertType) return false;
+  const gap = Math.abs(Date.parse(event.timestamp) - Date.parse(alert.createdAt));
+  return Number.isFinite(gap) && gap < 5_000;
+}
+
 export default function DashboardScreen() {
   const router = useRouter();
   const { session } = useSession();
@@ -41,8 +51,9 @@ export default function DashboardScreen() {
 
   const devices = useAsyncResource(() => getDevices(), []);
   const alerts = useAsyncResource(() => getAlerts(), []);
+  // Uno de más por si el primero es la alerta que ya muestra la tarjeta de atención.
   const history = useAsyncResource(
-    async () => (await getHistoryEvents()).slice(0, HISTORY_PREVIEW),
+    async () => (await getHistoryEvents()).slice(0, HISTORY_PREVIEW + 1),
     [],
   );
 
@@ -222,7 +233,9 @@ export default function DashboardScreen() {
   };
 
   const renderHistory = () => {
-    const events = history.data ?? [];
+    const events = (history.data ?? [])
+      .filter((event) => !attentionAlert || !isSameEvent(event, attentionAlert))
+      .slice(0, HISTORY_PREVIEW);
 
     return (
       <View style={styles.section}>

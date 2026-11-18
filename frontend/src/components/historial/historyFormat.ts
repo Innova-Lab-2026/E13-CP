@@ -244,6 +244,17 @@ function protectionStatus(details?: string): string | undefined {
   return undefined;
 }
 
+/**
+ * Detalle corto de los intentos de modificación, el mismo en Historial, Inicio y
+ * Mis alertas ("Tomás - Intento de desinstalar la app"). El texto crudo que manda
+ * el celular queda para el detalle del evento.
+ */
+export const EVENT_SHORT_DETAIL: Readonly<Record<string, string>> = {
+  UNINSTALL_ATTEMPT: "Intento de desinstalar la app",
+  BYPASS_ATTEMPT: "Intento de desactivar la protección",
+  APP_INSTALL_ATTEMPT: "Instalación no autorizada",
+};
+
 /** Saca el "en este celular" que agrega el celular protegido: desde el adulto se lee raro. */
 export function shortDetails(details: string): string {
   return details.replace(/\s+en este celular\.?$/i, "").trim();

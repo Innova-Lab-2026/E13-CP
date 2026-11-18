@@ -1,5 +1,5 @@
 import type { HistoryVariant } from "../components/historial/historyLook";
-import { shortDetails } from "../components/historial/historyFormat";
+import { EVENT_SHORT_DETAIL, shortDetails } from "../components/historial/historyFormat";
 import { apiRequest } from "./api";
 import { getDevices } from "./deviceService";
 import type { SecurityEventType } from "./blocklistService";
@@ -74,6 +74,8 @@ function eventDescription(event: ApiEvent): string {
   if (event.eventType === "SITE_BLOCKED" || event.eventType === "ACCESS_ATTEMPT") {
     return event.domain || "Sitio restringido";
   }
+  const short = EVENT_SHORT_DETAIL[event.eventType];
+  if (short) return short;
   return shortDetails(event.details) || (event.domain ?? "");
 }
 

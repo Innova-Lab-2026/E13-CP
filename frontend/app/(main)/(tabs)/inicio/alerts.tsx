@@ -1,6 +1,6 @@
 // Mis alertas (Figma "Alertas"): agrupadas por día ("Hoy - 17 de noviembre"),
 // de la más nueva a la más vieja, con las mismas tarjetas que el historial.
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { RefreshControl, SectionList, StyleSheet, View } from "react-native";
 import { Text } from "../../../../src/components/ThemedText";
 import { useRouter } from "expo-router";
