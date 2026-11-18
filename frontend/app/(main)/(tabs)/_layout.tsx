@@ -1,39 +1,9 @@
-import type { ComponentProps } from "react";
-import { StyleSheet, View } from "react-native";
 import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, radius, spacing } from "../../../src/theme";
-
-type IconName = ComponentProps<typeof Ionicons>["name"];
-
-/**
- * Ícono de pestaña. La pestaña activa se marca con una píldora amarilla detrás
- * del ícono negro: el amarillo de marca sobre fondo claro no tiene contraste
- * suficiente para usarse como color de texto o de ícono.
- */
-function TabIcon({
-  focused,
-  active,
-  inactive,
-}: {
-  focused: boolean;
-  active: IconName;
-  inactive: IconName;
-}) {
-  return (
-    <View style={[styles.iconPill, focused && styles.iconPillActive]}>
-      <Ionicons
-        name={focused ? active : inactive}
-        size={22}
-        color={focused ? colors.text : colors.textMuted}
-      />
-    </View>
-  );
-}
+import { TabIcon, TabLabel, tabBarStyle } from "../../../src/components/TabBarParts";
+import { colors } from "../../../src/theme";
 
 export default function TabsLayout() {
-  // La altura suma el inset inferior (indicador de inicio o barra de gestos).
   const insets = useSafeAreaInsets();
   return (
     <Tabs
@@ -41,19 +11,8 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
-          // Ícono en píldora (30) + etiqueta + paddings: con 64 la etiqueta quedaba cortada.
-          height: 74 + insets.bottom,
-          paddingTop: spacing.sm,
-          paddingBottom: Math.max(insets.bottom, spacing.sm),
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "600",
-          lineHeight: 14,
-        },
+        tabBarStyle: tabBarStyle(insets),
+        tabBarLabel: ({ focused, children }) => <TabLabel focused={focused}>{children}</TabLabel>,
       }}
     >
       <Tabs.Screen
@@ -87,8 +46,9 @@ export default function TabsLayout() {
         options={{
           title: "Historial",
           tabBarAccessibilityLabel: "Historial",
+          // Figma: reloj con flecha de "historial".
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} active="time" inactive="time-outline" />
+            <TabIcon focused={focused} family="material" active="history" inactive="history" />
           ),
         }}
       />
@@ -106,16 +66,3 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  iconPill: {
-    minWidth: 52,
-    height: 30,
-    borderRadius: radius.pill,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconPillActive: {
-    backgroundColor: colors.brand,
-  },
-});

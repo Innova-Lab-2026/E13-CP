@@ -1,37 +1,8 @@
-import type { ComponentProps } from "react";
-import { StyleSheet, View } from "react-native";
 import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ProtectedDeviceProvider from "../../../src/components/protected/ProtectedDeviceProvider";
-import { colors, radius, spacing } from "../../../src/theme";
-
-type IconName = ComponentProps<typeof Ionicons>["name"];
-
-/**
- * Ícono de pestaña, igual que en la app de la persona adulta: la pestaña activa
- * se marca con una píldora amarilla detrás del ícono negro (el amarillo de marca
- * sobre fondo claro no tiene contraste suficiente como color de ícono).
- */
-function TabIcon({
-  focused,
-  active,
-  inactive,
-}: {
-  focused: boolean;
-  active: IconName;
-  inactive: IconName;
-}) {
-  return (
-    <View style={[styles.iconPill, focused && styles.iconPillActive]}>
-      <Ionicons
-        name={focused ? active : inactive}
-        size={22}
-        color={focused ? colors.text : colors.textMuted}
-      />
-    </View>
-  );
-}
+import { TabIcon, TabLabel, tabBarStyle } from "../../../src/components/TabBarParts";
+import { colors } from "../../../src/theme";
 
 /**
  * Pestañas del celular protegido (Figma "Dasboard dispositivo protegido"):
@@ -50,19 +21,8 @@ export default function ProtectedTabsLayout() {
           tabBarHideOnKeyboard: true,
           tabBarActiveTintColor: colors.text,
           tabBarInactiveTintColor: colors.textMuted,
-          tabBarStyle: {
-            backgroundColor: colors.background,
-            borderTopColor: colors.border,
-            // Ícono en píldora (30) + etiqueta + paddings, como en la app del adulto.
-            height: 74 + insets.bottom,
-            paddingTop: spacing.sm,
-            paddingBottom: Math.max(insets.bottom, spacing.sm),
-          },
-          tabBarLabelStyle: {
-            fontSize: 11,
-            fontWeight: "600",
-            lineHeight: 14,
-          },
+          tabBarStyle: tabBarStyle(insets),
+          tabBarLabel: ({ focused, children }) => <TabLabel focused={focused}>{children}</TabLabel>,
           sceneStyle: { backgroundColor: colors.backgroundWarm },
         }}
       >
@@ -102,16 +62,3 @@ export default function ProtectedTabsLayout() {
     </ProtectedDeviceProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  iconPill: {
-    minWidth: 52,
-    height: 30,
-    borderRadius: radius.pill,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconPillActive: {
-    backgroundColor: colors.brand,
-  },
-});

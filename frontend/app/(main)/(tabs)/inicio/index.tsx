@@ -29,10 +29,10 @@ import { colors, radius, shadow, spacing, typography } from "../../../../src/the
 
 const HISTORY_PREVIEW = 3;
 
-/** Fondo del círculo del escudo: el verde de éxito, translúcido sobre la tarjeta verde. */
-const SUCCESS_ICON_BG = "rgba(22, 163, 74, 0.16)";
-const WARNING_ICON_BG = "rgba(217, 119, 6, 0.16)";
-const DANGER_ICON_BG = "rgba(220, 38, 38, 0.14)";
+/** Círculos de los íconos sobre las tarjetas de color (tonos del Figma). */
+const SUCCESS_ICON_BG = colors.successStrongSoft;
+const WARNING_ICON_BG = "rgba(233, 148, 12, 0.18)";
+const DANGER_ICON_BG = colors.dangerStrongSoft;
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   attentionTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: colors.dangerText,
+    color: colors.danger,
   },
   attentionSubtitle: {
     fontSize: 13,

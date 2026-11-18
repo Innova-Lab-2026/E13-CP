@@ -29,31 +29,32 @@ export const HISTORY_LOOKS: Record<HistoryVariant, HistoryLook> = {
   blocked: {
     icon: "cancel",
     iconColor: colors.danger,
-    iconBackground: colors.dangerSoft,
+    iconBackground: colors.dangerStrongSoft,
     titleColor: colors.danger,
   },
   attention: {
     icon: "alert-octagon-outline",
     iconColor: colors.danger,
-    iconBackground: colors.dangerSoft,
+    iconBackground: colors.dangerStrongSoft,
     titleColor: colors.danger,
   },
+  // Figma "Alertas" y "Detalle por dispositivo": octógono ámbar.
   alert: {
-    icon: "alert-circle-outline",
+    icon: "alert-octagon-outline",
     iconColor: colors.warning,
     iconBackground: colors.warningSoft,
     titleColor: colors.warningText,
   },
   settings: {
     icon: "cog",
-    iconColor: colors.textMuted,
-    iconBackground: colors.borderStrong,
-    titleColor: colors.textMuted,
+    iconColor: colors.slate,
+    iconBackground: colors.neutralSoft,
+    titleColor: colors.slate,
   },
   protected: {
     icon: "shield-outline",
     iconColor: colors.success,
-    iconBackground: colors.successSoft,
+    iconBackground: colors.successStrongSoft,
     titleColor: colors.successText,
   },
 };

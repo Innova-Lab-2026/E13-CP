@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.field,
     borderRadius: radius.md,
     paddingLeft: 14,
     paddingRight: 12,

@@ -6,26 +6,38 @@ export const colors = {
   brand: "#FFD500",
   brandPressed: "#F2C900",
   brandSoft: "#FFF6C2",
-  background: "#FFFFFF",
-  backgroundWarm: "#FFFDF2",
-  surface: "#FFFFF5",
-  surfaceMuted: "#F7F7F2",
+  // Fondo crema de todas las pantallas del Figma; las tarjetas usan el mismo tono
+  // con borde y sombra.
+  background: "#FEFFF3",
+  backgroundWarm: "#FEFFF3",
+  surface: "#FEFFF3",
+  /** Fondo de los campos de texto (blancos en el Figma). */
+  field: "#FFFFFF",
+  surfaceMuted: "#F7F7EA",
   border: "#E5E5D8",
   borderStrong: "#CFCFC2",
   text: "#1C1C1C",
   textMuted: "#686868",
   textSubtle: "#8A8A80",
+  /** Gris azulado de los íconos en círculo (Figma: Configuración, eventos de configuración). */
+  neutralSoft: "#C5CCCE",
+  /** Gris pizarra de los títulos de eventos de configuración (Figma). */
+  slate: "#4B5563",
   onBrand: "#1C1C1C",
   onDanger: "#FFFFFF",
-  success: "#16A34A",
-  successSoft: "#DCFCE7",
-  successText: "#166534",
-  warning: "#D97706",
-  warningSoft: "#FEF3C7",
+  // Verdes, rojos y ámbar del Figma. Los de texto se oscurecen un poco para que
+  // se lean bien sobre el fondo crema (contraste AA).
+  success: "#43A027",
+  successSoft: "#E7FCCA",
+  successStrongSoft: "#D1F9A2",
+  successText: "#2E7D1E",
+  warning: "#E9940C",
+  warningSoft: "#FDF0CC",
   warningText: "#92400E",
-  danger: "#DC2626",
-  dangerSoft: "#FEE2E2",
-  dangerText: "#991B1B",
+  danger: "#E5341D",
+  dangerSoft: "#FDDCCD",
+  dangerStrongSoft: "#FECFBF",
+  dangerText: "#B4230F",
   overlay: "rgba(28, 28, 28, 0.55)",
 } as const;
 

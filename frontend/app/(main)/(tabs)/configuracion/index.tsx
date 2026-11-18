@@ -227,12 +227,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radius.pill,
-    backgroundColor: colors.borderStrong,
+    backgroundColor: colors.neutralSoft,
     alignItems: "center",
     justifyContent: "center",
   },
   rowIconHighlight: {
-    backgroundColor: colors.dangerSoft,
+    backgroundColor: colors.dangerStrongSoft,
   },
   rowLabel: {
     flex: 1,

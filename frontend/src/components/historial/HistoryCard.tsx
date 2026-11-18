@@ -52,7 +52,7 @@ export default function HistoryCard({
       accessibilityHint={onPress ? (accessibilityHint ?? "Abre el detalle del evento") : undefined}
     >
       <View style={[styles.iconContainer, { backgroundColor: look.iconBackground }]}>
-        <MaterialCommunityIcons name={look.icon} size={24} color={look.iconColor} />
+        <MaterialCommunityIcons name={look.icon} size={22} color={look.iconColor} />
       </View>
 
       <View style={styles.content}>
@@ -60,7 +60,7 @@ export default function HistoryCard({
           {title}
         </Text>
         {line ? (
-          <Text style={styles.line} numberOfLines={2}>
+          <Text style={styles.line} numberOfLines={1}>
             {line}
           </Text>
         ) : null}
@@ -74,17 +74,18 @@ export default function HistoryCard({
 }
 
 const styles = StyleSheet.create({
+  // Figma "Historial": tarjeta compacta de unos 64 px de alto.
   card: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm + 2,
     paddingLeft: spacing.lg + 2,
     paddingRight: spacing.md,
     borderRadius: radius.md + 2,
-    marginBottom: spacing.md + 2,
+    marginBottom: spacing.md,
     gap: spacing.md + 2,
     ...shadow.card,
   },
@@ -92,27 +93,29 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   iconContainer: {
-    width: 46,
-    height: 46,
+    width: 42,
+    height: 42,
     borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
   },
   content: {
     flex: 1,
-    gap: 2,
+    gap: 1,
   },
   title: {
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: "600",
   },
   line: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 16,
     color: colors.text,
   },
   time: {
-    fontSize: 12,
+    fontSize: 11,
+    lineHeight: 15,
     color: colors.textMuted,
   },
   unreadDot: {
