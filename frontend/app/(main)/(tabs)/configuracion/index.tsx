@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     color: colors.text,
   },
 });

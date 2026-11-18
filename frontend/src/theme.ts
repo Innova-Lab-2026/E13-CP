@@ -80,12 +80,14 @@ export const typography = {
   caption: { fontSize: 12, color: colors.textSubtle },
 } as const;
 
+// Figma: las tarjetas se despegan del fondo crema con una sombra visible
+// (desplazada unos 4 px y difusa unos 8 px).
 export const shadow = {
   card: {
     shadowColor: "#000000",
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.14,
     shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
 } as const;
