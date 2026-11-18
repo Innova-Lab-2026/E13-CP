@@ -286,6 +286,23 @@ describe('BA Protege+ API Integration Tests', () => {
     expect(actRes.status).toBe(200);
     expect(actRes.body.device.status).toBe('active');
 
+    // Pausar y reactivar un celular ya vinculado queda en el historial.
+    await request(app)
+      .patch(`/api/devices/${deviceId}/status`)
+      .set('Authorization', `Bearer ${t}`)
+      .send({ status: 'inactive' });
+    await request(app)
+      .patch(`/api/devices/${deviceId}/status`)
+      .set('Authorization', `Bearer ${t}`)
+      .send({ status: 'active' });
+    const eventsRes = await request(app).get('/api/events').set('Authorization', `Bearer ${t}`);
+    const changes = eventsRes.body.events
+      .filter((e: any) => e.deviceId === deviceId && e.eventType === 'PROTECTION_MODIFIED')
+      .map((e: any) => e.details);
+    expect(changes).toEqual(
+      expect.arrayContaining(['Se pausó la protección', 'Se reactivó la protección'])
+    );
+
     // Invalid status → 400
     const badRes = await request(app)
       .patch(`/api/devices/${deviceId}/status`)
