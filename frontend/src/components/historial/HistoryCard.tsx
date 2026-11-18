@@ -1,12 +1,13 @@
+// Tarjeta compacta de un evento (Figma "Historial"): ícono en círculo de color,
+// título del color del tipo, "Nombre - detalle" y la hora. La usan el historial,
+// las alertas, el inicio y el detalle de un dispositivo.
 import { Pressable, View, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, radius, shadow, spacing } from "../../theme";
+import { historyLook, type HistoryVariant } from "./historyLook";
+import { cardLine } from "./historyFormat";
 
-export type HistoryVariant =
-  | "blocked"
-  | "alert"
-  | "settings"
-  | "protected";
+export type { HistoryVariant } from "./historyLook";
 
 type HistoryCardProps = {
   variant: HistoryVariant;
@@ -15,30 +16,16 @@ type HistoryCardProps = {
   time: string;
   device: string;
   onPress?: () => void;
+  /**
+   * No repite el nombre del perfil en la tarjeta: para listas de un solo
+   * dispositivo ("Historial de Sofía", detalle del dispositivo).
+   */
+  hideDeviceName?: boolean;
+  /** Muestra el punto de "sin leer" (alertas). */
+  unread?: boolean;
+  /** Texto para lectores de pantalla al tocar. Por defecto, "Abre el detalle del evento". */
+  accessibilityHint?: string;
 };
-
-const historyStyles = {
-  blocked: {
-    backgroundColor: colors.dangerSoft,
-    iconColor: colors.danger,
-    iconName: "ban",
-  },
-  alert: {
-    backgroundColor: colors.warningSoft,
-    iconColor: colors.warning,
-    iconName: "alert-circle",
-  },
-  settings: {
-    backgroundColor: colors.surfaceMuted,
-    iconColor: colors.textMuted,
-    iconName: "settings",
-  },
-  protected: {
-    backgroundColor: colors.successSoft,
-    iconColor: colors.success,
-    iconName: "shield-checkmark",
-  },
-} as const;
 
 export default function HistoryCard({
   variant,
@@ -47,8 +34,12 @@ export default function HistoryCard({
   time,
   device,
   onPress,
+  hideDeviceName = false,
+  unread = false,
+  accessibilityHint,
 }: HistoryCardProps) {
-  const config = historyStyles[variant] ?? historyStyles.settings;
+  const look = historyLook(variant);
+  const line = cardLine(device, description, hideDeviceName);
 
   return (
     <Pressable
@@ -56,34 +47,27 @@ export default function HistoryCard({
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={`${title}. ${description}. ${device}, ${time}`}
-      accessibilityHint={onPress ? "Abre el detalle de la actividad" : undefined}
+      accessibilityLabel={`${unread ? "Sin leer. " : ""}${title}. ${line}. ${time}`}
+      accessibilityHint={onPress ? (accessibilityHint ?? "Abre el detalle del evento") : undefined}
     >
-      <View
-        style={[
-          styles.iconContainer,
-          { backgroundColor: config.backgroundColor },
-        ]}
-      >
-        <Ionicons
-          name={config.iconName}
-          size={22}
-          color={config.iconColor}
-        />
+      <View style={[styles.iconContainer, { backgroundColor: look.iconBackground }]}>
+        <MaterialCommunityIcons name={look.icon} size={24} color={look.iconColor} />
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.description}>{description}</Text>
-        <Text style={styles.device}>{device}</Text>
+        <Text style={[styles.title, { color: look.titleColor }]} numberOfLines={1}>
+          {title}
+        </Text>
+        {line ? (
+          <Text style={styles.line} numberOfLines={2}>
+            {line}
+          </Text>
+        ) : null}
+        {time ? <Text style={styles.time}>{time}</Text> : null}
       </View>
 
-      <View style={styles.rightContent}>
-        <Text style={styles.time}>{time}</Text>
-        {onPress ? (
-          <Ionicons name="chevron-forward" size={18} color={colors.textSubtle} />
-        ) : null}
-      </View>
+      {unread ? <View style={styles.unreadDot} /> : null}
+      {onPress ? <Ionicons name="chevron-forward" size={18} color={colors.text} /> : null}
     </Pressable>
   );
 }
@@ -91,50 +75,49 @@ export default function HistoryCard({
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    marginBottom: spacing.md,
-    gap: spacing.md,
+    paddingVertical: spacing.md,
+    paddingLeft: spacing.lg + 2,
+    paddingRight: spacing.md,
+    borderRadius: radius.md + 2,
+    marginBottom: spacing.md + 2,
+    gap: spacing.md + 2,
     ...shadow.card,
   },
   pressed: {
     opacity: 0.75,
   },
   iconContainer: {
-    width: 42,
-    height: 42,
+    width: 46,
+    height: 46,
     borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
   },
   content: {
     flex: 1,
-    gap: spacing.xs,
+    gap: 2,
   },
   title: {
     fontSize: 15,
     fontWeight: "700",
-    color: colors.text,
   },
-  description: {
+  line: {
     fontSize: 13,
     lineHeight: 18,
-    color: colors.textMuted,
+    color: colors.text,
   },
-  device: {
+  time: {
     fontSize: 12,
     color: colors.textMuted,
   },
-  time: {
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-  rightContent: {
-    alignItems: "flex-end",
-    gap: spacing.sm,
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: radius.pill,
+    backgroundColor: colors.danger,
   },
 });
