@@ -33,7 +33,7 @@ import { errorMessage } from '../../../../src/services/api';
 import { formatDate, formatDayLabel, formatTime } from '../../../../src/utils/date';
 import {
   ageFromBirthDate,
-  countBlockedLastWeek,
+  countBlockedThisWeek,
   formatRelativeTime,
   plural,
 } from '../../../../src/utils/dispositivos';
@@ -300,7 +300,7 @@ export default function DeviceDetailScreen() {
     const linkedAt = formatLinkedAt(device.linkedAt);
     const lastSeen = formatLastSeen(device.lastSeen);
     const age = ageFromBirthDate(device.birthDate);
-    const blockedThisWeek = countBlockedLastWeek(activitiesResource.data ?? [], device.id);
+    const blockedThisWeek = countBlockedThisWeek(activitiesResource.data ?? [], device.id);
 
     const metrics: MetricItem[] = [];
     if (age !== null) {
@@ -322,21 +322,25 @@ export default function DeviceDetailScreen() {
       });
     }
 
-    const subtitle = isPending
-      ? 'Celular sin vincular'
-      : linkedAt
-        ? `Vinculado el ${linkedAt}`
-        : 'Celular vinculado';
+    // Figma: la plataforma debajo del nombre. La app que bloquea es la de Android;
+    // la fecha de vinculación queda para el lector de pantalla.
+    const subtitle = isPending ? 'Celular sin vincular' : 'Android';
+    const subtitleHint = !isPending && linkedAt ? `Vinculado el ${linkedAt}` : undefined;
 
     return (
       <>
         <View style={styles.profileHeader}>
-          <DeviceAvatar seed={device.id} size={64} />
+          <DeviceAvatar seed={device.id} size={56} />
           <View style={styles.flex}>
             <Text style={styles.title} accessibilityRole="header">
               Dispositivo de {device.name}
             </Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
+            <Text
+              style={styles.subtitle}
+              accessibilityLabel={subtitleHint ? `${subtitle}. ${subtitleHint}` : subtitle}
+            >
+              {subtitle}
+            </Text>
           </View>
         </View>
 
@@ -601,7 +605,7 @@ const styles = StyleSheet.create({
   historyCard: {
     backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: colors.borderStrong,
+    borderColor: colors.border,
     borderRadius: radius.lg,
     paddingHorizontal: spacing.md,
     ...shadow.card,
@@ -627,7 +631,7 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.text,
   },
   rowDetail: {

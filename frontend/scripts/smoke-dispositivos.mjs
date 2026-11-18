@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   ageFromBirthDate,
-  countBlockedLastWeek,
+  countBlockedThisWeek,
   formatCardTime,
   formatDayHeader,
   formatRelativeTime,
@@ -26,18 +26,22 @@ test("edad en años cumplidos", () => {
   assert.equal(ageFromBirthDate("2030-01-01", NOW), null);
 });
 
-test("webs bloqueadas en los últimos 7 días, solo del dispositivo", () => {
+test("webs bloqueadas esta semana (desde el lunes), solo del dispositivo", () => {
+  // NOW es el domingo 27/09: la semana empieza el lunes 21/09 a las 00:00.
   const events = [
     { deviceId: "a", category: "blocked", timestamp: at(27, 14) },
-    { deviceId: "a", category: "blocked", timestamp: at(21, 15) },
-    { deviceId: "a", category: "blocked", timestamp: at(19, 10) }, // hace más de 7 días
+    { deviceId: "a", category: "blocked", timestamp: at(21, 0, 5) },
+    { deviceId: "a", category: "blocked", timestamp: at(20, 23, 55) }, // domingo anterior
     { deviceId: "a", category: "security", timestamp: at(26, 10) },
     { deviceId: "b", category: "blocked", timestamp: at(27, 10) },
     { deviceId: "a", category: "blocked", timestamp: "no es fecha" },
   ];
-  assert.equal(countBlockedLastWeek(events, "a", NOW), 2);
-  assert.equal(countBlockedLastWeek(events, "b", NOW), 1);
-  assert.equal(countBlockedLastWeek([], "a", NOW), 0);
+  assert.equal(countBlockedThisWeek(events, "a", NOW), 2);
+  assert.equal(countBlockedThisWeek(events, "b", NOW), 1);
+  assert.equal(countBlockedThisWeek([], "a", NOW), 0);
+  // Un lunes a la mañana ya no cuenta lo de la semana anterior.
+  const monday = new Date(2026, 8, 28, 9, 0);
+  assert.equal(countBlockedThisWeek(events, "a", monday), 0);
 });
 
 test("tiempo relativo como en Figma", () => {

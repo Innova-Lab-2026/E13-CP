@@ -67,16 +67,22 @@ export type CountableEvent = {
   timestamp: string;
 };
 
+/** Lunes a las 00:00 (hora local) de la semana de `now`. */
+function startOfWeek(now: Date): number {
+  const daysSinceMonday = (now.getDay() + 6) % 7;
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysSinceMonday).getTime();
+}
+
 /**
- * Webs bloqueadas en los últimos 7 días para un dispositivo: los eventos de la
- * categoría "blocked" (SITE_BLOCKED y ACCESS_ATTEMPT en el backend).
+ * Webs bloqueadas "esta semana" (desde el lunes a las 00:00) para un dispositivo:
+ * los eventos de la categoría "blocked" (SITE_BLOCKED y ACCESS_ATTEMPT en el backend).
  */
-export function countBlockedLastWeek(
+export function countBlockedThisWeek(
   events: CountableEvent[],
   deviceId: string,
   now: Date = new Date(),
 ): number {
-  const from = now.getTime() - 7 * DAY;
+  const from = startOfWeek(now);
   return events.filter((event) => {
     if (event.deviceId !== deviceId || event.category !== "blocked") return false;
     const date = parse(event.timestamp);

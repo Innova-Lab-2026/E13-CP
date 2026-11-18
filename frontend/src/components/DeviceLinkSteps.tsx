@@ -1,7 +1,7 @@
-// Ayudas de la pantalla "Código de vinculación": copiar o compartir el código
-// (discreto, debajo del código) y un desplegable con los pasos para vincular el
+// Ayudas de la pantalla "Código de vinculación": compartir el código (un ícono
+// dentro de la tarjeta del código) y un desplegable con los pasos para vincular el
 // celular del menor, con el código o iniciando sesión en ese celular.
-import { useEffect, useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 import { Pressable, Share, StyleSheet, View } from 'react-native';
 import { Text } from './ThemedText';
 import * as Clipboard from 'expo-clipboard';
@@ -23,25 +23,20 @@ export function shareMessage(name: string, code: string): string {
   );
 }
 
-type IconName = ComponentProps<typeof Ionicons>['name'];
-
-/** Botones chicos "Copiar" y "Compartir" para el código vigente. */
-export function LinkCodeShareActions({ name, code }: { name: string; code: string }) {
-  const [feedback, setFeedback] = useState<string | null>(null);
-
-  useEffect(() => {
-    setFeedback(null);
-  }, [code]);
-
-  const handleCopy = async () => {
-    try {
-      await Clipboard.setStringAsync(code);
-      setFeedback('Copiamos el código.');
-    } catch {
-      setFeedback('No pudimos copiar el código. Anotalo a mano.');
-    }
-  };
-
+/**
+ * Ícono "Compartir" dentro de la tarjeta del código (Figma no tiene botones
+ * aparte). Abre el menú de compartir del sistema; donde no hay, copia el mensaje
+ * con el código. Lo que pasó se avisa con `onFeedback`, en una línea chica.
+ */
+export function LinkCodeShareButton({
+  name,
+  code,
+  onFeedback,
+}: {
+  name: string;
+  code: string;
+  onFeedback: (message: string) => void;
+}) {
   const handleShare = async () => {
     const message = shareMessage(name, code);
     try {
@@ -52,54 +47,22 @@ export function LinkCodeShareActions({ name, code }: { name: string; code: strin
       // En navegadores sin "Compartir", el mensaje queda copiado para pegarlo.
       try {
         await Clipboard.setStringAsync(message);
-        setFeedback('Copiamos el mensaje con el código para que lo pegues donde quieras.');
+        onFeedback('Copiamos el mensaje con el código para que lo pegues donde quieras.');
       } catch {
-        setFeedback('No pudimos compartir el código. Copialo o anotalo a mano.');
+        onFeedback('No pudimos compartir el código. Anotalo a mano.');
       }
     }
   };
 
   return (
-    <View style={styles.actionsWrapper}>
-      <View style={styles.actions}>
-        <SmallAction icon="copy-outline" label="Copiar" a11y="Copiar el código" onPress={handleCopy} />
-        <SmallAction
-          icon="share-social-outline"
-          label="Compartir"
-          a11y="Compartir el código"
-          onPress={handleShare}
-        />
-      </View>
-      {feedback ? (
-        <Text style={styles.feedback} accessibilityLiveRegion="polite">
-          {feedback}
-        </Text>
-      ) : null}
-    </View>
-  );
-}
-
-function SmallAction({
-  icon,
-  label,
-  a11y,
-  onPress,
-}: {
-  icon: IconName;
-  label: string;
-  a11y: string;
-  onPress: () => void;
-}) {
-  return (
     <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.action, pressed && styles.actionPressed]}
+      onPress={handleShare}
+      style={({ pressed }) => [styles.shareButton, pressed && styles.actionPressed]}
       accessibilityRole="button"
-      accessibilityLabel={a11y}
-      hitSlop={6}
+      accessibilityLabel="Compartir el código"
+      hitSlop={8}
     >
-      <Ionicons name={icon} size={16} color={colors.text} />
-      <Text style={styles.actionText}>{label}</Text>
+      <Ionicons name="share-social-outline" size={20} color={colors.text} />
     </Pressable>
   );
 }
@@ -234,37 +197,14 @@ const styles = StyleSheet.create({
     ...typography.label,
     textDecorationLine: 'underline',
   },
-  actionsWrapper: {
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  action: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    minHeight: 36,
-    paddingHorizontal: spacing.md,
+  shareButton: {
+    width: 40,
+    height: 40,
     borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionPressed: {
     backgroundColor: colors.brandSoft,
-  },
-  actionText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  feedback: {
-    ...typography.caption,
-    color: colors.text,
-    textAlign: 'center',
   },
 });

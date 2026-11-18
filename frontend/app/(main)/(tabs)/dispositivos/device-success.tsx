@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import AppAlert from '../../../../src/components/AppAlert';
 import AppButton from '../../../../src/components/AppButton';
-import DeviceLinkSteps, { LinkCodeShareActions } from '../../../../src/components/DeviceLinkSteps';
+import DeviceLinkSteps, { LinkCodeShareButton } from '../../../../src/components/DeviceLinkSteps';
 import { generateLinkCode, getDeviceById } from '../../../../src/services/deviceService';
 import { ApiError, errorMessage } from '../../../../src/services/api';
 import { formatValidity } from '../../../../src/utils/dispositivos';
@@ -36,7 +36,6 @@ export default function LinkCodeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<Params>();
   const deviceId = first(params.deviceId);
-  const justCreated = first(params.created) === '1';
 
   const [name, setName] = useState(first(params.name)?.trim() || '');
   const [code, setCode] = useState(first(params.linkCode));
@@ -123,7 +122,7 @@ export default function LinkCodeScreen() {
       setCode(result.linkCode);
       setExpiresAt(result.linkCodeExpiresAt ?? result.device.linkCodeExpiresAt);
       setNow(new Date());
-      setNotice('Generamos un código nuevo. El anterior ya no sirve.');
+      setNotice('Código nuevo generado. El anterior ya no sirve.');
     } catch (newCodeError) {
       // Un 400 acá es que el celular se vinculó mientras tanto.
       if (newCodeError instanceof ApiError && newCodeError.status === 400) {
@@ -169,8 +168,9 @@ export default function LinkCodeScreen() {
 
     return (
       <View style={styles.infoCard} accessible accessibilityLabel={`${title}. ${text}`}>
+        {/* "i" sans en Inter, como en el Figma (el glifo de Ionicons tiene serifa). */}
         <View style={styles.infoIcon}>
-          <Ionicons name="information" size={22} color={colors.warningText} />
+          <Text style={styles.infoIconText}>i</Text>
         </View>
         <View style={styles.flex}>
           <Text style={styles.infoTitle}>{title}</Text>
@@ -184,17 +184,12 @@ export default function LinkCodeScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar style="dark" />
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
-          {justCreated ? (
-            <View style={styles.createdPill}>
-              <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-              <Text style={styles.createdText} numberOfLines={1}>
-                Perfil creado para {displayName}
-              </Text>
-            </View>
-          ) : null}
-
           <View
             style={[styles.iconCircle, linked && styles.iconCircleLinked]}
             accessibilityElementsHidden
@@ -235,45 +230,59 @@ export default function LinkCodeScreen() {
                 ) : (
                   <Text style={styles.codeMissing}>Sin código vigente</Text>
                 )}
+                {visibleCode ? (
+                  <View style={styles.shareSlot}>
+                    <LinkCodeShareButton
+                      name={displayName}
+                      code={visibleCode}
+                      onFeedback={setNotice}
+                    />
+                  </View>
+                ) : null}
               </View>
 
-              {visibleCode ? <LinkCodeShareActions name={displayName} code={visibleCode} /> : null}
+              {/* Avisos chicos debajo del código, sin bloque: los botones siguen a la vista. */}
+              {notice ? (
+                <Text style={styles.notice} accessibilityLiveRegion="polite">
+                  {notice}
+                </Text>
+              ) : null}
 
               {renderValidity()}
 
-              {notice ? <AppAlert variant="success" message={notice} /> : null}
               {error ? <AppAlert variant="error" message={error} /> : null}
 
               <DeviceLinkSteps name={displayName} />
             </>
           )}
         </View>
-
-        <View style={styles.buttons}>
-          {linked ? (
-            <>
-              <AppButton title="Ver dispositivo" onPress={goToDevice} />
-              <AppButton title="Volver a Mis dispositivos" variant="secondary" onPress={goToList} />
-            </>
-          ) : (
-            <>
-              {deviceId ? (
-                <AppButton
-                  title="Generar nuevo código"
-                  onPress={handleNewCode}
-                  loading={newCodeLoading}
-                  accessibilityLabel="Generar nuevo código. El anterior deja de servir"
-                />
-              ) : null}
-              <AppButton
-                title="Cancelar vinculación"
-                onPress={goToList}
-                accessibilityLabel={`Cancelar vinculación. El perfil de ${displayName} queda pendiente y lo podés vincular después`}
-              />
-            </>
-          )}
-        </View>
       </ScrollView>
+
+      {/* Como en el Figma, los dos botones quedan siempre visibles abajo. */}
+      <View style={styles.footer}>
+        {linked ? (
+          <>
+            <AppButton title="Ver dispositivo" onPress={goToDevice} />
+            <AppButton title="Volver a Mis dispositivos" variant="secondary" onPress={goToList} />
+          </>
+        ) : (
+          <>
+            {deviceId ? (
+              <AppButton
+                title="Generar nuevo código"
+                onPress={handleNewCode}
+                loading={newCodeLoading}
+                accessibilityLabel="Generar nuevo código. El anterior deja de servir"
+              />
+            ) : null}
+            <AppButton
+              title="Cancelar vinculación"
+              onPress={goToList}
+              accessibilityLabel={`Cancelar vinculación. El perfil de ${displayName} queda pendiente y lo podés vincular después`}
+            />
+          </>
+        )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -290,42 +299,24 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxl,
-    paddingBottom: spacing.xl,
-    justifyContent: 'space-between',
-    gap: spacing.xxl,
+    paddingBottom: spacing.lg,
   },
   content: {
     gap: spacing.lg,
-  },
-  createdPill: {
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    maxWidth: '100%',
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: radius.pill,
-    backgroundColor: colors.successSoft,
-  },
-  createdText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.successText,
-    flexShrink: 1,
   },
   iconCircle: {
     alignSelf: 'center',
     width: 92,
     height: 92,
     borderRadius: radius.pill,
-    backgroundColor: colors.successSoft,
+    // Verde lima del Figma, más saturado que el de las tarjetas.
+    backgroundColor: colors.successStrongSoft,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: spacing.sm,
   },
   iconCircleLinked: {
-    backgroundColor: colors.successSoft,
+    backgroundColor: colors.successStrongSoft,
   },
   title: {
     ...typography.display,
@@ -344,12 +335,26 @@ const styles = StyleSheet.create({
     minHeight: 88,
     backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: colors.borderStrong,
+    borderColor: colors.border,
     borderRadius: radius.lg,
     paddingVertical: spacing.xl,
-    paddingHorizontal: spacing.lg,
+    // Lugar para el ícono de compartir a la derecha sin descentrar el código.
+    paddingHorizontal: 48,
     marginTop: spacing.sm,
     ...shadow.card,
+  },
+  shareSlot: {
+    position: 'absolute',
+    right: spacing.sm,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  notice: {
+    ...typography.caption,
+    color: colors.successText,
+    textAlign: 'center',
+    marginTop: -spacing.sm,
   },
   codeText: {
     fontSize: 36,
@@ -369,7 +374,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: colors.borderStrong,
+    borderColor: colors.border,
     borderRadius: radius.lg,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.xl,
@@ -383,6 +388,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  infoIconText: {
+    fontSize: 20,
+    lineHeight: 24,
+    fontWeight: '700',
+    color: colors.warningText,
+  },
   infoTitle: {
     fontSize: 15,
     fontWeight: '700',
@@ -394,7 +405,11 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginTop: 2,
   },
-  buttons: {
+  footer: {
     gap: spacing.md,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
+    backgroundColor: colors.background,
   },
 });
