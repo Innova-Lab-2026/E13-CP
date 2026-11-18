@@ -228,9 +228,8 @@ export const loginResponsible = async (req: Request, res: Response) => {
  * El PIN se cifra con bcrypt y nunca se devuelve ni se almacena en texto plano.
  * Solo puede existir un PIN activo por responsable: el nuevo sobrescribe al anterior.
  *
- * Para reemplazar un PIN existente se puede enviar `currentPin`, que se verifica.
- * En las cuentas creadas con Google es obligatorio: ahí el PIN es lo único que
- * confirma la eliminación de la cuenta, así que no se puede pisar solo con la sesión.
+ * Para reemplazar un PIN existente hay que enviar `currentPin`, que se verifica,
+ * en todas las cuentas (con contraseña o con Google): la sesión sola no alcanza.
  */
 export const updateMyPin = async (req: AuthRequest, res: Response) => {
   try {
@@ -249,24 +248,25 @@ export const updateMyPin = async (req: AuthRequest, res: Response) => {
     }
 
     if (responsible.pinHash) {
-      if (currentPin === undefined && !responsible.passwordHash) {
+      // La sesión sola no alcanza para pisar el PIN: en la vinculación clásica el
+      // celular del menor tiene la sesión del adulto, y con un PIN nuevo podría
+      // pausar la protección o salir del modo protegido.
+      if (currentPin === undefined) {
         return res.status(400).json({ error: 'Ingresá tu PIN actual para cambiarlo' });
       }
 
-      if (currentPin !== undefined) {
-        if (!isValidPin(currentPin)) {
-          return res.status(400).json({
-            error: `El PIN actual debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
-          });
-        }
+      if (!isValidPin(currentPin)) {
+        return res.status(400).json({
+          error: `El PIN actual debe tener exactamente ${PIN_LENGTH} dígitos numéricos`
+        });
+      }
 
-        keepStateOnError(res);
-        const check = await checkResponsiblePin(responsible, currentPin);
-        if (!check.ok) {
-          return check.lockedMinutes > 0
-            ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
-            : res.status(401).json({ error: 'El PIN actual es incorrecto' });
-        }
+      keepStateOnError(res);
+      const check = await checkResponsiblePin(responsible, currentPin);
+      if (!check.ok) {
+        return check.lockedMinutes > 0
+          ? res.status(429).json({ error: pinLockedMessage(check.lockedMinutes) })
+          : res.status(401).json({ error: 'El PIN actual es incorrecto' });
       }
     }
 

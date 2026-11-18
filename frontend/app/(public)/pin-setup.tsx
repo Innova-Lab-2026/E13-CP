@@ -6,7 +6,7 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../src/components/AppHeader";
 import SecurityPinForm from "../../src/components/SecurityPinForm";
@@ -20,7 +20,6 @@ import { colors, spacing } from "../../src/theme";
  */
 export default function PinSetupScreen() {
   const router = useRouter();
-  const { change } = useLocalSearchParams<{ change?: string }>();
   const { session, loading } = useSession();
   // Al guardar, la sesión pasa a tener PIN: no tiene que disparar la redirección de abajo.
   const [saved, setSaved] = useState(false);
@@ -37,9 +36,16 @@ export default function PinSetupScreen() {
     return <Redirect href="/login" />;
   }
 
-  // Enlaces viejos a "/pin-setup?change=1": el cambio vive en Privacidad y seguridad.
-  if (change === "1" && session.profile.hasPin && !saved) {
-    return <Redirect href="/(main)/(tabs)/configuracion/privacidad" />;
+  // Con un PIN ya creado esta pantalla no se muestra: cambiarlo pide el PIN actual
+  // y vive en Privacidad y seguridad (también los enlaces viejos a "?change=1").
+  // En un celular protegido por la vinculación clásica, que tiene la sesión del
+  // adulto, se vuelve al modo protegido.
+  if (session.profile.hasPin && !saved) {
+    return (
+      <Redirect
+        href={session.linkedDeviceId ? "/protected" : "/(main)/(tabs)/configuracion/privacidad"}
+      />
+    );
   }
 
   const canGoBack = router.canGoBack();
