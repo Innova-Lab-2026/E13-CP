@@ -151,17 +151,11 @@ export default function EventDetail({
           ¿QUÉ SIGNIFICA ESTO?
         </Text>
         <Text style={styles.meaningText}>{meaning}</Text>
+        {/* Figma tiene un solo bloque: el consejo va como segundo párrafo, sin otro título. */}
+        {guidance ? (
+          <Text style={[styles.meaningText, styles.guidance]}>{guidance}</Text>
+        ) : null}
       </View>
-
-      {/* Segundo bloque con el mismo estilo que el de Figma. */}
-      {guidance ? (
-        <View style={styles.meaning}>
-          <Text style={styles.meaningTitle} accessibilityRole="header">
-            ¿QUÉ PODÉS HACER?
-          </Text>
-          <Text style={styles.meaningText}>{guidance}</Text>
-        </View>
-      ) : null}
 
       {onViewHistory ? (
         <View style={styles.buttons}>
@@ -298,6 +292,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: colors.text,
+  },
+  guidance: {
+    marginTop: spacing.sm,
   },
   pressed: {
     opacity: 0.7,
