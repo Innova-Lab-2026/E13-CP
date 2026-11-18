@@ -80,6 +80,7 @@ export default function AlertDetailScreen() {
             title={alert.title}
             sentence={copy.sentence}
             deviceName={alert.device}
+            deviceId={alert.deviceId}
             site={alert.site}
             dateTime={formatDetailDateTime(alert.createdAt)}
             status={copy.status}

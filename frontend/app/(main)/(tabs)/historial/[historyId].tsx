@@ -56,6 +56,7 @@ export default function HistoryDetailScreen() {
               title={event.title}
               sentence={copy.sentence}
               deviceName={event.device}
+              deviceId={event.deviceId}
               site={event.domain}
               dateTime={formatDetailDateTime(event.timestamp)}
               status={copy.status}
