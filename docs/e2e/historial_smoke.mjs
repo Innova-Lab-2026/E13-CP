@@ -130,7 +130,9 @@ await step("detalle desde historial", async () => {
   await vis(/^¿QUÉ SIGNIFICA ESTO\?$/).waitFor(T);
   await vis(/LOTBA/).waitFor(T);
   await vis(/^Acceso bloqueado$/).waitFor(T);
-  await vis(/^¿QUÉ PODÉS HACER\?$/).waitFor(T);
+  // Figma: un solo bloque; el consejo es un segundo párrafo sin título propio.
+  expect((await count(/QUÉ PODÉS HACER/)) === 0, "un solo bloque ¿QUÉ SIGNIFICA ESTO?");
+  await vis(/hablar sobre los riesgos de las apuestas online/).waitFor(T);
   expect((await count(/^Ver dispositivo$/)) === 0, "Figma tiene un solo botón");
   expect((await count(/ilegal/i)) === 0, "no debe decir ilegal");
   await shot("detalle-historial");
@@ -157,7 +159,8 @@ await step("alertas", async () => {
   await vis(/^Intento de modificación$/).waitFor(T);
   await vis(/^Sofía - Configuración protegida$/).waitFor(T);
   await vis(/^Ramiro - apostando-sitio\.com$/).waitFor(T);
-  await vis(/^Dispositivo vinculado$/).waitFor(T);
+  // Los avisos informativos (vinculado, pendiente) van al Historial, no a Mis alertas.
+  expect((await count(/^Dispositivo vinculado$/)) === 0, "sin avisos informativos en Mis alertas");
   await shot("alertas");
 });
 await step("detalle de alerta", async () => {
