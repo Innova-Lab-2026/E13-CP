@@ -6,9 +6,9 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "../../src/components/ThemedText";
 import { useNavigation, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppInput from "../../src/components/AppInput";
@@ -202,12 +202,23 @@ export default function LoginScreen() {
               disabled={isSubmitting}
             />
 
-            <Text style={styles.registerPrompt}>¿Todavía no tenés una cuenta?</Text>
-            <AppButton
-              variant="secondary"
-              title="Crear cuenta"
+          </View>
+
+          {/* Accesos secundarios, discretos debajo de las acciones del Figma. */}
+          <View style={styles.secondary}>
+            <Pressable
               onPress={() => router.push("/register")}
-            />
+              style={({ pressed }) => [styles.registerLink, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Crear cuenta"
+              accessibilityHint="Si todavía no tenés una cuenta, creala"
+              hitSlop={4}
+            >
+              <Text style={styles.registerPrompt}>
+                ¿Todavía no tenés una cuenta?{" "}
+                <Text style={styles.registerAction}>Crear cuenta</Text>
+              </Text>
+            </Pressable>
 
             <LinkWithCodeEntry onPress={() => router.push("/vincular")} />
           </View>
@@ -266,9 +277,27 @@ const styles = StyleSheet.create({
     marginTop: "auto",
     gap: spacing.lg,
   },
+  secondary: {
+    marginTop: spacing.xl,
+    gap: spacing.xs,
+  },
+  registerLink: {
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pressed: {
+    opacity: 0.7,
+  },
   registerPrompt: {
     ...typography.body,
+    fontSize: 13,
+    lineHeight: 18,
     textAlign: "center",
-    marginBottom: -spacing.sm,
+  },
+  registerAction: {
+    fontWeight: "700",
+    color: colors.text,
+    textDecorationLine: "underline",
   },
 });

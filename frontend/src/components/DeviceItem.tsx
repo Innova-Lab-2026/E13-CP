@@ -1,8 +1,12 @@
-import { Pressable, Text, View, StyleSheet } from 'react-native';
+// Fila compacta de un perfil protegido (Figma "Mis Dispositivos" y el inicio):
+// avatar de color, nombre y, a la derecha, el estado de la protección.
+import type { ComponentProps } from 'react';
+import { Pressable, View, StyleSheet } from 'react-native';
+import { Text } from './ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import type { DeviceStatus } from '../services/deviceService';
-import { colors, radius, spacing, typography } from '../theme';
-import { formatIsoDate } from '../utils/date';
+import DeviceAvatar from './DeviceAvatar';
+import { colors, radius, shadow, spacing } from '../theme';
 
 /**
  * Estados que devuelve el servicio de dispositivos.
@@ -15,46 +19,49 @@ export type { DeviceStatus } from '../services/deviceService';
 interface DeviceItemProps {
   name: string;
   status: DeviceStatus;
-  /** AAAA-MM-DD (formato del backend) o un texto ya formateado. */
+  /** Id del perfil: fija el color del avatar. Si falta se usa el nombre. */
+  deviceId?: string;
+  /** Ya no se muestra en la fila (Figma); se acepta para no romper llamadas viejas. */
   birthDate?: string;
   statusText?: string;
   onPress?: () => void;
 }
 
-const STATUS_CONFIG: Record<
+type IconName = ComponentProps<typeof Ionicons>['name'];
+
+export const DEVICE_STATUS_CONFIG: Record<
   DeviceStatus,
-  { label: string; badge: string; text: string; avatar: string }
+  { label: string; icon: IconName; iconColor: string; text: string }
 > = {
   active: {
     label: 'Protección activa',
-    badge: colors.successSoft,
+    icon: 'checkmark-circle-outline',
+    iconColor: colors.success,
     text: colors.successText,
-    avatar: colors.brandSoft,
   },
   pending: {
     label: 'Pendiente de vinculación',
-    badge: colors.warningSoft,
+    icon: 'alert-circle-outline',
+    iconColor: colors.warning,
     text: colors.warningText,
-    avatar: colors.surfaceMuted,
   },
   disabled: {
     label: 'Protección pausada',
-    badge: colors.dangerSoft,
+    icon: 'pause-circle-outline',
+    iconColor: colors.danger,
     text: colors.dangerText,
-    avatar: colors.dangerSoft,
   },
 };
 
 export default function DeviceItem({
   name,
   status,
-  birthDate,
+  deviceId,
   statusText,
   onPress,
 }: DeviceItemProps) {
-  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
+  const config = DEVICE_STATUS_CONFIG[status] ?? DEVICE_STATUS_CONFIG.pending;
   const label = statusText || config.label;
-  const formattedBirthDate = birthDate ? formatIsoDate(birthDate) : undefined;
 
   return (
     <Pressable
@@ -65,27 +72,20 @@ export default function DeviceItem({
       accessibilityLabel={`${name}. ${label}`}
       accessibilityHint={onPress ? 'Abre el detalle del dispositivo' : undefined}
     >
-      <View style={styles.leftContainer}>
-        <View style={[styles.avatar, { backgroundColor: config.avatar }]}>
-          <Text style={styles.avatarText}>{name.trim().charAt(0).toUpperCase() || '?'}</Text>
-        </View>
+      <DeviceAvatar seed={deviceId || name} />
 
-        <View style={styles.infoContainer}>
-          <Text style={styles.name} numberOfLines={1}>
-            {name}
-          </Text>
-          {formattedBirthDate ? (
-            <Text style={styles.birthDate}>Nacimiento: {formattedBirthDate}</Text>
-          ) : null}
-          <View style={[styles.statusBadge, { backgroundColor: config.badge }]}>
-            <Text style={[styles.statusText, { color: config.text }]}>{label}</Text>
-          </View>
-        </View>
+      <Text style={styles.name} numberOfLines={1}>
+        {name}
+      </Text>
+
+      <View style={styles.status}>
+        <Ionicons name={config.icon} size={15} color={config.iconColor} />
+        <Text style={[styles.statusText, { color: config.text }]} numberOfLines={1}>
+          {label}
+        </Text>
       </View>
 
-      {onPress ? (
-        <Ionicons name="chevron-forward" size={20} color={colors.textSubtle} />
-      ) : null}
+      {onPress ? <Ionicons name="chevron-forward" size={16} color={colors.text} /> : null}
     </Pressable>
   );
 }
@@ -94,56 +94,38 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surface,
+    gap: spacing.sm,
+    minHeight: 56,
+    backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     marginBottom: spacing.md,
+    ...shadow.card,
   },
   pressed: {
     opacity: 0.8,
   },
-  leftContainer: {
-    flex: 1,
+  name: {
+    flexShrink: 1,
+    flexGrow: 1,
+    minWidth: 48,
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.text,
+    marginLeft: spacing.xs,
+  },
+  status: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.pill,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  infoContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: 2,
-  },
-  name: {
-    ...typography.subtitle,
-  },
-  birthDate: {
-    ...typography.caption,
-    marginBottom: 2,
-  },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: radius.pill,
+    gap: 4,
+    flexShrink: 1,
   },
   statusText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '500',
+    flexShrink: 1,
   },
 });

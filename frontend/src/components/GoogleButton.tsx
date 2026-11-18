@@ -1,5 +1,5 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./ThemedText";
 import { useGoogleLoginEnabled } from "../services/googleAuth";
 import { colors, radius, spacing, typography } from "../theme";
 
@@ -12,9 +12,9 @@ type GoogleButtonProps = {
 };
 
 /**
- * Botón "Continuar con Google". Solo aparece si el servidor tiene configurado el
- * ingreso con Google; mientras lo consulta ocupa el mismo lugar para que la
- * pantalla no salte.
+ * Botón "Continuar con Google" con la G a color, como en el Figma. Solo aparece
+ * si el servidor tiene configurado el ingreso con Google; mientras lo consulta
+ * se muestra el mismo botón deshabilitado, así la pantalla no queda con un hueco.
  */
 export default function GoogleButton({
   onPress,
@@ -26,28 +26,22 @@ export default function GoogleButton({
 
   if (enabled === false) return null;
 
-  const separator = withSeparator ? (
-    <View style={styles.separator}>
-      <View style={styles.separatorLine} />
-      <Text style={styles.separatorText}>o</Text>
-      <View style={styles.separatorLine} />
-    </View>
-  ) : null;
-
-  if (enabled === null) {
-    return (
-      <>
-        {separator}
-        <View style={styles.placeholder} accessibilityElementsHidden />
-      </>
-    );
-  }
-
-  const isDisabled = disabled || loading;
+  const checking = enabled === null;
+  const isDisabled = checking || disabled || loading;
 
   return (
     <>
-      {separator}
+      {withSeparator ? (
+        <View
+          style={styles.separator}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          <View style={styles.separatorLine} />
+          <Text style={styles.separatorText}>o</Text>
+          <View style={styles.separatorLine} />
+        </View>
+      ) : null}
       <Pressable
         style={({ pressed }) => [
           styles.button,
@@ -58,13 +52,21 @@ export default function GoogleButton({
         disabled={isDisabled}
         accessibilityRole="button"
         accessibilityLabel="Continuar con Google"
-        accessibilityState={{ disabled: isDisabled, busy: loading }}
+        accessibilityHint={
+          checking ? "Estamos revisando si el ingreso con Google está disponible" : undefined
+        }
+        accessibilityState={{ disabled: isDisabled, busy: loading || checking }}
       >
         {loading ? (
           <ActivityIndicator color={colors.text} />
         ) : (
           <>
-            <Ionicons name="logo-google" size={20} color={colors.text} />
+            <Image
+              source={require("../../assets/google-g.png")}
+              style={styles.logo}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+            />
             <Text style={styles.text}>Continuar con Google</Text>
           </>
         )}
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
   separator: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
+    gap: spacing.lg,
   },
   separatorLine: {
     flex: 1,
@@ -86,6 +88,9 @@ const styles = StyleSheet.create({
   },
   separatorText: {
     ...typography.caption,
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.textMuted,
   },
   button: {
     minHeight: 48,
@@ -96,10 +101,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.sm,
+    gap: spacing.md,
+    paddingHorizontal: spacing.xxl,
   },
-  placeholder: {
-    minHeight: 48,
+  logo: {
+    width: 22,
+    height: 22,
   },
   pressed: {
     opacity: 0.85,

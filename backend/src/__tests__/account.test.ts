@@ -37,6 +37,38 @@ describe('Perfil: hasPin', () => {
   });
 });
 
+describe('PATCH /api/auth/pin con un PIN existente', () => {
+  test('en una cuenta con contraseña exige el PIN actual: la sesión sola no alcanza', async () => {
+    const token = await registerAdult();
+    await request(app).patch('/api/auth/pin').set('Authorization', `Bearer ${token}`).send({ pin: '4829' });
+
+    const withoutCurrent = await request(app)
+      .patch('/api/auth/pin')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ pin: '3917' });
+    expect(withoutCurrent.status).toBe(400);
+
+    const wrongCurrent = await request(app)
+      .patch('/api/auth/pin')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ pin: '3917', currentPin: '0000' });
+    expect(wrongCurrent.status).toBe(401);
+
+    // El PIN viejo sigue valiendo y el inventado no.
+    const stillOld = await request(app)
+      .post('/api/auth/pin/verify')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ pin: '4829' });
+    expect(stillOld.status).toBe(200);
+
+    const ok = await request(app)
+      .patch('/api/auth/pin')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ pin: '3917', currentPin: '4829' });
+    expect(ok.status).toBe(200);
+  });
+});
+
 describe('POST /api/auth/pin/verify', () => {
   test('responde 200 con el PIN correcto y 401 con uno incorrecto', async () => {
     const token = await registerAdult();

@@ -6,9 +6,9 @@ export default function OnboardingScreen() {
     <OnboardingSlide
       background={require("../../assets/onboarding-bg-00.png")}
       title="Protegé a tu familia de las apuestas online"
-      description="Con esta aplicación podés bloquear páginas de apuestas online en el celular de tus hijos para acompañar y cuidar a tu familia en el mundo digital."
+      description="En esta aplicación podés bloquear páginas de apuestas online en el dispositivo para acompañar y proteger a tu familia en el mundo digital."
       step={0}
-      total={2}
+      total={3}
       onSkip={() => router.replace("/login")}
       onContinue={() => router.push("/onboarding2")}
     />

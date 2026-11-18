@@ -1,69 +1,69 @@
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
-  Linking,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
+import { Text, TextInput } from "../../../../src/components/ThemedText";
+import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import AppHeader from "../../../../src/components/AppHeader";
 import AppButton from "../../../../src/components/AppButton";
 import AppAlert from "../../../../src/components/AppAlert";
+import {
+  FEEDBACK_MAX_LENGTH,
+  FEEDBACK_MIN_LENGTH,
+  sendFeedback,
+} from "../../../../src/services/feedbackService";
+import { errorMessage } from "../../../../src/services/api";
 import { colors, radius, spacing, typography } from "../../../../src/theme";
 
-/**
- * Casilla que recibe los comentarios. Se define al compilar con
- * EXPO_PUBLIC_FEEDBACK_EMAIL; si falta, la pantalla avisa que el envío llega pronto.
- */
-const FEEDBACK_EMAIL = (process.env.EXPO_PUBLIC_FEEDBACK_EMAIL ?? "").trim();
-
-const TOPICS = ["Una idea", "Algo no funciona", "Una duda", "Otro tema"] as const;
-type Topic = (typeof TOPICS)[number];
-
-const MAX_LENGTH = 1000;
-
+/** "Ayudanos a mejorar": la opinión se envía desde la app (POST /api/feedback). */
 export default function MejorarScreen() {
-  const [topic, setTopic] = useState<Topic>(TOPICS[0]);
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const [messageError, setMessageError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ message: string; variant: "info" | "error" } | null>(null);
-  const [opening, setOpening] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(main)/(tabs)/configuracion");
+    }
+  };
 
   const handleSend = async () => {
-    if (!FEEDBACK_EMAIL) return;
+    if (sending) return;
     const text = message.trim();
-    if (text.length < 10) {
-      setMessageError("Contanos un poco más: escribí al menos 10 caracteres.");
+    setSubmitError(null);
+    setSent(false);
+    if (!text) {
+      setMessageError("Por favor, contanos cómo podríamos mejorar.");
+      return;
+    }
+    if (Array.from(text).length < FEEDBACK_MIN_LENGTH) {
+      setMessageError(`Escribí al menos ${FEEDBACK_MIN_LENGTH} caracteres.`);
       return;
     }
     setMessageError(null);
-    setResult(null);
-    setOpening(true);
-
-    const subject = `BA Protege+ · ${topic}`;
-    const url = `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
-
+    setSending(true);
     try {
-      await Linking.openURL(url);
-      setResult({
-        message:
-          "Abrimos tu app de correo con el mensaje listo. Revisalo y envialo desde ahí. Gracias por ayudarnos.",
-        variant: "info",
-      });
-    } catch {
-      setResult({
-        message: `No encontramos una app de correo en este dispositivo. Podés escribirnos a ${FEEDBACK_EMAIL}.`,
-        variant: "error",
-      });
+      await sendFeedback(text);
+      setMessage("");
+      setSent(true);
+    } catch (error) {
+      setSubmitError(
+        errorMessage(error, "No pudimos enviar tu opinión. Revisá tu conexión e intentá de nuevo."),
+      );
     } finally {
-      setOpening(false);
+      setSending(false);
     }
   };
 
@@ -79,80 +79,49 @@ export default function MejorarScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <AppHeader title="Ayudanos a mejorar" />
+          <AppHeader title="Ayudanos a mejorar" onBackPress={goBack} />
 
-          <Text style={styles.intro}>
-            BA Protege+ es un prototipo y tu opinión nos ayuda a mejorarlo. Contanos qué te sirvió,
-            qué te costó o qué te gustaría que haga.
-            {FEEDBACK_EMAIL
-              ? " Cuando toques «Preparar correo» se abre tu app de correo con el mensaje armado: nada se envía hasta que lo mandes vos."
-              : ""}
-          </Text>
+          <Text style={styles.intro}>Tu opinión nos ayuda a mejorar BA Protege+</Text>
 
-          {!FEEDBACK_EMAIL ? (
-            <AppAlert
-              variant="info"
-              message="Pronto vas a poder enviarnos tus comentarios desde acá."
-            />
-          ) : (
-          <>
-          <View style={styles.card}>
-            <Text style={styles.label}>¿Sobre qué nos querés contar?</Text>
-            <View style={styles.chips} accessibilityRole="radiogroup">
-              {TOPICS.map((item) => {
-                const selected = item === topic;
-                return (
-                  <Pressable
-                    key={item}
-                    onPress={() => setTopic(item)}
-                    style={[styles.chip, selected && styles.chipSelected]}
-                    accessibilityRole="radio"
-                    accessibilityLabel={item}
-                    accessibilityState={{ checked: selected, selected }}
-                    hitSlop={{ top: 4, bottom: 4 }}
-                  >
-                    <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                      {item}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Text style={styles.label}>Tu comentario</Text>
+          <View style={styles.field}>
+            <Text style={styles.label}>¿Cómo podríamos mejorar?</Text>
             <TextInput
-              style={[styles.textArea, messageError ? styles.textAreaError : null]}
-              placeholder="Escribí tu comentario acá"
+              style={[styles.input, messageError ? styles.inputError : null]}
+              placeholder="Escribí tu opinión"
               placeholderTextColor={colors.textSubtle}
               value={message}
               onChangeText={(value) => {
                 setMessage(value);
                 setMessageError(null);
+                setSent(false);
               }}
               multiline
-              maxLength={MAX_LENGTH}
+              maxLength={FEEDBACK_MAX_LENGTH}
               textAlignVertical="top"
-              accessibilityLabel="Tu comentario"
+              editable={!sending}
+              accessibilityLabel="¿Cómo podríamos mejorar?"
             />
-            <View style={styles.counterRow}>
-              {messageError ? <Text style={styles.error}>{messageError}</Text> : <View />}
-              <Text style={styles.counter}>
-                {message.length}/{MAX_LENGTH}
+            {messageError ? (
+              <Text style={styles.error} accessibilityLiveRegion="polite">
+                {messageError}
               </Text>
-            </View>
-
+            ) : null}
             <Text style={styles.hint}>
-              No incluyas datos personales de tus hijos o hijas en el comentario.
+              No incluyas datos personales de tus hijos o hijas.
             </Text>
           </View>
 
-          {result ? <AppAlert message={result.message} variant={result.variant} /> : null}
+          {sent ? (
+            <AppAlert
+              variant="success"
+              message="¡Gracias! Recibimos tu opinión y la vamos a tener en cuenta."
+            />
+          ) : null}
+          {submitError ? <AppAlert variant="error" message={submitError} /> : null}
 
           <View style={styles.actions}>
-            <AppButton title="Preparar correo" onPress={handleSend} loading={opening} />
+            <AppButton title="Enviar opinión" onPress={handleSend} loading={sending} />
           </View>
-          </>
-          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -165,90 +134,54 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.backgroundWarm,
   },
   container: {
     flexGrow: 1,
     padding: spacing.xl,
-    paddingBottom: spacing.xxxl,
+    paddingBottom: spacing.xxl,
   },
   intro: {
-    ...typography.body,
-    marginBottom: spacing.lg,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.text,
+    textAlign: "center",
+    marginTop: spacing.xxxl,
+    marginBottom: spacing.xxl,
   },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xl,
-    gap: spacing.md,
+  field: {
+    gap: spacing.sm,
     marginBottom: spacing.md,
   },
   label: {
-    ...typography.label,
     fontSize: 15,
+    color: colors.text,
   },
-  chips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  chip: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.pill,
+  input: {
+    minHeight: 52,
+    maxHeight: 200,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.background,
-    minHeight: 44,
-    justifyContent: "center",
-  },
-  chipSelected: {
-    backgroundColor: colors.brand,
-    borderColor: colors.brand,
-  },
-  chipText: {
-    fontSize: 14,
-    color: colors.textMuted,
-    fontWeight: "600",
-  },
-  chipTextSelected: {
-    color: colors.onBrand,
-  },
-  textArea: {
-    minHeight: 140,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
+    backgroundColor: colors.field,
     borderRadius: radius.md,
-    padding: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     fontSize: 16,
     color: colors.text,
   },
-  textAreaError: {
+  inputError: {
     borderColor: colors.danger,
   },
-  counterRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: spacing.sm,
-  },
   error: {
-    flex: 1,
     color: colors.danger,
     fontSize: 13,
-  },
-  counter: {
-    ...typography.caption,
   },
   hint: {
     ...typography.caption,
     color: colors.textMuted,
   },
   actions: {
-    marginTop: spacing.sm,
+    marginTop: "auto",
+    paddingTop: spacing.lg,
   },
 });

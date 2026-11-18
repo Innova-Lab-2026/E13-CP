@@ -1,15 +1,17 @@
-import { View, StyleSheet, ScrollView, Text } from 'react-native';
+// "Mis Dispositivos" (Figma "Mis Dispositivos - Responsable"): filas compactas
+// con el estado a la derecha y el botón punteado para agregar otro perfil.
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { Text } from '../../../../src/components/ThemedText';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import AppHeader from '../../../../src/components/AppHeader';
 import DeviceItem from '../../../../src/components/DeviceItem';
 import AddDeviceButton from '../../../../src/components/AddDeviceButton';
 import ScreenState from '../../../../src/components/ScreenState';
 import { useAsyncResource } from '../../../../src/hooks/useAsyncResource';
 import { getDevices } from '../../../../src/services/deviceService';
-import { colors, spacing, typography } from '../../../../src/theme';
+import { colors, spacing } from '../../../../src/theme';
 
 export default function DevicesScreen() {
   const router = useRouter();
@@ -28,10 +30,19 @@ export default function DevicesScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar style="dark" />
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <AppHeader title="Mis dispositivos" hideBack />
-        <Text style={styles.subtitle}>
-          Acá ves cada perfil que cuidás y el estado de su protección.
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading && devices !== undefined}
+            onRefresh={reload}
+            tintColor={colors.text}
+          />
+        }
+      >
+        <Text style={styles.title} accessibilityRole="header">
+          Mis Dispositivos
         </Text>
 
         {showState ? (
@@ -49,9 +60,9 @@ export default function DevicesScreen() {
           {devices?.map((device) => (
             <DeviceItem
               key={device.id}
+              deviceId={device.id}
               name={device.name}
               status={device.status}
-              birthDate={device.birthDate}
               onPress={() =>
                 router.push({
                   pathname: '/(main)/(tabs)/dispositivos/[deviceId]',
@@ -75,16 +86,19 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
   },
-  subtitle: {
-    ...typography.body,
-    marginTop: -spacing.sm,
+  title: {
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: '700',
+    color: colors.text,
     marginBottom: spacing.lg,
+    marginLeft: spacing.xs,
   },
   list: {
     width: '100%',
-    marginTop: spacing.sm,
   },
 });

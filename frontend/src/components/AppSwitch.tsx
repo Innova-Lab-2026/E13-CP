@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./ThemedText";
 import { colors, radius, shadow, spacing, typography } from "../theme";
 
 interface AppSwitchProps {

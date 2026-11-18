@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
+import { Text } from "../src/components/ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppButton from "../src/components/AppButton";
 import { colors, radius, spacing, typography } from "../src/theme";

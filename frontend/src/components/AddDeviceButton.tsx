@@ -1,6 +1,7 @@
-// Botón con borde punteado "+ Añadir dispositivo" que aparece debajo de la lista
-// de dispositivos, en Mis dispositivos y en el inicio.
-import { Pressable, Text, StyleSheet } from 'react-native';
+// Botón con borde punteado "+ Agregar dispositivo" que aparece debajo de la lista
+// de dispositivos, en Mis dispositivos y en el inicio (Figma).
+import { Pressable, StyleSheet } from 'react-native';
+import { Text } from './ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme';
 
@@ -27,22 +28,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 48,
     borderWidth: 1.5,
     borderColor: colors.borderStrong,
     borderStyle: 'dashed',
-    borderRadius: radius.lg,
-    paddingVertical: spacing.lg,
-    backgroundColor: colors.backgroundWarm,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    marginHorizontal: spacing.xs,
     marginTop: spacing.xs,
     marginBottom: spacing.lg,
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   pressed: {
     backgroundColor: colors.brandSoft,
   },
   text: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '500',
     color: colors.text,
   },
 });

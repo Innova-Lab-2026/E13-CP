@@ -13,6 +13,8 @@ export default function PublicLayout() {
       {/* Celular del menor: vincular con un código y aviso de desvinculado. */}
       <Stack.Screen name="vincular" />
       <Stack.Screen name="desvinculado" />
+      {/* Confirmación después de eliminar la cuenta (cierra la sesión local). */}
+      <Stack.Screen name="cuenta-eliminada" />
       {/* Vuelta del ingreso con Google. */}
       <Stack.Screen name="auth/google" />
     </Stack>

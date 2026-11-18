@@ -1,9 +1,9 @@
 import {
   ActivityIndicator,
   Pressable,
-  Text,
   StyleSheet,
 } from "react-native";
+import { Text } from "./ThemedText";
 import { colors, radius } from "../theme";
 
 type AppButtonProps = {

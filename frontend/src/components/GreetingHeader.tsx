@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "./ThemedText";
 import { colors, spacing, typography } from "../theme";
 
 interface GreetingHeaderProps {
@@ -7,15 +8,16 @@ interface GreetingHeaderProps {
   showStatusDot?: boolean;
 }
 
+/** Saludo del inicio (Figma "Dashboard Responsable"): "Hola, Claudia" grande y una línea abajo. */
 export default function GreetingHeader({
   name,
-  subtitle = "Qué bueno tenerte de vuelta.",
+  subtitle = "¡Qué bueno tenerte de vuelta!",
   showStatusDot = false,
 }: GreetingHeaderProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.greeting} accessibilityRole="header">
-        Hola, {name}
+        {name ? `Hola, ${name}` : "Hola"}
       </Text>
 
       <View style={styles.subtitleRow}>
@@ -30,12 +32,13 @@ export default function GreetingHeader({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   greeting: {
     ...typography.display,
-    fontSize: 24,
-    marginBottom: 2,
+    fontSize: 32,
+    lineHeight: 40,
+    fontWeight: "700",
   },
   subtitleRow: {
     flexDirection: "row",
@@ -49,7 +52,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.success,
   },
   subtitleText: {
-    ...typography.body,
+    fontSize: 15,
+    lineHeight: 21,
+    color: colors.text,
   },
   statusText: {
     fontSize: 13,

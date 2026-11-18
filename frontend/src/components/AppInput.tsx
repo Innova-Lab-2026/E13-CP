@@ -1,11 +1,10 @@
 import { useState } from "react";
 import {
   View,
-  Text,
-  TextInput,
   Pressable,
   StyleSheet,
 } from "react-native";
+import { Text, TextInput } from "./ThemedText";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, radius } from "../theme";
 
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.field,
     borderRadius: radius.md,
     paddingLeft: 14,
     paddingRight: 12,

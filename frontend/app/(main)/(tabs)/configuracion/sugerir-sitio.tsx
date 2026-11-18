@@ -5,35 +5,58 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
+  type TextInputProps,
 } from "react-native";
+import { Text, TextInput } from "../../../../src/components/ThemedText";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import AppHeader from "../../../../src/components/AppHeader";
-import AppInput from "../../../../src/components/AppInput";
 import AppButton from "../../../../src/components/AppButton";
 import AppAlert from "../../../../src/components/AppAlert";
 import {
   suggestSite,
   SUGGESTION_INFO_MAX_LENGTH,
-  SUGGESTION_REASONS,
-  type SuggestionReason,
+  SUGGESTION_REASON_TEXT_MAX_LENGTH,
 } from "../../../../src/services/blocklistService";
 import { errorMessage } from "../../../../src/services/api";
-import { colors, radius, shadow, spacing, typography } from "../../../../src/theme";
+import { colors, radius, spacing } from "../../../../src/theme";
 
-/** Sugerir un sitio: la persona adulta propone un sitio para que se revise con LOTBA. */
+type FieldProps = TextInputProps & {
+  label: string;
+  error?: string;
+};
+
+/** Campo suelto sobre el fondo, como en "Sugerencia de sitio" del Figma. */
+function Field({ label, error, style, ...inputProps }: FieldProps) {
+  return (
+    <View style={styles.field}>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        placeholderTextColor={colors.textSubtle}
+        accessibilityLabel={label}
+        {...inputProps}
+        style={[styles.input, inputProps.multiline && styles.inputMultiline, error ? styles.inputError : null, style]}
+      />
+      {error ? (
+        <Text style={styles.error} accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+/** Sugerir un sitio: la persona adulta propone un sitio para que LOTBA lo evalúe. */
 export default function SugerirSitioScreen() {
   const router = useRouter();
 
   const [url, setUrl] = useState("");
   const [urlError, setUrlError] = useState("");
-  const [motivo, setMotivo] = useState<SuggestionReason | null>(null);
+  const [motivo, setMotivo] = useState("");
   const [motivoError, setMotivoError] = useState("");
   const [info, setInfo] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -54,21 +77,29 @@ export default function SugerirSitioScreen() {
 
     // Acá solo se pide que no esté vacía: el backend valida la dirección y acepta
     // también dominios con tildes o eñes (los pasa a punycode). Su 400 se muestra abajo.
+    const cleanUrl = url.trim();
+    const cleanMotivo = motivo.trim();
     let valid = true;
-    if (!url.trim()) {
+    if (!cleanUrl || /^https?:\/\/$/i.test(cleanUrl)) {
       setUrlError("Por favor, ingresá la URL del sitio.");
       valid = false;
     }
-    if (!motivo) {
-      setMotivoError("Por favor, seleccioná el motivo.");
+    if (!cleanMotivo) {
+      setMotivoError("Por favor, contanos por qué querés denunciarlo.");
       valid = false;
     }
-    if (!valid || !motivo) return;
+    if (!valid) return;
 
     setSending(true);
     try {
       const extra = info.trim();
-      await suggestSite({ url: url.trim(), motivo, ...(extra ? { info: extra } : null) });
+      // "otro" acompaña al texto para que un backend anterior al motivo libre también lo acepte.
+      await suggestSite({
+        url: cleanUrl,
+        motivo: "otro",
+        motivoTexto: cleanMotivo,
+        ...(extra ? { info: extra } : null),
+      });
       setSent(true);
     } catch (error) {
       setSubmitError(
@@ -83,16 +114,34 @@ export default function SugerirSitioScreen() {
     return (
       <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         <StatusBar style="dark" />
-        <ScrollView contentContainerStyle={[styles.container, styles.centered]}>
-          <View style={styles.successIcon}>
-            <Ionicons name="checkmark-circle" size={56} color={colors.successText} />
+        <View style={styles.successTop}>
+          <Pressable
+            onPress={goBack}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar"
+            hitSlop={12}
+            style={styles.closeButton}
+          >
+            <Ionicons name="close" size={26} color={colors.text} />
+          </Pressable>
+        </View>
+        <ScrollView contentContainerStyle={styles.successContainer}>
+          <View
+            style={styles.successIcon}
+            accessibilityElementsHidden
+            importantForAccessibility="no"
+          >
+            {/* Trazo grueso, como el check del Figma. */}
+            <MaterialCommunityIcons name="check-circle-outline" size={68} color={colors.success} />
           </View>
-          <Text style={styles.successTitle} accessibilityRole="header">
-            ¡Sugerencia enviada!
-          </Text>
-          <Text style={styles.successText}>Gracias. La revisamos con LOTBA.</Text>
-          <View style={styles.fullWidth}>
-            <AppButton title="Volver" onPress={goBack} />
+          <View style={styles.successBody}>
+            <Text style={styles.successTitle} accessibilityRole="header">
+              ¡Sugerencia enviada!
+            </Text>
+            <Text style={styles.successText}>
+              Gracias por ayudarnos a detectar sitios de apuestas ilegales. LOTBA evaluará la
+              información proporcionada.
+            </Text>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -114,71 +163,46 @@ export default function SugerirSitioScreen() {
           <AppHeader title="¿Querés sugerir un sitio?" onBackPress={goBack} />
           <Text style={styles.intro}>Compartinos la dirección y la evaluaremos</Text>
 
-          <View style={styles.card}>
-            <AppInput
-              label="URL del sitio"
-              placeholder="sitio.com.ar"
-              value={url}
-              onChangeText={(text) => {
-                setUrl(text);
-                setUrlError("");
-              }}
-              keyboardType="url"
-              autoCorrect={false}
-              error={urlError}
-              editable={!sending}
-            />
+          <Field
+            label="URL del sitio"
+            placeholder="http://"
+            value={url}
+            onChangeText={(text) => {
+              setUrl(text);
+              setUrlError("");
+            }}
+            keyboardType="url"
+            autoCapitalize="none"
+            autoCorrect={false}
+            error={urlError}
+            editable={!sending}
+          />
 
-            <Text style={styles.label}>¿Por qué querés denunciarlo?</Text>
-            <View style={styles.options} accessibilityRole="radiogroup">
-              {SUGGESTION_REASONS.map((reason) => {
-                const selected = motivo === reason.value;
-                return (
-                  <Pressable
-                    key={reason.value}
-                    onPress={() => {
-                      setMotivo(reason.value);
-                      setMotivoError("");
-                    }}
-                    disabled={sending}
-                    style={({ pressed }) => [
-                      styles.option,
-                      selected && styles.optionSelected,
-                      pressed && styles.optionPressed,
-                    ]}
-                    accessibilityRole="radio"
-                    accessibilityLabel={reason.label}
-                    accessibilityState={{ checked: selected, disabled: sending }}
-                  >
-                    <Text style={styles.optionText}>{reason.label}</Text>
-                    <Ionicons
-                      name={selected ? "radio-button-on" : "radio-button-off"}
-                      size={22}
-                      color={selected ? colors.text : colors.borderStrong}
-                    />
-                  </Pressable>
-                );
-              })}
-            </View>
-            {motivoError ? <Text style={styles.error}>{motivoError}</Text> : null}
+          <Field
+            label="¿Por qué querés denunciarlo?"
+            placeholder="Escribí un motivo"
+            value={motivo}
+            onChangeText={(text) => {
+              setMotivo(text);
+              setMotivoError("");
+            }}
+            multiline
+            maxLength={SUGGESTION_REASON_TEXT_MAX_LENGTH}
+            textAlignVertical="top"
+            error={motivoError}
+            editable={!sending}
+          />
 
-            <Text style={[styles.label, styles.infoLabel]}>Información adicional</Text>
-            <TextInput
-              style={styles.textArea}
-              placeholder="Opcional: contanos dónde lo viste o qué ofrece"
-              placeholderTextColor={colors.textSubtle}
-              value={info}
-              onChangeText={setInfo}
-              multiline
-              maxLength={SUGGESTION_INFO_MAX_LENGTH}
-              textAlignVertical="top"
-              editable={!sending}
-              accessibilityLabel="Información adicional"
-            />
-            <Text style={styles.counter}>
-              {info.length}/{SUGGESTION_INFO_MAX_LENGTH}
-            </Text>
-          </View>
+          <Field
+            label="Información adicional"
+            placeholder="Contanos algo más sobre el sitio"
+            value={info}
+            onChangeText={setInfo}
+            multiline
+            maxLength={SUGGESTION_INFO_MAX_LENGTH}
+            textAlignVertical="top"
+            editable={!sending}
+          />
 
           {submitError ? <AppAlert message={submitError} variant="error" /> : null}
 
@@ -197,109 +221,94 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.backgroundWarm,
   },
   container: {
     flexGrow: 1,
     padding: spacing.xl,
-    paddingBottom: spacing.xxxl,
-  },
-  centered: {
-    alignItems: "center",
-    justifyContent: "center",
+    paddingBottom: spacing.xxl,
   },
   intro: {
-    ...typography.body,
-    marginBottom: spacing.lg,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.text,
+    textAlign: "center",
+    marginTop: spacing.xxxl,
+    marginBottom: spacing.xl,
   },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xl,
-    marginBottom: spacing.md,
-    ...shadow.card,
+  field: {
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
   },
   label: {
-    ...typography.label,
     fontSize: 15,
-    marginBottom: spacing.sm,
+    fontWeight: "700",
+    color: colors.text,
   },
-  infoLabel: {
-    marginTop: spacing.lg,
-  },
-  options: {
-    gap: spacing.sm,
-  },
-  option: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: spacing.md,
-    minHeight: 48,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
+  input: {
+    minHeight: 52,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.background,
+    backgroundColor: colors.field,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    fontSize: 16,
+    color: colors.text,
   },
-  optionSelected: {
-    borderColor: colors.brand,
-    borderWidth: 2,
-    backgroundColor: colors.brandSoft,
+  inputMultiline: {
+    minHeight: 52,
+    maxHeight: 160,
   },
-  optionPressed: {
-    opacity: 0.85,
-  },
-  optionText: {
-    ...typography.label,
-    flex: 1,
+  inputError: {
+    borderColor: colors.danger,
   },
   error: {
     color: colors.danger,
     fontSize: 13,
-    marginTop: spacing.sm,
-  },
-  textArea: {
-    minHeight: 110,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    fontSize: 16,
-    color: colors.text,
-  },
-  counter: {
-    ...typography.caption,
-    textAlign: "right",
-    marginTop: spacing.xs,
   },
   actions: {
-    marginTop: spacing.sm,
+    marginTop: "auto",
+    paddingTop: spacing.lg,
+  },
+  successTop: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+  },
+  closeButton: {
+    padding: spacing.xs,
+  },
+  successContainer: {
+    flexGrow: 1,
+    alignItems: "center",
+    paddingHorizontal: spacing.xxxl,
+    paddingTop: spacing.xxxl * 2,
+    paddingBottom: spacing.xxxl,
   },
   successIcon: {
-    width: 104,
-    height: 104,
+    width: 96,
+    height: 96,
     borderRadius: radius.pill,
-    backgroundColor: colors.successSoft,
+    backgroundColor: colors.successStrongSoft,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.xxxl * 2,
+  },
+  successBody: {
+    width: "100%",
+    maxWidth: 300,
+    gap: spacing.sm,
   },
   successTitle: {
-    ...typography.display,
-    textAlign: "center",
-    marginBottom: spacing.sm,
+    fontSize: 24,
+    fontWeight: "800",
+    color: colors.text,
   },
   successText: {
-    ...typography.body,
-    textAlign: "center",
-  },
-  fullWidth: {
-    width: "100%",
-    marginTop: spacing.xxl,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.text,
   },
 });

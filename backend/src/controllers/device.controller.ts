@@ -3,6 +3,7 @@ import { db, DeviceStatus } from '../config/db';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { keepStateOnError } from '../config/persistence';
 import { setResponsiblePushToken } from '../services/push.service';
+import { recordDeviceEvent } from '../services/event.service';
 import {
   buildPendingDevice,
   checkResponsiblePin,
@@ -224,13 +225,26 @@ export const updateDeviceStatus = async (req: AuthRequest, res: Response) => {
             'Este celular se desvinculó. Para volver a protegerlo, vinculalo con el código nuevo.'
         });
       }
-      if (device.status === 'pending') {
+      const previousStatus = device.status;
+      if (previousStatus === 'pending') {
         // Se activa sin pasar por la vinculación: el código pendiente deja de servir.
         device.linkedAt = new Date().toISOString();
         consumeLinkCode(device);
       }
       device.status = normalizedStatus as DeviceStatus;
       device.lastSeen = new Date().toISOString();
+
+      // Pausar o reactivar desde la cuenta del adulto también queda en el historial,
+      // como cuando se hace desde el celular (PATCH /api/devices/me/status).
+      const paused = previousStatus === 'active' && normalizedStatus === 'inactive';
+      const resumed = previousStatus === 'inactive' && normalizedStatus === 'active';
+      if (paused || resumed) {
+        recordDeviceEvent({
+          device,
+          eventType: 'PROTECTION_MODIFIED',
+          details: paused ? 'Se pausó la protección' : 'Se reactivó la protección'
+        });
+      }
     }
 
     return res.status(200).json({

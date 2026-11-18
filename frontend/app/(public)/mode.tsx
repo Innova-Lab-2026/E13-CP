@@ -1,17 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "../../src/components/ThemedText";
 import { Redirect, useRouter, type Href } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import AppButton from "../../src/components/AppButton";
 import AppAlert from "../../src/components/AppAlert";
 import { logout, updateMyMode, type UserMode } from "../../src/services/auth";
 import { useSession } from "../../src/services/session";
@@ -22,39 +20,28 @@ type ModeOption = {
   mode: UserMode;
   title: string;
   description: string;
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
 
 const OPTIONS: ModeOption[] = [
   {
     mode: "adulto",
-    title: "Soy la persona adulta responsable",
+    title: "Soy Responsable",
     description:
-      "Gestiono los dispositivos de mi familia y recibo avisos cuando algo necesita mi atención.",
-    icon: "account-heart-outline",
+      "Supervisá los dispositivos protegidos y recibí avisos cuando algo necesita atención.",
   },
   {
     mode: "dispositivo_protegido",
     title: "Este es un dispositivo protegido",
-    description:
-      "Es el celular de mi hijo o hija. Acá se van a bloquear los sitios de apuestas online.",
-    icon: "cellphone-lock",
+    description: "Activá la protección para bloquear los sitios de apuestas online.",
   },
 ];
 
+/** Selección de modo del Figma: se avanza tocando la tarjeta, sin botón Continuar. */
 export default function ModeScreen() {
   const router = useRouter();
   const { session, loading } = useSession();
-  const [selected, setSelected] = useState<UserMode | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState<UserMode | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Si el dispositivo ya tenía un modo elegido, se muestra preseleccionado.
-  useEffect(() => {
-    if (session?.mode && selected === null) {
-      setSelected(session.mode);
-    }
-  }, [session?.mode, selected]);
 
   if (loading) {
     return (
@@ -68,15 +55,15 @@ export default function ModeScreen() {
     return <Redirect href="/login" />;
   }
 
-  async function handleContinue() {
-    if (!selected || !session || isSubmitting) return;
+  async function handleSelect(mode: UserMode) {
+    if (!session || submitting) return;
 
     setError(null);
-    setIsSubmitting(true);
+    setSubmitting(mode);
     try {
-      const profile = await updateMyMode(selected);
+      const profile = await updateMyMode(mode);
       let next: Href;
-      if (selected === "adulto") {
+      if (mode === "adulto") {
         const hasPin = profile.hasPin ?? session.profile.hasPin;
         next = hasPin ? "/(main)/(tabs)/inicio" : "/pin-setup";
       } else {
@@ -84,10 +71,8 @@ export default function ModeScreen() {
       }
       router.replace(next);
     } catch (err) {
-      setError(
-        errorMessage(err, "No pudimos guardar el modo. Intentá de nuevo."),
-      );
-      setIsSubmitting(false);
+      setError(errorMessage(err, "No pudimos guardar el modo. Intentá de nuevo."));
+      setSubmitting(null);
     }
   }
 
@@ -108,72 +93,68 @@ export default function ModeScreen() {
           />
         </View>
 
-        <View style={styles.header}>
-          <Text style={styles.title} accessibilityRole="header">
-            ¿Cómo vas a usar este celular?
-          </Text>
-          <Text style={styles.subtitle}>
-            Elegí una opción para configurar la app en este dispositivo.
-          </Text>
-        </View>
+        <Text style={styles.title} accessibilityRole="header">
+          ¿Cómo vas a utilizar BA Protege+?
+        </Text>
 
-        {error ? <AppAlert message={error} variant="error" /> : null}
+        {error ? (
+          <View style={styles.alert}>
+            <AppAlert message={error} variant="error" />
+          </View>
+        ) : null}
 
-        <View style={styles.options} accessibilityRole="radiogroup">
+        <View style={styles.options}>
           {OPTIONS.map((option) => {
-            const isSelected = selected === option.mode;
+            const isSubmitting = submitting === option.mode;
             return (
               <Pressable
                 key={option.mode}
-                onPress={() => {
-                  setSelected(option.mode);
-                  setError(null);
-                }}
-                disabled={isSubmitting}
-                accessibilityRole="radio"
+                onPress={() => handleSelect(option.mode)}
+                disabled={submitting !== null}
+                accessibilityRole="button"
                 accessibilityLabel={`${option.title}. ${option.description}`}
-                accessibilityState={{ selected: isSelected, disabled: isSubmitting }}
+                accessibilityState={{
+                  disabled: submitting !== null,
+                  busy: isSubmitting,
+                  selected: session.mode === option.mode,
+                }}
                 style={({ pressed }) => [
                   styles.card,
-                  isSelected && styles.cardSelected,
                   pressed && styles.cardPressed,
+                  submitting !== null && !isSubmitting && styles.cardDimmed,
                 ]}
               >
-                <View style={[styles.iconCircle, isSelected && styles.iconCircleSelected]}>
-                  <MaterialCommunityIcons
-                    name={option.icon}
-                    size={32}
+                <Text style={styles.cardTitle}>{option.title}</Text>
+                <Text style={styles.cardDescription}>{option.description}</Text>
+                {isSubmitting ? (
+                  <ActivityIndicator
+                    style={styles.cardSpinner}
                     color={colors.text}
+                    accessibilityLabel="Guardando"
                   />
-                </View>
-                <View style={styles.cardText}>
-                  <Text style={styles.cardTitle}>{option.title}</Text>
-                  <Text style={styles.cardDescription}>{option.description}</Text>
-                </View>
-                <MaterialCommunityIcons
-                  name={isSelected ? "radiobox-marked" : "radiobox-blank"}
-                  size={24}
-                  color={isSelected ? colors.text : colors.borderStrong}
-                />
+                ) : null}
               </Pressable>
             );
           })}
         </View>
 
-        <View style={styles.actions}>
-          <AppButton
-            title="Continuar"
-            onPress={handleContinue}
-            disabled={!selected}
-            loading={isSubmitting}
+        <View style={styles.footer}>
+          <Image
+            source={require("../../assets/logo-loteria-01.png")}
+            style={styles.loteria}
+            resizeMode="contain"
+            accessibilityLabel="Lotería de la Ciudad de Buenos Aires"
           />
-          <AppButton
-            variant="tertiary"
-            title="Usar otra cuenta"
-            accessibilityLabel="Cerrar sesión y usar otra cuenta"
+          <Pressable
             onPress={handleSwitchAccount}
-            disabled={isSubmitting}
-          />
+            disabled={submitting !== null}
+            style={({ pressed }) => [styles.switchAccount, pressed && styles.cardPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar sesión y usar otra cuenta"
+            hitSlop={4}
+          >
+            <Text style={styles.switchAccountText}>Usar otra cuenta</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -193,77 +174,85 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxxl,
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xl,
   },
   logoContainer: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 72,
   },
   logo: {
     width: 125,
     height: 55,
   },
-  header: {
-    alignItems: "center",
-    marginBottom: spacing.xxl,
-  },
   title: {
-    ...typography.display,
+    ...typography.title,
+    fontSize: 19,
+    fontWeight: "700",
     textAlign: "center",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xxxl,
   },
-  subtitle: {
-    ...typography.body,
-    textAlign: "center",
+  alert: {
+    marginBottom: spacing.lg,
   },
   options: {
-    gap: spacing.lg,
-    marginBottom: spacing.xxl,
+    gap: spacing.xxl,
   },
   card: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: spacing.lg,
-    padding: spacing.xl,
-    borderRadius: radius.xl,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxxl,
+    paddingBottom: spacing.xxxl,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     ...shadow.card,
-  },
-  cardSelected: {
-    borderColor: colors.brand,
-    borderWidth: 2,
-    backgroundColor: colors.brandSoft,
   },
   cardPressed: {
     opacity: 0.85,
   },
-  iconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surfaceMuted,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconCircleSelected: {
-    backgroundColor: colors.brand,
-  },
-  cardText: {
-    flex: 1,
-    gap: spacing.xs,
+  cardDimmed: {
+    opacity: 0.6,
   },
   cardTitle: {
-    ...typography.subtitle,
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: "600",
+    color: colors.text,
+    textAlign: "center",
+    marginBottom: spacing.md,
   },
+  // Figma: bloque chico alineado a la izquierda debajo del título centrado.
   cardDescription: {
-    ...typography.body,
     fontSize: 13,
-    lineHeight: 19,
+    lineHeight: 18,
+    color: colors.text,
+    textAlign: "left",
+    alignSelf: "stretch",
+    paddingHorizontal: spacing.lg,
   },
-  actions: {
+  cardSpinner: {
+    marginTop: spacing.md,
+  },
+  footer: {
     marginTop: "auto",
-    gap: spacing.md,
+    paddingTop: 56,
+    alignItems: "center",
+    gap: spacing.lg,
+  },
+  loteria: {
+    width: 104,
+    height: 46,
+  },
+  switchAccount: {
+    minHeight: 44,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md,
+  },
+  switchAccountText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.textMuted,
+    textDecorationLine: "underline",
   },
 });

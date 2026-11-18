@@ -149,6 +149,20 @@ export interface SiteSuggestion {
   info?: string;
   createdAt: string;
   status: 'pendiente';
+  /**
+   * Motivo escrito por el adulto ("¿Por qué querés denunciarlo?"). Las versiones
+   * nuevas de la app lo mandan como texto libre; las viejas solo mandan `motivo`.
+   */
+  motivoTexto?: string;
+}
+
+/** Opinión enviada desde "Ayudanos a mejorar" (POST /api/feedback). */
+export interface FeedbackItem {
+  id: string;
+  responsibleId: string;
+  /** Respuesta a "¿Cómo podríamos mejorar?", recortada. */
+  text: string;
+  createdAt: string;
 }
 
 /** Intentos fallidos de vinculación por código desde una misma IP (hash SHA-256). */
@@ -266,6 +280,9 @@ class Database {
 
   /** Sugerencias de sitios enviadas desde la app, pendientes de revisar con LOTBA. */
   public siteSuggestions: SiteSuggestion[] = [];
+
+  /** Opiniones de "Ayudanos a mejorar", para que el equipo las lea. */
+  public feedback: FeedbackItem[] = [];
 
   /**
    * Intentos fallidos de POST /api/devices/claim por IP. La clave es el hash

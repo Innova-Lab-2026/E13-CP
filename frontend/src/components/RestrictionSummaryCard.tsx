@@ -1,5 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+// Tarjeta resumen del detalle por dispositivo (Figma "Detalle por dispositivo"):
+// estado de la protección arriba y, debajo, métricas grandes (edad, webs
+// bloqueadas en la semana).
+import { View, StyleSheet } from 'react-native';
+import { Text } from './ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, shadow, spacing } from '../theme';
 
@@ -9,39 +12,40 @@ export interface MetricItem {
   unit?: string;
   sublabel?: string;
   isDanger?: boolean;
+  /** Texto para el lector de pantalla de esta métrica. */
+  accessibilityLabel?: string;
 }
+
+export type SummaryTone = 'success' | 'warning' | 'danger';
 
 interface RestrictionSummaryCardProps {
   statusText?: string;
+  /** Atajo viejo: true = success, false = danger. `tone` tiene prioridad. */
   isProtected?: boolean;
+  tone?: SummaryTone;
   metrics: MetricItem[];
 }
+
+const TONES = {
+  success: { color: colors.successText, icon: colors.success, name: 'checkmark-circle-outline' },
+  warning: { color: colors.warningText, icon: colors.warning, name: 'alert-circle-outline' },
+  danger: { color: colors.dangerText, icon: colors.danger, name: 'pause-circle-outline' },
+} as const;
 
 export default function RestrictionSummaryCard({
   statusText = 'Protección activa',
   isProtected = true,
+  tone,
   metrics,
 }: RestrictionSummaryCardProps) {
+  const config = TONES[tone ?? (isProtected ? 'success' : 'danger')];
+
   return (
     <View style={styles.card}>
       {statusText ? (
         <View style={styles.statusHeaderRow}>
-          <View
-            style={[
-              styles.statusIcon,
-              { backgroundColor: isProtected ? colors.successSoft : colors.dangerSoft },
-            ]}
-          >
-            <Ionicons
-              name={isProtected ? 'shield-checkmark' : 'alert-circle'}
-              size={18}
-              color={isProtected ? colors.success : colors.danger}
-            />
-          </View>
-          <Text
-            style={[styles.statusTitle, !isProtected && styles.dangerTitle]}
-            accessibilityRole="header"
-          >
+          <Ionicons name={config.name} size={24} color={config.icon} />
+          <Text style={[styles.statusTitle, { color: config.color }]} accessibilityRole="header">
             {statusText}
           </Text>
         </View>
@@ -50,25 +54,32 @@ export default function RestrictionSummaryCard({
       {metrics.length > 0 ? (
         <View style={styles.metricsRow}>
           {metrics.map((metric, index) => (
-            <React.Fragment key={`${metric.sublabel ?? metric.label ?? ''}-${index}`}>
-              {index > 0 && <View style={styles.verticalDivider} />}
-              <View style={styles.metricColumn}>
-                {metric.sublabel ? (
-                  <Text style={styles.metricSublabel}>{metric.sublabel}</Text>
-                ) : null}
+            <View
+              key={`${metric.sublabel ?? metric.label ?? ''}-${index}`}
+              style={styles.metricColumn}
+              accessible
+              accessibilityLabel={
+                metric.accessibilityLabel ??
+                [metric.sublabel, `${metric.value}${metric.unit ? ` ${metric.unit}` : ''}`, metric.label]
+                  .filter(Boolean)
+                  .join(' ')
+              }
+            >
+              {metric.sublabel ? <Text style={styles.metricSublabel}>{metric.sublabel}</Text> : null}
 
+              <View style={styles.valueRow}>
                 <Text
                   style={[styles.metricValue, metric.isDanger && styles.metricValueDanger]}
                   numberOfLines={1}
                   adjustsFontSizeToFit
                 >
                   {metric.value}
-                  {metric.unit ? <Text style={styles.metricUnit}> {metric.unit}</Text> : null}
                 </Text>
-
-                {metric.label ? <Text style={styles.metricLabel}>{metric.label}</Text> : null}
+                {metric.unit ? <Text style={styles.metricUnit}>{metric.unit}</Text> : null}
               </View>
-            </React.Fragment>
+
+              {metric.label ? <Text style={styles.metricLabel}>{metric.label}</Text> : null}
+            </View>
           ))}
         </View>
       ) : null}
@@ -78,13 +89,14 @@ export default function RestrictionSummaryCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
     borderRadius: radius.xl,
-    padding: spacing.xl,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.xl,
     marginBottom: spacing.xxl,
-    gap: spacing.lg,
+    gap: spacing.md,
     ...shadow.card,
   },
   statusHeaderRow: {
@@ -92,59 +104,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
-  statusIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   statusTitle: {
     flex: 1,
-    fontSize: 18,
-    fontWeight: '800',
-    color: colors.successText,
-  },
-  dangerTitle: {
-    color: colors.dangerText,
+    fontSize: 22,
+    fontWeight: '700',
   },
   metricsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   metricColumn: {
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: spacing.xs,
   },
-  verticalDivider: {
-    width: 1,
-    height: 36,
-    backgroundColor: colors.border,
-  },
   metricSublabel: {
-    fontSize: 12,
+    fontSize: 14,
     color: colors.textMuted,
-    marginBottom: spacing.xs,
     textAlign: 'center',
   },
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: spacing.xs,
+  },
   metricValue: {
-    fontSize: 20,
+    fontSize: 40,
+    lineHeight: 48,
     fontWeight: '800',
     color: colors.text,
   },
   metricUnit: {
     fontSize: 14,
-    fontWeight: 'normal',
     color: colors.textMuted,
   },
   metricValueDanger: {
     color: colors.danger,
   },
   metricLabel: {
-    fontSize: 11,
+    fontSize: 14,
     color: colors.textMuted,
-    marginTop: 2,
+    textAlign: 'center',
   },
 });

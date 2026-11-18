@@ -183,7 +183,13 @@ export async function verifySecurityPin(pin: string): Promise<boolean> {
  */
 export async function deleteMyAccount(
   credentials: { password: string } | { pin: string },
+  /**
+   * Con `false` la sesión local la cierra quien llama (la pantalla pública
+   * "Eliminamos tu cuenta"), para que la guardia de las rutas privadas no
+   * mande al login antes de mostrar la confirmación.
+   */
+  { clearLocalSession = true }: { clearLocalSession?: boolean } = {},
 ): Promise<void> {
   await apiRequest("/api/auth/me", { method: "DELETE", body: credentials });
-  await clearSession();
+  if (clearLocalSession) await clearSession();
 }
