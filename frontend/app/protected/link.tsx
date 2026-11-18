@@ -55,7 +55,7 @@ function successText(name?: string): string {
   const next =
     Platform.OS === "android"
       ? "Para que el acceso a sitios de apuestas se filtre en segundo plano, activá la protección en el Inicio."
-      : "El bloqueo de sitios de apuestas funciona en la app de Android; desde el Inicio podés probar si un sitio está bloqueado.";
+      : "El bloqueo de sitios de apuestas funciona en la app de Android; desde Configuración podés probar si un sitio está bloqueado.";
   return `${linked} ${next}`;
 }
 
