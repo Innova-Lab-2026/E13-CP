@@ -10,9 +10,20 @@ type PinInputProps = {
   /** Cantidad de dígitos. El PIN de seguridad del backend usa 4. */
   length?: number;
   autoFocus?: boolean;
+  /**
+   * "boxes" (por defecto): una casilla por dígito.
+   * "field": campo de texto con placeholder, como los formularios del Figma
+   * ("PIN" y "Repetir PIN" en la misma pantalla).
+   */
+  variant?: "boxes" | "field";
+  /** Solo en variant="field". */
+  placeholder?: string;
+  editable?: boolean;
 };
 
-/** Campo de PIN numérico con una casilla por dígito. Los dígitos se muestran ocultos. */
+const onlyDigits = (text: string, length: number) => text.replace(/\D/g, "").slice(0, length);
+
+/** Campo de PIN numérico. Los dígitos se muestran ocultos. */
 export default function PinInput({
   value,
   onChange,
@@ -20,8 +31,44 @@ export default function PinInput({
   error,
   length = 4,
   autoFocus = false,
+  variant = "boxes",
+  placeholder,
+  editable = true,
 }: PinInputProps) {
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+
+  if (variant === "field") {
+    return (
+      <View style={styles.fieldContainer}>
+        {label ? <Text style={styles.fieldLabel}>{label}</Text> : null}
+        <TextInput
+          value={value}
+          onChangeText={(text) => onChange(onlyDigits(text, length))}
+          placeholder={placeholder}
+          placeholderTextColor={colors.textSubtle}
+          keyboardType="number-pad"
+          inputMode="numeric"
+          maxLength={length}
+          autoFocus={autoFocus}
+          secureTextEntry
+          autoComplete="off"
+          textContentType="oneTimeCode"
+          editable={editable}
+          accessibilityLabel={label ?? "PIN"}
+          style={[
+            styles.field,
+            error ? styles.fieldError : null,
+            !editable && styles.fieldDisabled,
+          ]}
+        />
+        {error ? (
+          <Text style={styles.fieldErrorText} accessibilityLiveRegion="polite">
+            {error}
+          </Text>
+        ) : null}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -54,7 +101,7 @@ export default function PinInput({
       <TextInput
         ref={inputRef}
         value={value}
-        onChangeText={(text) => onChange(text.replace(/\D/g, "").slice(0, length))}
+        onChangeText={(text) => onChange(onlyDigits(text, length))}
         keyboardType="number-pad"
         maxLength={length}
         autoFocus={autoFocus}
@@ -116,5 +163,36 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 13,
     textAlign: "center",
+  },
+  fieldContainer: {
+    width: "100%",
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  fieldLabel: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  field: {
+    minHeight: 52,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    fontSize: 16,
+    color: colors.text,
+  },
+  fieldError: {
+    borderColor: colors.danger,
+  },
+  fieldDisabled: {
+    backgroundColor: colors.surfaceMuted,
+  },
+  fieldErrorText: {
+    color: colors.danger,
+    fontSize: 13,
   },
 });

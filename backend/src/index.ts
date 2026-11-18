@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes';
 import deviceRoutes from './routes/device.routes';
 import blocklistRoutes from './routes/blocklist.routes';
 import eventRoutes from './routes/event.routes';
+import feedbackRoutes from './routes/feedback.routes';
 import { persistState } from './config/persistence';
 
 /**
@@ -44,6 +45,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/blocklist', blocklistRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', service: 'BA Protege+ Backend' });

@@ -8,6 +8,8 @@ import { extractDomain } from '../services/blocklist.service';
 export const SUGGESTIONS_PER_DAY = 20;
 /** Largo máximo de "Información adicional". */
 export const SUGGESTION_INFO_MAX = 500;
+/** Largo máximo del motivo escrito ("¿Por qué querés denunciarlo?"). */
+export const SUGGESTION_REASON_TEXT_MAX = 300;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -23,9 +25,10 @@ const isSuggestionReason = (value: unknown): value is SuggestionReason =>
 export const createSuggestion = async (req: AuthRequest, res: Response) => {
   try {
     const responsibleId = req.responsibleId!;
-    const { url, motivo, info } = (req.body ?? {}) as {
+    const { url, motivo, motivoTexto, info } = (req.body ?? {}) as {
       url?: unknown;
       motivo?: unknown;
+      motivoTexto?: unknown;
       info?: unknown;
     };
 
@@ -40,9 +43,26 @@ export const createSuggestion = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (!isSuggestionReason(motivo)) {
+    // El motivo llega de dos formas: la app actual lo manda escrito (motivoTexto)
+    // y las versiones anteriores, como una opción fija (motivo). Alcanza con uno.
+    if (motivoTexto !== undefined && motivoTexto !== null && typeof motivoTexto !== 'string') {
+      return res.status(400).json({ error: 'El motivo tiene que ser un texto.' });
+    }
+    const cleanReasonText = typeof motivoTexto === 'string' ? motivoTexto.trim() : '';
+    if (Array.from(cleanReasonText).length > SUGGESTION_REASON_TEXT_MAX) {
+      return res.status(400).json({
+        error: `El motivo puede tener hasta ${SUGGESTION_REASON_TEXT_MAX} caracteres.`
+      });
+    }
+
+    const hasOption = motivo !== undefined && motivo !== null && motivo !== '';
+    if (hasOption && !isSuggestionReason(motivo)) {
       return res.status(400).json({ error: 'Por favor, seleccioná el motivo.' });
     }
+    if (!hasOption && !cleanReasonText) {
+      return res.status(400).json({ error: 'Por favor, contanos por qué querés denunciarlo.' });
+    }
+    const reason: SuggestionReason = isSuggestionReason(motivo) ? motivo : 'otro';
 
     if (info !== undefined && info !== null && typeof info !== 'string') {
       return res.status(400).json({ error: 'La información adicional tiene que ser un texto.' });
@@ -68,7 +88,8 @@ export const createSuggestion = async (req: AuthRequest, res: Response) => {
       id: uuidv4(),
       responsibleId,
       domain,
-      motivo,
+      motivo: reason,
+      ...(cleanReasonText ? { motivoTexto: cleanReasonText } : {}),
       ...(cleanInfo ? { info: cleanInfo } : {}),
       createdAt: new Date().toISOString(),
       status: 'pendiente'

@@ -70,20 +70,27 @@ export const SUGGESTION_REASONS = [
 export type SuggestionReason = (typeof SUGGESTION_REASONS)[number]["value"];
 
 export const SUGGESTION_INFO_MAX_LENGTH = 500;
+/** Largo máximo del motivo escrito ("¿Por qué querés denunciarlo?"). */
+export const SUGGESTION_REASON_TEXT_MAX_LENGTH = 300;
 
 export type SiteSuggestion = {
   id: string;
   domain: string;
   motivo: SuggestionReason;
+  motivoTexto?: string;
   info?: string;
   createdAt: string;
   status: string;
 };
 
-/** Envía un sitio para que el equipo lo revise con LOTBA. */
+/**
+ * Envía un sitio para que el equipo lo revise con LOTBA. El motivo va como
+ * opción fija (`motivo`), como texto libre (`motivoTexto`) o ambos.
+ */
 export async function suggestSite(payload: {
   url: string;
-  motivo: SuggestionReason;
+  motivo?: SuggestionReason;
+  motivoTexto?: string;
   info?: string;
 }): Promise<SiteSuggestion> {
   const data = await apiRequest<{ suggestion: SiteSuggestion }>("/api/blocklist/suggestions", {

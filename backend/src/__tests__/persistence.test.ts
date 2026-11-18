@@ -191,6 +191,24 @@ describe('Snapshot', () => {
     expect(db.claimThrottle).toEqual(throttle);
   });
 
+  test('Ida y vuelta con las opiniones de "Ayudanos a mejorar"', async () => {
+    await loadState();
+    const item = {
+      id: 'f1',
+      responsibleId: 'r1',
+      text: 'Me gustaría un resumen semanal',
+      createdAt: new Date().toISOString()
+    };
+    db.feedback = [item];
+    await saveState();
+    expect(storedState().feedback).toEqual([item]);
+
+    db.feedback = [];
+    await loadState();
+
+    expect(db.feedback).toEqual([item]);
+  });
+
   test('Un estado guardado antes de estas funciones carga con valores vacíos', async () => {
     store.set(
       STATE_KEY,
@@ -205,11 +223,13 @@ describe('Snapshot', () => {
     );
     db.siteSuggestions = [{ id: 'viejo' } as any];
     db.claimThrottle = { viejo: { count: 1, firstAt: new Date().toISOString() } };
+    db.feedback = [{ id: 'viejo' } as any];
 
     await loadState();
 
     expect(db.siteSuggestions).toEqual([]);
     expect(db.claimThrottle).toEqual({});
+    expect(db.feedback).toEqual([]);
   });
 });
 

@@ -94,15 +94,70 @@ describe('POST /api/blocklist/suggestions', () => {
     }
   });
 
-  test('Sin motivo o con uno desconocido → 400 "Por favor, seleccioná el motivo."', async () => {
+  test('Sin motivo (ni opción ni texto) → 400; con una opción desconocida → 400', async () => {
     const { token } = await registerAdult();
 
     const missing = await suggest(token, { url: 'sitio.com' });
+    const blankText = await suggest(token, { url: 'sitio.com', motivoTexto: '   ' });
     const unknown = await suggest(token, { url: 'sitio.com', motivo: 'me_cae_mal' });
 
     expect(missing.status).toBe(400);
-    expect(missing.body.error).toBe('Por favor, seleccioná el motivo.');
+    expect(missing.body.error).toBe('Por favor, contanos por qué querés denunciarlo.');
+    expect(blankText.status).toBe(400);
+    expect(blankText.body.error).toBe('Por favor, contanos por qué querés denunciarlo.');
     expect(unknown.status).toBe(400);
+    expect(unknown.body.error).toBe('Por favor, seleccioná el motivo.');
+  });
+
+  test('Motivo como texto libre: se guarda recortado y la opción queda en "otro"', async () => {
+    const { token } = await registerAdult();
+
+    const res = await suggest(token, {
+      url: 'sitio-nuevo.com',
+      motivoTexto: '  Ofrece apuestas a menores sin pedir documento  '
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.suggestion).toMatchObject({
+      domain: 'sitio-nuevo.com',
+      motivo: 'otro',
+      motivoTexto: 'Ofrece apuestas a menores sin pedir documento'
+    });
+  });
+
+  test('Opción y texto juntos: se guardan los dos', async () => {
+    const { token } = await registerAdult();
+
+    const res = await suggest(token, {
+      url: 'sitio.com',
+      motivo: 'publicidad_apuestas',
+      motivoTexto: 'Aparece en un juego'
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.suggestion.motivo).toBe('publicidad_apuestas');
+    expect(res.body.suggestion.motivoTexto).toBe('Aparece en un juego');
+  });
+
+  test('Clientes viejos: solo la opción, sin motivoTexto en la respuesta', async () => {
+    const { token } = await registerAdult();
+
+    const res = await suggest(token, { url: 'sitio.com', motivo: 'apuestas_ilegales' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.suggestion.motivoTexto).toBeUndefined();
+  });
+
+  test('Motivo escrito de más de 300 caracteres o que no es texto → 400', async () => {
+    const { token } = await registerAdult();
+
+    const tooLong = await suggest(token, { url: 'sitio.com', motivoTexto: 'a'.repeat(301) });
+    const justRight = await suggest(token, { url: 'sitio.com', motivoTexto: 'a'.repeat(300) });
+    const notText = await suggest(token, { url: 'sitio.com', motivoTexto: 123 });
+
+    expect(tooLong.status).toBe(400);
+    expect(justRight.status).toBe(201);
+    expect(notText.status).toBe(400);
   });
 
   test('Acepta los cuatro motivos', async () => {
