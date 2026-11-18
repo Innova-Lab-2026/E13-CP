@@ -68,6 +68,11 @@ const field = (page, label) =>
     .first();
 const visibleText = (page, re) => page.getByText(re).filter({ visible: true }).first();
 const countText = (page, re) => page.getByText(re).filter({ visible: true }).count();
+// El elemento se ve entero dentro de la ventana, sin desplazarse.
+async function inViewport(locator) {
+  const box = await locator.boundingBox();
+  return !!box && box.y >= 0 && box.y + box.height <= viewport.height;
+}
 const heading = (page, name) => page.getByRole("heading", { name }).filter({ visible: true }).first();
 // El PinInput de cajitas usa un input transparente: se elige el de la pantalla visible.
 async function fillPin(page, value) {
@@ -190,6 +195,11 @@ await run("agregar dispositivo y código de vinculación", a, async () => {
   linkCode = (await code.innerText()).trim();
   expect(LINK_CODE.test(linkCode) && linkCode !== first, "el código nuevo debería ser distinto");
   await btn(a, /^Cancelar vinculación/).waitFor();
+  await visibleText(a, /^Código nuevo generado\. El anterior ya no sirve\.$/).waitFor();
+  expect(await inViewport(btn(a, /^Cancelar vinculación/)), "Cancelar vinculación tiene que verse sin desplazarse");
+  expect(await inViewport(btn(a, /^Generar nuevo código/)), "Generar nuevo código tiene que verse sin desplazarse");
+  expect((await countText(a, /Perfil creado para/)) === 0, "sin la píldora «Perfil creado para…» (no está en el Figma)");
+  await btn(a, /^Compartir el código$/).waitFor();
   await shot(a, "codigo-nuevo");
   console.log("  código de vinculación:", linkCode);
 });
@@ -209,6 +219,8 @@ await run("celular de Sofía: login y elegir perfil", c, async () => {
   await visibleText(c, /¿Qué perfil vas a vincular\?/).waitFor(T);
   await btn(c, new RegExp(`Perfil de ${CHILD.nombre}`)).waitFor(T);
   await visibleText(c, /Pendiente de vinculación/).waitFor();
+  const titleBox = await visibleText(c, /¿Qué perfil vas a vincular\?/).boundingBox();
+  expect(titleBox && titleBox.height < 40, `el título debería entrar en una línea (alto ${titleBox?.height})`);
   await shot(c, "vinculacion-elegir-perfil");
 });
 
@@ -228,12 +240,26 @@ await run("celular de Sofía: PIN incorrecto y correcto", c, async () => {
   await btn(c, "Ir al Inicio").click();
 });
 
+await run("celular de Sofía: /pin-setup no deja pisar el PIN", c, async () => {
+  await c.goto(BASE + "/app/pin-setup");
+  await visibleText(c, new RegExp(`^Hola, ${CHILD.nombre}$`)).waitFor(T);
+  expect((await countText(c, /Creá tu PIN de seguridad/)) === 0, "no debería mostrarse el alta del PIN");
+  if (API) {
+    const login = await api("POST", "/api/auth/login", { email: ADULT.email, password: ADULT.password });
+    const auth = { Authorization: `Bearer ${login.body.token}` };
+    const sinActual = await api("PATCH", "/api/auth/pin", { pin: "1593" }, auth);
+    expect(sinActual.status === 400, `PATCH /api/auth/pin sin el PIN actual: ${sinActual.status}`);
+    const inventado = await api("POST", "/api/auth/pin/verify", { pin: "1593" }, auth);
+    expect(inventado.status === 401, `el PIN inventado no debería valer: ${inventado.status}`);
+  }
+});
+
 await run("inicio protegido", c, async () => {
   await visibleText(c, new RegExp(`^Hola, ${CHILD.nombre}$`)).waitFor(T);
   await visibleText(c, /^Este es tu dispositivo protegido$/).waitFor();
   await visibleText(c, /^Protección activa$/).waitFor();
   await visibleText(c, /^Todo actualizado$/).waitFor();
-  await visibleText(c, /Última actualización - /).waitFor();
+  await visibleText(c, /^Última actualización - Hoy \d{1,2}:\d{2}$/).waitFor();
   await btn(c, /Consejos para navegar seguro/).waitFor();
   await btn(c, /^Preguntas frecuentes/).waitFor();
   for (const name of ["Inicio", "Navegación", "Configuración"]) await tab(c, name).waitFor();
@@ -247,7 +273,7 @@ await run("navegación y sus 4 pantallas", c, async () => {
   const temas = [
     ["Protegé tus datos", /^Usá contraseñas seguras$/, "nav-protege-tus-datos"],
     ["Cuidado con los engaños", /^Desconfiá de ofertas increíbles$/, "nav-enganos"],
-    ["¿Qué hace BA Protege\\+\\?", /listado oficial de apuestas online de LOTBA/, "nav-que-hace"],
+    ["¿Qué hace BA Protege\\+\\?", /^Mantenemos nuestras listas actualizadas$/, "nav-que-hace"],
     ["Hablá con alguien", /^No estás solo ni sola$/, "nav-habla-con-alguien"],
   ];
   for (const [name, text, shotName] of temas) {
@@ -259,6 +285,15 @@ await run("navegación y sus 4 pantallas", c, async () => {
     await btn(c, /^Volver$/).click();
     await visibleText(c, /^Navegá seguro$/).waitFor(T);
   }
+  await btn(c, /^¿Qué hace BA Protege\+\?/).click();
+  await visibleText(c, /listado oficial de apuestas online de LOTBA/).waitFor(T);
+  await visibleText(c, /^Te ayudamos a navegar más seguro$/).waitFor();
+  await btn(c, /^Volver$/).click();
+  // Recargar una pantalla interna: Volver lleva a la pantalla padre, no al Inicio.
+  await c.goto(BASE + "/app/protected/navegacion/datos");
+  await visibleText(c, /^Usá contraseñas seguras$/).waitFor(T);
+  await btn(c, /^Volver$/).click();
+  await visibleText(c, /^Navegá seguro$/).waitFor(T);
 });
 
 await run("configuración del protegido, preguntas frecuentes y probar un sitio", c, async () => {
@@ -373,7 +408,16 @@ await run("dashboard con dispositivos", a, async () => {
   await visibleText(a, /^2 de 2 dispositivos activos$/).waitFor();
   await a.getByLabel(/^Alertas, \d+ sin leer$/).filter({ visible: true }).first().waitFor();
   await btn(a, new RegExp(`^${CHILD.nombre}`)).waitFor();
-  if (API && tomasToken) await visibleText(a, /^¡Requiere tu atención!$/).waitFor();
+  if (API && tomasToken) {
+    await visibleText(a, /^¡Requiere tu atención!$/).waitFor();
+    await visibleText(a, new RegExp(`^${CHILD2.nombre} intentó desinstalar la aplicación$`)).waitFor();
+    await a.waitForTimeout(500);
+    expect((await countText(a, /^¡Requiere tu atención!$/)) === 1, "el historial del inicio no repite la alerta de atención");
+  }
+  // La campana cuenta solo alertas que piden algo (sin "Dispositivo vinculado" ni "pendiente").
+  const bell = await a.getByLabel(/^Alertas, \d+ sin leer$/).filter({ visible: true }).first().getAttribute("aria-label");
+  const unread = Number(/(\d+)/.exec(bell)?.[1] ?? 0);
+  expect(unread > 0 && unread <= 5, `la campana debería contar solo alertas accionables: ${bell}`);
   await shot(a, "dashboard");
 });
 
@@ -389,6 +433,7 @@ await run("mis dispositivos", a, async () => {
 await run("detalle por dispositivo e historial del dispositivo", a, async () => {
   await btn(a, new RegExp(`^${CHILD2.nombre}`)).click();
   await visibleText(a, new RegExp(`^Dispositivo de ${CHILD2.nombre}$`)).waitFor(T);
+  await visibleText(a, /^Android$/).waitFor();
   await visibleText(a, /^Protección activa$/).waitFor();
   await a.getByLabel(/^\d+ años$/).filter({ visible: true }).first().waitFor();
   await a.getByLabel(/^Esta semana, \d+ webs? bloqueadas?$/).filter({ visible: true }).first().waitFor(T);
@@ -414,6 +459,10 @@ await run("historial con las 3 pestañas", a, async () => {
   }
   await visibleText(a, /^Hoy - \d{1,2} de [a-z]+$/).waitFor(T);
   await visibleText(a, new RegExp(`^${CHILD.nombre} - (www\\.)?bplay\\.bet\\.ar$`)).waitFor(T);
+  if (API && tomasToken) {
+    await visibleText(a, new RegExp(`^${CHILD2.nombre} - Intento de desinstalar la app$`)).waitFor();
+    await visibleText(a, new RegExp(`^${CHILD2.nombre} - Instalación no autorizada$`)).waitFor();
+  }
   await shot(a, "historial-todos");
   await a.getByRole("tab", { name: "Por categorías" }).filter({ visible: true }).first().click();
   await visibleText(a, /^Sitio bloqueado$/).waitFor(T);
@@ -432,7 +481,23 @@ await run("detalle del evento", a, async () => {
   await visibleText(a, /^¿QUÉ SIGNIFICA ESTO\?$/).waitFor();
   await btn(a, `Dispositivo de ${CHILD.nombre}`).waitFor();
   expect((await countText(a, /ilegal/i)) === 0, 'el detalle no debe decir "ilegal"');
+  expect((await countText(a, /QUÉ PODÉS HACER/)) === 0, "el detalle tiene un solo bloque, como el Figma");
   await shot(a, "detalle-evento");
+});
+
+await run("pausar y reactivar desde el adulto queda en el historial", a, async () => {
+  await a.goto(BASE + "/app/dispositivos");
+  await btn(a, new RegExp(`^${CHILD.nombre}`)).click();
+  await visibleText(a, new RegExp(`^Dispositivo de ${CHILD.nombre}$`)).waitFor(T);
+  await a.getByRole("switch", { name: `Protección de ${CHILD.nombre}` }).filter({ visible: true }).first().click();
+  await btn(a, /^Pausar protección$/).click();
+  await visibleText(a, new RegExp(`^Pausaste la protección de ${CHILD.nombre}`)).waitFor(T);
+  await a.getByRole("switch", { name: `Protección de ${CHILD.nombre}` }).filter({ visible: true }).first().click();
+  await visibleText(a, /está activa de nuevo/).waitFor(T);
+  await a.goto(BASE + "/app/historial");
+  await visibleText(a, /^Protección pausada$/).waitFor(T);
+  await visibleText(a, /^Protección reactivada$/).waitFor();
+  await shot(a, "historial-pausa-adulto");
 });
 
 await run("alertas y detalle de alerta", a, async () => {
@@ -443,7 +508,9 @@ await run("alertas y detalle de alerta", a, async () => {
   await visibleText(a, /^Hoy - \d{1,2} de [a-z]+$/).waitFor(T);
   await visibleText(a, /^Sitio bloqueado$/).waitFor();
   await visibleText(a, new RegExp(`^${CHILD2.nombre} - `)).waitFor();
-  await visibleText(a, /^Dispositivo vinculado$/).waitFor();
+  await a.waitForTimeout(500);
+  expect((await countText(a, /^Dispositivo vinculado$/)) === 0, "Mis alertas no lista avisos informativos (vinculado)");
+  expect((await countText(a, /^Dispositivo pendiente$/)) === 0, "Mis alertas no lista avisos informativos (pendiente)");
   if (API && tomasToken) {
     await visibleText(a, new RegExp(`^${CHILD2.nombre} intentó desinstalar la aplicación$`)).waitFor();
     await visibleText(a, /^Intento de modificación$/).waitFor();
@@ -529,6 +596,15 @@ await run("ayudanos a mejorar: enviar opinión", a, async () => {
   await btn(a, /^Mi cuenta$/).waitFor(T);
 });
 
+await run("recargar una pantalla de configuración: Volver va a Configuración", a, async () => {
+  await a.goto(BASE + "/app/configuracion/mejorar");
+  await visibleText(a, /^Tu opinión nos ayuda a mejorar BA Protege\+$/).waitFor(T);
+  await btn(a, /^Volver$/).click();
+  await btn(a, /^Mi cuenta$/).waitFor(T);
+  await a.goto(BASE + "/app/configuracion");
+  await btn(a, /^Mi cuenta$/).waitFor(T);
+});
+
 await run("ayuda y sitios bloqueados", a, async () => {
   await btn(a, /^Ayuda y preguntas frecuentes$/).click();
   await a.waitForTimeout(600);
@@ -552,6 +628,22 @@ await run("celular de Sofía: pausar pide el PIN nuevo", c, async () => {
   await toggle.click();
   await visibleText(c, /^PIN de la persona adulta$/).waitFor(T);
   await btn(c, /^Cancelar$/).click();
+});
+
+await run("eliminar la cuenta muestra la confirmación", a, async () => {
+  await a.goto(BASE + "/app/configuracion");
+  await btn(a, /^Eliminar cuenta$/).click();
+  await field(a, "Contraseña").fill(ADULT.password);
+  await btn(a, /^Eliminar cuenta$/).click();
+  await btn(a, /^Sí, eliminar cuenta$/).click();
+  await visibleText(a, /^Eliminamos tu cuenta$/).waitFor(T);
+  await shot(a, "cuenta-eliminada");
+  await btn(a, /^Ir al inicio de sesión$/).click();
+  await btn(a, "Iniciar sesión").waitFor(T);
+  if (API) {
+    const login = await api("POST", "/api/auth/login", { email: ADULT.email, password: ADULT.password });
+    expect(login.status === 401, `la cuenta debería estar borrada: ${login.status}`);
+  }
 });
 
 console.log("OK: flujo completo");
