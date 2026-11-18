@@ -63,7 +63,9 @@ def open_app():
     shot_c("bienvenida")
 
 
-PROTECTED_HOME = r"^Protección en este celular$|^Este celular está protegido$|^Protección pausada"
+# Inicio del protegido (pestaña Inicio): "Hola, <nombre>" y la tarjeta grande con
+# "Protección pausada" (VPN apagada) o "Protección activa".
+PROTECTED_HOME = r"^Protección pausada$|^Protección activa$|^Este es tu dispositivo protegido$"
 
 
 def text_fields():
@@ -117,7 +119,7 @@ def vpn_on():
             adb("shell", "input", "tap", str(consent[0]), str(consent[1]))  # noqa: F821
             break
         time.sleep(1)
-    wait_for(r"Este celular está protegido", 30)  # noqa: F821
+    wait_for(r"^Protección activa$", 30)  # noqa: F821
     time.sleep(2.5)
     shot_c("protegido-vpn-activa")
     blocked = not resolves("bplay.bet.ar")  # noqa: F821

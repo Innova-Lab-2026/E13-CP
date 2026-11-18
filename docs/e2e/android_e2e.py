@@ -137,31 +137,35 @@ def login():
     adb("shell", "input", "keyevent", "4")  # cierra el teclado
     shot("login")
     tap(r"^Iniciar sesión$")
-    wait_for(r"Cómo vas a usar este celular", 60)
+    wait_for(r"Cómo vas a utilizar BA Protege\+", 60)
     shot("seleccion-de-modo")
 
 
 def link():
+    # Tocar la tarjeta ya avanza (no hay botón Continuar).
     tap(r"Este es un dispositivo protegido")
-    tap(r"^Continuar$")
-    wait_for(r"De quién es este celular", 60)
-    tap(r"Sofía")
-    tap(r"^Continuar$")
+    wait_for(r"Qué perfil vas a vincular", 60)
+    shot("vinculacion-elegir-perfil")
+    # La fila del perfil ("Perfil de Sofía. <estado>") lleva directo al PIN.
+    tap(r"Perfil de Sofía")
     wait_for(r"Confirmá la vinculación", 30)
     tap(r"PIN de la persona adulta|PIN")
     type_text(pin)
     shot("vinculacion-pin")
     tap(r"Vincular celular")
-    wait_for(r"vinculado|Listo|protegido", 60)
+    wait_for(r"¡Dispositivo vinculado!", 60)
     shot("vinculacion-exito")
-    hit = find(r"^(Ir a|Continuar|Empezar)")
+    hit = find(r"^(Ir al Inicio|Ir a|Continuar|Empezar)")
     if hit:
         adb("shell", "input", "tap", str(hit[0]), str(hit[1]))
         time.sleep(1.5)
 
 
 def vpn():
-    wait_for(r"Protección en este celular", 60)
+    # Inicio del protegido: con la VPN apagada la tarjeta grande dice "Protección pausada"
+    # y el interruptor de la VPN está dentro de esa tarjeta (único switch del Inicio).
+    wait_for(r"^Hola, Sofía$", 60)
+    wait_for(r"^Protección pausada$", 30)
     assert resolves("bplay.bet.ar"), "sin VPN el dominio debería resolver (control)"
     shot("protegido-vpn-apagada")
     switch = None
@@ -182,7 +186,7 @@ def vpn():
     if consent:
         shot("permiso-vpn")
         adb("shell", "input", "tap", str(consent[0]), str(consent[1]))
-    wait_for(r"Este celular está protegido", 30)
+    wait_for(r"^Protección activa$", 30)
     time.sleep(2)
     shot("protegido-vpn-activa")
     dumpsys = adb("shell", "dumpsys", "connectivity", check=False)
