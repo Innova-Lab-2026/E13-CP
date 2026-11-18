@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Redirect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,12 +14,12 @@ import {
   getDevices,
   setDeviceProtection,
   type Device,
+  type DeviceStatus,
 } from "../../src/services/deviceService";
 import { verifySecurityPin } from "../../src/services/auth";
 import { updateSession, useSession } from "../../src/services/session";
 import { useDeviceSession } from "../../src/services/deviceSession";
 import { ApiError, errorMessage } from "../../src/services/api";
-import { formatIsoDate } from "../../src/utils/date";
 import { colors, radius, shadow, spacing, typography } from "../../src/theme";
 
 type Step = "choose" | "pin" | "success";
@@ -27,6 +27,48 @@ type Step = "choose" | "pin" | "success";
 /** La sesión de Google queda abierta en el navegador del celular del menor. */
 const GOOGLE_SESSION_NOTICE =
   "Iniciaste sesión con Google en este celular. Cuando termines, cerrá tu sesión de Google en el navegador para que el menor no pueda usar tu cuenta.";
+
+/** Colores de los avatares de persona del Figma (fondo suave e ícono). */
+const AVATAR_COLORS = [
+  { background: "#FCD9E8", icon: "#E7609E" },
+  { background: "#FDE5BC", icon: "#E39A1B" },
+  { background: "#D9E8FC", icon: "#3B7DD8" },
+  { background: "#DDF3D0", icon: "#3E9B2F" },
+  { background: "#E8DDFB", icon: "#8A5CD6" },
+] as const;
+
+/** El mismo perfil siempre tiene el mismo color. */
+function avatarColorFor(device: Device) {
+  let hash = 0;
+  for (const char of device.id || device.name) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
+const STATUS_DISPLAY: Record<
+  DeviceStatus,
+  { label: string; icon: keyof typeof Ionicons.glyphMap; color: string }
+> = {
+  active: { label: "Protección activa", icon: "checkmark-circle-outline", color: colors.successText },
+  pending: { label: "Pendiente de vinculación", icon: "alert-circle-outline", color: colors.warningText },
+  disabled: { label: "Protección pausada", icon: "pause-circle-outline", color: colors.textMuted },
+};
+
+/**
+ * Texto del Figma, ajustado a lo que pasa de verdad: en Android el filtro empieza
+ * cuando se activa la protección (VPN) en el Inicio, y en el navegador no se bloquea.
+ */
+function successText(name?: string): string {
+  const linked = name
+    ? `Este dispositivo se encuentra vinculado correctamente al perfil de ${name}.`
+    : "Este dispositivo se encuentra vinculado correctamente.";
+  const next =
+    Platform.OS === "android"
+      ? "Para que el acceso a sitios de apuestas se filtre en segundo plano, activá la protección en el Inicio."
+      : "El bloqueo de sitios de apuestas funciona en la app de Android; desde el Inicio podés probar si un sitio está bloqueado.";
+  return `${linked} ${next}`;
+}
 
 /** Vinculación: este celular se asocia a un perfil protegido creado por la persona adulta. */
 export default function LinkDeviceScreen() {
@@ -46,13 +88,21 @@ export default function LinkDeviceScreen() {
 
   // Primero los perfiles pendientes; después los ya vinculados, para volver a
   // vincular este celular (por ejemplo, si se reinstaló la app o venció la sesión).
-  const pending = [...(devices ?? [])].sort(
+  const profiles = [...(devices ?? [])].sort(
     (a, b) => Number(a.status !== "pending") - Number(b.status !== "pending"),
   );
 
   // Un celular ya vinculado con un código no usa esta vinculación con la cuenta.
   if (deviceSession) {
     return <Redirect href="/protected" />;
+  }
+
+  function choose(device: Device) {
+    setSelected(device);
+    setPin("");
+    setPinError("");
+    setSubmitError(null);
+    setStep("pin");
   }
 
   async function handleConfirm() {
@@ -107,118 +157,93 @@ export default function LinkDeviceScreen() {
   }
 
   if (step === "success") {
-    const name = selected?.name ?? "";
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={[styles.content, styles.centered]}>
-          <View style={styles.successIcon}>
-            <Ionicons name="shield-checkmark" size={56} color={colors.successText} />
-          </View>
-          <Text style={styles.title} accessibilityRole="header">
-            Celular vinculado
-          </Text>
-          <Text style={styles.subtitle}>
-            {name
-              ? `Este celular ya está vinculado al perfil de ${name}. Desde ahora te acompañamos para que navegue sin sitios de apuestas.`
-              : "Este celular ya está vinculado. Desde ahora te acompañamos para navegar sin sitios de apuestas."}
-          </Text>
-          {signedInWithGoogle ? (
-            <View style={styles.fullWidth}>
-              <AppAlert message={GOOGLE_SESSION_NOTICE} variant="info" />
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+        <ScrollView contentContainerStyle={styles.successContent}>
+          <View style={styles.successBody}>
+            <View style={styles.successIcon} accessibilityElementsHidden>
+              <Ionicons name="checkmark" size={34} color={colors.success} />
             </View>
-          ) : null}
-          <View style={styles.fullWidth}>
-            <AppButton title="Continuar" onPress={() => router.replace("/protected")} />
+            <Text style={styles.successTitle} accessibilityRole="header">
+              ¡Dispositivo vinculado!
+            </Text>
+            <View style={styles.activePill}>
+              <Text style={styles.activePillText}>BA Protege+ Activo</Text>
+            </View>
+            <Text style={styles.successText}>{successText(selected?.name)}</Text>
+            {signedInWithGoogle ? (
+              <View style={styles.fullWidth}>
+                <AppAlert message={GOOGLE_SESSION_NOTICE} variant="info" />
+              </View>
+            ) : null}
           </View>
+          <AppButton title="Ir al Inicio" onPress={() => router.replace("/protected")} />
         </ScrollView>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.logoContainer}>
-          <Image
-            source={require("../../assets/protege-01.png")}
-            style={styles.logo}
-            resizeMode="contain"
-            accessibilityIgnoresInvertColors
-            accessibilityLabel="BA Protege+"
-          />
-        </View>
-
         {step === "choose" ? (
           <>
             <Text style={styles.title} accessibilityRole="header">
-              ¿De quién es este celular?
+              ¿Qué perfil vas a vincular?
             </Text>
             <Text style={styles.subtitle}>
-              Elegí el perfil que la persona adulta creó para este celular.
+              Elegí el perfil que la persona responsable creó para este dispositivo.
             </Text>
 
             {signedInWithGoogle ? (
-              <AppAlert message={GOOGLE_SESSION_NOTICE} variant="info" />
+              <View style={styles.notice}>
+                <AppAlert message={GOOGLE_SESSION_NOTICE} variant="info" />
+              </View>
             ) : null}
 
             <ScreenState
               loading={loading && !devices}
               error={error}
               onRetry={reload}
-              isEmpty={!loading && !error && pending.length === 0}
+              isEmpty={!loading && !error && profiles.length === 0}
               emptyTitle="Todavía no hay perfiles para vincular"
               emptyText="Primero, la persona adulta tiene que crear el perfil desde su celular, en Dispositivos > Agregar dispositivo. Cuando lo haga, tocá Reintentar."
             />
 
-            {!loading && !error && pending.length === 0 ? (
-              <View style={styles.fullWidth}>
-                <AppButton title="Reintentar" onPress={reload} variant="secondary" />
-              </View>
+            {!loading && !error && profiles.length === 0 ? (
+              <AppButton title="Reintentar" onPress={reload} variant="secondary" />
             ) : null}
 
-            {pending.length > 0 ? (
-              <View style={styles.list} accessibilityRole="radiogroup">
-                {pending.map((device) => {
-                  const isSelected = selected?.id === device.id;
+            {profiles.length > 0 ? (
+              <View style={styles.list}>
+                {profiles.map((device) => {
+                  const avatar = avatarColorFor(device);
+                  const status = STATUS_DISPLAY[device.status] ?? STATUS_DISPLAY.pending;
                   return (
                     <Pressable
                       key={device.id}
-                      onPress={() => setSelected(device)}
-                      style={[styles.profileCard, isSelected && styles.profileCardSelected]}
-                      accessibilityRole="radio"
-                      accessibilityState={{ checked: isSelected }}
-                      accessibilityLabel={`Perfil de ${device.name}`}
+                      onPress={() => choose(device)}
+                      style={({ pressed }) => [styles.profileRow, pressed && styles.pressed]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Perfil de ${device.name}. ${status.label}`}
+                      accessibilityHint="Abre la confirmación con el PIN de la persona adulta"
                     >
-                      <View style={styles.avatar}>
-                        <Ionicons name="person" size={22} color={colors.text} />
+                      <View style={[styles.avatar, { backgroundColor: avatar.background }]}>
+                        <Ionicons name="person-circle" size={26} color={avatar.icon} />
                       </View>
-                      <View style={styles.profileText}>
-                        <Text style={styles.profileName}>{device.name}</Text>
-                        {device.birthDate ? (
-                          <Text style={styles.profileMeta}>
-                            Nació el {formatIsoDate(device.birthDate)}
-                          </Text>
-                        ) : null}
-                        {device.status !== "pending" ? (
-                          <Text style={styles.profileMeta}>
-                            Ya vinculado. Elegilo para volver a vincular este celular.
-                          </Text>
-                        ) : null}
+                      <Text style={styles.profileName} numberOfLines={1}>
+                        {device.name}
+                      </Text>
+                      <View style={styles.status}>
+                        <Ionicons name={status.icon} size={14} color={status.color} />
+                        <Text style={[styles.statusText, { color: status.color }]} numberOfLines={1}>
+                          {status.label}
+                        </Text>
                       </View>
-                      <Ionicons
-                        name={isSelected ? "radio-button-on" : "radio-button-off"}
-                        size={22}
-                        color={colors.text}
-                      />
+                      <Ionicons name="chevron-forward" size={16} color={colors.text} />
                     </Pressable>
                   );
                 })}
-
-                <AppButton
-                  title="Continuar"
-                  onPress={() => setStep("pin")}
-                  disabled={!selected}
-                />
               </View>
             ) : null}
 
@@ -292,70 +317,69 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
+    paddingTop: 72,
     paddingBottom: spacing.xxl,
   },
-  centered: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  fullWidth: {
-    width: "100%",
-    marginTop: spacing.lg,
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: spacing.xxxl,
-  },
-  logo: {
-    width: 125,
-    height: 55,
-  },
   title: {
-    ...typography.display,
-    textAlign: "center",
-    marginBottom: spacing.sm,
+    ...typography.title,
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: "700",
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.xl,
   },
   subtitle: {
     ...typography.body,
-    textAlign: "center",
-    marginBottom: spacing.xxl,
+    color: colors.text,
+    marginBottom: 40,
+    paddingHorizontal: spacing.xl,
+  },
+  notice: {
+    marginBottom: spacing.lg,
   },
   list: {
-    gap: spacing.md,
+    gap: spacing.lg,
   },
-  profileCard: {
+  profileRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    gap: spacing.sm,
+    minHeight: 56,
+    backgroundColor: colors.background,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
+    borderColor: colors.borderStrong,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     ...shadow.card,
+    shadowOpacity: 0.12,
+    elevation: 3,
   },
-  profileCardSelected: {
-    borderColor: colors.text,
-    borderWidth: 2,
+  pressed: {
+    opacity: 0.85,
   },
   avatar: {
-    width: 44,
-    height: 44,
+    width: 36,
+    height: 36,
     borderRadius: radius.pill,
-    backgroundColor: colors.brandSoft,
     alignItems: "center",
     justifyContent: "center",
   },
-  profileText: {
-    flex: 1,
-    gap: 2,
-  },
   profileName: {
-    ...typography.subtitle,
+    flex: 1,
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.text,
   },
-  profileMeta: {
-    ...typography.caption,
+  status: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    flexShrink: 1,
+  },
+  statusText: {
+    fontSize: 14,
+    flexShrink: 1,
   },
   card: {
     backgroundColor: colors.surface,
@@ -369,13 +393,59 @@ const styles = StyleSheet.create({
   backButton: {
     marginTop: spacing.lg,
   },
+  successContent: {
+    flexGrow: 1,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl,
+  },
+  successBody: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: spacing.xxxl,
+  },
   successIcon: {
-    width: 104,
-    height: 104,
+    width: 60,
+    height: 60,
     borderRadius: radius.pill,
     backgroundColor: colors.successSoft,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.xl,
+  },
+  successTitle: {
+    ...typography.title,
+    fontSize: 22,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: spacing.xl,
+  },
+  activePill: {
+    alignSelf: "stretch",
+    marginHorizontal: spacing.xl,
+    borderRadius: radius.pill,
+    backgroundColor: colors.successSoft,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    alignItems: "center",
+    marginBottom: spacing.xl,
+  },
+  activePillText: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.successText,
+    textAlign: "center",
+  },
+  successText: {
+    fontSize: 15,
+    lineHeight: 21,
+    color: colors.text,
+    alignSelf: "stretch",
+    paddingHorizontal: spacing.xl,
+  },
+  fullWidth: {
+    width: "100%",
+    marginTop: spacing.lg,
   },
 });

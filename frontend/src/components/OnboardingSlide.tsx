@@ -14,7 +14,8 @@ import { colors, radius, spacing, typography } from "../theme";
 type OnboardingSlideProps = {
   background: ImageSourcePropType;
   title: string;
-  description: string;
+  /** Uno o más párrafos: el segundo se muestra separado, como en el Figma. */
+  description: string | string[];
   /** Posición de esta pantalla (empieza en 0) y total de pantallas del onboarding. */
   step: number;
   total: number;
@@ -32,6 +33,8 @@ export default function OnboardingSlide({
   onSkip,
   onContinue,
 }: OnboardingSlideProps) {
+  const paragraphs = Array.isArray(description) ? description : [description];
+
   return (
     <ImageBackground source={background} style={styles.background} resizeMode="cover">
       <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -53,10 +56,11 @@ export default function OnboardingSlide({
               accessible
               accessibilityLabel={`Paso ${step + 1} de ${total}`}
             >
+              {/* Como en el Figma: los pasos ya vistos quedan como barra amarilla. */}
               {Array.from({ length: total }, (_, index) => (
                 <View
                   key={index}
-                  style={index === step ? styles.activeDot : styles.dot}
+                  style={index <= step ? styles.activeDot : styles.dot}
                 />
               ))}
             </View>
@@ -66,7 +70,13 @@ export default function OnboardingSlide({
             <Text style={styles.title} accessibilityRole="header">
               {title}
             </Text>
-            <Text style={styles.description}>{description}</Text>
+            <View style={styles.paragraphs}>
+              {paragraphs.map((paragraph) => (
+                <Text key={paragraph} style={styles.description}>
+                  {paragraph}
+                </Text>
+              ))}
+            </View>
           </View>
 
           <View style={styles.footer}>
@@ -114,14 +124,14 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   activeDot: {
-    width: 24,
+    width: 22,
     height: 4,
     borderRadius: radius.pill,
     backgroundColor: colors.brand,
   },
   dot: {
-    width: 6,
-    height: 6,
+    width: 4,
+    height: 4,
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
   },
@@ -130,14 +140,19 @@ const styles = StyleSheet.create({
     borderRadius: radius.xxl,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingHorizontal: spacing.xxl,
-    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl,
     alignItems: "center",
   },
   title: {
     ...typography.display,
+    lineHeight: 34,
     textAlign: "center",
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  paragraphs: {
+    gap: spacing.md,
   },
   description: {
     ...typography.body,
