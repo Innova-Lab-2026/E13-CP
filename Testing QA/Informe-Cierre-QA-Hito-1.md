@@ -1,113 +1,56 @@
-# Informe de Cierre de QA — Hito 1
+# Informe de Cierre QA – Hito 1
 
-**Proyecto:** BA Protege+  
-**Área:** Testing / QA  
-**Versión:** 1.0  
-**Fecha:** 09/11/2026  
-**Responsable de QA:** Camila Jara
+## 1. Información general
 
----
+- **Proyecto:** BA Protege+
+- **Área:** QA / Testing
+- **Etapa:** Hito 1
+- **Responsable:** QA
+- **Estado:** En revisión
 
-## 1. Objetivo
+## 2. Objetivo
 
-Documentar las pruebas realizadas durante el Hito 1 de BA Protege+, registrar los resultados obtenidos, las evidencias generadas y los puntos pendientes de verificación.
+Registrar las pruebas realizadas durante el Hito 1, documentar sus resultados y dejar constancia de las observaciones encontradas.
 
-## 2. Alcance de testing
+## 3. Pruebas realizadas
 
-Se realizaron verificaciones sobre las siguientes funcionalidades:
+### 3.1 Frontend
 
-- Registro de usuarios.
+Se realizaron pruebas manuales sobre los siguientes módulos:
+
+- Registro de usuario.
 - Inicio de sesión.
-- Autenticación mediante JWT.
-- Selección y actualización del modo.
-- Consulta del perfil del usuario.
-- Middleware de autenticación y autorización.
-- Validación de roles y permisos.
-- Seguridad de contraseñas.
+- Selección de modo.
 
-## 3. Issues verificadas
+**Total de casos registrados:** 18.
 
-| Issue | Funcionalidad | Situación de QA |
-|---|---|---|
-| #32 | Registro | Pruebas manuales y automatizadas ejecutadas. |
-| #33 | Login | Pruebas manuales y automatizadas ejecutadas. |
-| #34 | Selección de modo y perfil | Pruebas funcionales ejecutadas. |
-| #35 | Middleware de autenticación y autorización | Pruebas ejecutadas; quedan verificaciones pendientes. |
+Se verificaron los campos obligatorios, los formatos ingresados, las validaciones y la navegación entre pantallas.
 
-## 4. Pruebas automatizadas
+**Observación:** Se detectó una diferencia respecto al teléfono durante el registro: el Frontend lo solicita como obligatorio, mientras que el Backend permite registrar un usuario sin ese dato. Queda pendiente confirmar con el equipo cuál debe ser el comportamiento esperado.
 
-Se ejecutó la suite de pruebas de Backend mediante Jest.
+### 3.2 Backend
 
-**Comando utilizado:**
+Se realizaron pruebas sobre los endpoints correspondientes al Hito 1, verificando respuestas, códigos HTTP y validaciones.
 
-`npm.cmd test -- --runInBand`
+La cantidad exacta de casos y sus resultados quedan pendientes de consolidar con el registro de pruebas.
 
-**Resultado obtenido:**
+## 4. Evidencias
 
-- Suites aprobadas: 3 de 3.
-- Tests aprobados: 59 de 59.
-- Tests fallidos: 0.
+Las capturas de las pruebas se encuentran organizadas en GitHub dentro de:
 
-Archivos ejecutados:
+`Testing QA/Evidencias/Hito-1/`
 
-- `auth.test.ts`
-- `blocklist.test.ts`
-- `app.test.ts`
+- **Front:** evidencias de las pruebas del Frontend.
+- **Back:** evidencias de las pruebas del Backend.
 
-También se verificaron mediante revisión de código y pruebas automatizadas:
+## 5. Observaciones
 
-- Generación del hash de contraseña con bcryptjs.
-- Comparación de contraseña mediante `bcrypt.compare`.
-- No exposición del `passwordHash` en las respuestas.
-- Vigencia del JWT de 7 días.
-- Carga del rol en `req.rol`.
-- Autorización y rechazo según el rol configurado.
+- Se identificó una diferencia entre las validaciones del Frontend y el Backend respecto al teléfono.
+- Es necesario confirmar el comportamiento esperado con el equipo.
+- Los resultados de las pruebas deben mantenerse respaldados por sus evidencias.
 
-## 5. Pruebas manuales
+## 6. Conclusión
 
-Se realizaron pruebas mediante Postman para verificar:
+Durante el Hito 1 se realizaron pruebas sobre el Frontend y el Backend de BA Protege+.
 
-- Registro exitoso y validaciones.
-- Inicio de sesión con credenciales válidas e inválidas.
-- Respuestas HTTP esperadas.
-- Contenido y vencimiento del JWT.
-- Actualización del modo del usuario.
-- Consulta del perfil.
-- Acceso sin token.
-- Acceso con token inválido.
-- Acceso con token expirado.
-
-## 6. Evidencias
-
-Las evidencias se encuentran registradas en la documentación de Testing QA y en el Excel de casos de prueba.
-
-Se generaron capturas de:
-
-- Respuestas de Postman.
-- Decodificación y validación del JWT.
-- Ejecución de pruebas automatizadas con Jest.
-- Rechazo de tokens expirados.
-
-## 7. Pendientes de verificación
-
-Quedan pendientes las siguientes confirmaciones de Backend:
-
-1. Verificar que `req.responsibleId` se inyecte correctamente y llegue a los controladores protegidos.
-2. Verificar que `req.userEmail` se inyecte correctamente y llegue a los controladores protegidos.
-
-Se solicitó confirmación al equipo de Backend y se encuentra pendiente de respuesta.
-
-## 8. Conclusión
-
-Durante el Hito 1 se ejecutaron pruebas manuales y automatizadas sobre las funcionalidades de registro, login, selección de modo y middleware de autenticación y autorización.
-
-Las pruebas automatizadas finalizaron correctamente con 59 tests aprobados y ninguna prueba fallida.
-
-El cierre definitivo de QA queda sujeto a resolver las verificaciones pendientes indicadas en este informe y revisar los criterios de aceptación de cada Issue.
-
-**Estado general del Hito 1:** En revisión por QA.
-
----
-
-**Responsable:** Testing / QA  
-**Proyecto:** BA Protege+
+Se registraron los resultados y se organizaron las evidencias correspondientes. Queda pendiente consolidar el detalle de los casos del Backend y confirmar la obligatoriedad del teléfono para completar el cierre de QA.
