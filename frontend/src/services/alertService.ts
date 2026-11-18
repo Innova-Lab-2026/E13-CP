@@ -7,6 +7,7 @@ export type AlertType = "danger" | "blocked" | "warning" | "info";
 export interface Alert {
   id: string;
   title: string;
+  /** "Sofía - bplay.bet.ar", "Sofía intentó desinstalar la aplicación", etc. */
   subtitle: string;
   time: string;
   date: string;
@@ -17,6 +18,8 @@ export interface Alert {
   read: boolean;
   createdAt: string;
   site?: string;
+  /** Tipo que manda el backend (SITE_BLOCKED, DEVICE_LINKED...). */
+  alertType?: string;
 }
 
 type ApiAlert = {
@@ -28,14 +31,67 @@ type ApiAlert = {
   createdAt: string;
 };
 
-const ALERT_PRESENTATION: Record<string, { title: string; type: AlertType }> = {
-  SITE_BLOCKED: { title: "Sitio bloqueado", type: "blocked" },
-  ACCESS_ATTEMPT: { title: "Sitio bloqueado", type: "blocked" },
-  UNINSTALL_ATTEMPT: { title: "¡Requiere tu atención!", type: "danger" },
-  BYPASS_ATTEMPT: { title: "¡Requiere tu atención!", type: "danger" },
-  APP_INSTALL_ATTEMPT: { title: "Intento de instalación", type: "warning" },
-  DEVICE_PENDING: { title: "Dispositivo pendiente", type: "info" },
-  DEVICE_LINKED: { title: "Dispositivo vinculado", type: "info" },
+type Presentation = {
+  title: string;
+  type: AlertType;
+  /** Subtítulo de la tarjeta a partir del nombre del perfil y del sitio (si hay). */
+  subtitle: (device: string, site?: string) => string;
+};
+
+const withDetail = (detail: string) => (device: string) => `${device} - ${detail}`;
+
+const ALERT_PRESENTATION: Record<string, Presentation> = {
+  SITE_BLOCKED: {
+    title: "Sitio bloqueado",
+    type: "blocked",
+    subtitle: (device, site) => `${device} - ${site ?? "Sitio restringido"}`,
+  },
+  ACCESS_ATTEMPT: {
+    title: "Sitio bloqueado",
+    type: "blocked",
+    subtitle: (device, site) => `${device} - ${site ?? "Sitio restringido"}`,
+  },
+  UNINSTALL_ATTEMPT: {
+    title: "¡Requiere tu atención!",
+    type: "danger",
+    subtitle: (device) => `${device} intentó desinstalar la aplicación`,
+  },
+  BYPASS_ATTEMPT: {
+    title: "¡Requiere tu atención!",
+    type: "danger",
+    subtitle: (device) => `${device} intentó desactivar la protección`,
+  },
+  APP_INSTALL_ATTEMPT: {
+    title: "Intento de modificación",
+    type: "warning",
+    subtitle: withDetail("Instalación no autorizada"),
+  },
+  PROTECTION_MODIFIED: {
+    title: "Intento de modificación",
+    type: "warning",
+    subtitle: withDetail("Configuración protegida"),
+  },
+  DEVICE_PENDING: {
+    title: "Dispositivo pendiente",
+    type: "info",
+    subtitle: withDetail("Pendiente de vinculación"),
+  },
+  DEVICE_LINKED: {
+    title: "Dispositivo vinculado",
+    type: "info",
+    subtitle: withDetail("Protección activada"),
+  },
+  DEVICE_UNLINKED: {
+    title: "Dispositivo desvinculado",
+    type: "warning",
+    subtitle: withDetail("Sin protección"),
+  },
+};
+
+const FALLBACK: Presentation = {
+  title: "Alerta",
+  type: "warning",
+  subtitle: (device, site) => (site ? `${device} - ${site}` : device),
 };
 
 /** El backend menciona el sitio en el mensaje: "...al sitio dominio.com desde...". */
@@ -53,16 +109,13 @@ export async function getAlerts(): Promise<Alert[]> {
 
   return data.alerts
     .map((alert): Alert => {
-      const presentation = ALERT_PRESENTATION[alert.alertType] ?? {
-        title: "Alerta",
-        type: "warning" as const,
-      };
+      const presentation = ALERT_PRESENTATION[alert.alertType] ?? FALLBACK;
       const device = names.get(alert.deviceId) ?? "Dispositivo";
       const site = extractSite(alert.message);
       return {
         id: alert.id,
         title: presentation.title,
-        subtitle: site ? `${device} - ${site}` : device,
+        subtitle: presentation.subtitle(device, site),
         time: formatTime(alert.createdAt),
         date: formatDayLabel(alert.createdAt),
         type: presentation.type,
@@ -72,6 +125,7 @@ export async function getAlerts(): Promise<Alert[]> {
         read: alert.read,
         createdAt: alert.createdAt,
         site,
+        alertType: alert.alertType,
       };
     })
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
