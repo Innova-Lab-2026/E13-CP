@@ -12,7 +12,7 @@ import { Text, TextInput } from "../../../../src/components/ThemedText";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import AppHeader from "../../../../src/components/AppHeader";
 import AppButton from "../../../../src/components/AppButton";
@@ -131,7 +131,8 @@ export default function SugerirSitioScreen() {
             accessibilityElementsHidden
             importantForAccessibility="no"
           >
-            <Ionicons name="checkmark-circle-outline" size={64} color={colors.success} />
+            {/* Trazo grueso, como el check del Figma. */}
+            <MaterialCommunityIcons name="check-circle-outline" size={68} color={colors.success} />
           </View>
           <View style={styles.successBody}>
             <Text style={styles.successTitle} accessibilityRole="header">
@@ -290,7 +291,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: radius.pill,
-    backgroundColor: colors.successSoft,
+    backgroundColor: colors.successStrongSoft,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.xxxl * 2,

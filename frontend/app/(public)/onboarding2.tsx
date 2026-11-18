@@ -11,7 +11,7 @@ export default function OnboardingSecondScreen() {
         "Si tenés dudas sobre las apuestas online, conversalo con tu adulto responsable.",
       ]}
       step={1}
-      total={2}
+      total={3}
       onSkip={() => router.replace("/login")}
       onContinue={() => router.replace("/login")}
     />

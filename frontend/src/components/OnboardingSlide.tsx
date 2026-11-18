@@ -66,6 +66,10 @@ export default function OnboardingSlide({
             </View>
           </View>
 
+          {/* Como en el Figma, la tarjeta queda más cerca de los botones que del logo
+              y deja ver la cara de la foto. */}
+          <View style={styles.spacerTop} />
+
           <View style={styles.card}>
             <Text style={styles.title} accessibilityRole="header">
               {title}
@@ -78,6 +82,8 @@ export default function OnboardingSlide({
               ))}
             </View>
           </View>
+
+          <View style={styles.spacerBottom} />
 
           <View style={styles.footer}>
             <AppButton
@@ -104,8 +110,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    justifyContent: "space-between",
-    gap: spacing.xl,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxl,
     paddingBottom: spacing.xxl,
@@ -135,27 +139,41 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
   },
+  // Figma (844 de alto): la tarjeta arranca cerca de y 322 y termina unos 145 px
+  // arriba de los botones. Los espaciadores reparten el alto que sobra en esa
+  // proporción y, en pantallas chicas, se achican hasta el mínimo.
+  spacerTop: {
+    flexGrow: 1,
+    minHeight: spacing.xl,
+  },
+  spacerBottom: {
+    flexGrow: 0.75,
+    minHeight: spacing.xl,
+  },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.xxl,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xxl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xl,
     alignItems: "center",
   },
   title: {
     ...typography.display,
-    lineHeight: 34,
+    fontSize: 26,
+    lineHeight: 32,
     textAlign: "center",
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   paragraphs: {
     gap: spacing.md,
   },
   description: {
     ...typography.body,
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: "center",
   },
   footer: {

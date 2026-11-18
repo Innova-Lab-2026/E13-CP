@@ -151,7 +151,7 @@ export default function LinkDeviceScreen() {
         <ScrollView contentContainerStyle={styles.successContent}>
           <View style={styles.successBody}>
             <View style={styles.successIcon} accessibilityElementsHidden>
-              <Ionicons name="checkmark" size={34} color={colors.success} />
+              <Ionicons name="checkmark-sharp" size={36} color={colors.success} />
             </View>
             <Text style={styles.successTitle} accessibilityRole="header">
               ¡Dispositivo vinculado!
@@ -309,19 +309,18 @@ const styles = StyleSheet.create({
     paddingTop: 72,
     paddingBottom: spacing.xxl,
   },
+  // Alineados con las tarjetas, como en el Figma: el título entra en una línea a 390 px.
   title: {
     ...typography.title,
-    fontSize: 24,
-    lineHeight: 30,
+    fontSize: 22,
+    lineHeight: 28,
     fontWeight: "700",
     marginBottom: spacing.md,
-    paddingHorizontal: spacing.xl,
   },
   subtitle: {
     ...typography.body,
     color: colors.text,
     marginBottom: 40,
-    paddingHorizontal: spacing.xl,
   },
   notice: {
     marginBottom: spacing.lg,
@@ -337,7 +336,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.borderStrong,
+    borderColor: colors.border,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     ...shadow.card,
@@ -388,17 +387,20 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xxl,
     paddingBottom: spacing.xxl,
   },
+  // Un poco por encima del centro, como en el Figma.
   successBody: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: spacing.xxxl,
+    paddingTop: spacing.xl,
+    paddingBottom: 96,
   },
   successIcon: {
     width: 60,
     height: 60,
     borderRadius: radius.pill,
-    backgroundColor: colors.successSoft,
+    // Verde lima del Figma (el mismo del escudo del Inicio del protegido).
+    backgroundColor: colors.successStrongSoft,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.xl,

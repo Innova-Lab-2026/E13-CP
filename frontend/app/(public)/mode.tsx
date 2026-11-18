@@ -204,11 +204,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.borderStrong,
+    borderColor: colors.border,
     backgroundColor: colors.background,
     ...shadow.card,
-    elevation: 4,
-    shadowOpacity: 0.12,
   },
   cardPressed: {
     opacity: 0.85,
@@ -224,12 +222,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: spacing.md,
   },
+  // Figma: bloque chico alineado a la izquierda debajo del título centrado.
   cardDescription: {
     fontSize: 13,
     lineHeight: 18,
     color: colors.text,
-    textAlign: "center",
-    maxWidth: 280,
+    textAlign: "left",
+    alignSelf: "stretch",
+    paddingHorizontal: spacing.lg,
   },
   cardSpinner: {
     marginTop: spacing.md,
