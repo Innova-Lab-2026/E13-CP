@@ -1,5 +1,5 @@
 // Detalle de una alerta (Figma "Detalle del evento"). Se marca como leída al abrirse.
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";

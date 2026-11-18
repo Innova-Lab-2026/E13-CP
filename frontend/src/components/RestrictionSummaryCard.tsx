@@ -1,7 +1,6 @@
 // Tarjeta resumen del detalle por dispositivo (Figma "Detalle por dispositivo"):
 // estado de la protección arriba y, debajo, métricas grandes (edad, webs
 // bloqueadas en la semana).
-import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from './ThemedText';
 import { Ionicons } from '@expo/vector-icons';

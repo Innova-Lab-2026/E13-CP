@@ -1,5 +1,4 @@
 // src/components/AppHeader.tsx
-import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from './ThemedText';
 import { useRouter } from 'expo-router';
