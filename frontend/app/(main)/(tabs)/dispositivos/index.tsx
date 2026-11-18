@@ -1,6 +1,7 @@
 // "Mis Dispositivos" (Figma "Mis Dispositivos - Responsable"): filas compactas
 // con el estado a la derecha y el botón punteado para agregar otro perfil.
-import { View, StyleSheet, ScrollView, Text, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { Text } from '../../../../src/components/ThemedText';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';

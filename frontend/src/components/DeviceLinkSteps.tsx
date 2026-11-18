@@ -2,7 +2,8 @@
 // (discreto, debajo del código) y un desplegable con los pasos para vincular el
 // celular del menor, con el código o iniciando sesión en ese celular.
 import { useEffect, useState, type ComponentProps } from 'react';
-import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Share, StyleSheet, View } from 'react-native';
+import { Text } from './ThemedText';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { linkWebUrl } from '../appLinks';

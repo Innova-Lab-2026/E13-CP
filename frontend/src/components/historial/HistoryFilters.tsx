@@ -1,7 +1,8 @@
 // Filtros del historial (Figma "Historial"): fila de pestañas píldora con scroll
 // horizontal "Todos / Por categorías / Por dispositivo" y, para las dos últimas,
 // una segunda fila de chips para elegir la categoría o el perfil.
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "../ThemedText";
 import { colors, radius, spacing } from "../../theme";
 import type { HistoryCategory as EventCategory } from "../../services/historyService";
 

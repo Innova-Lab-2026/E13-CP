@@ -1,5 +1,6 @@
 import { useRef, type ComponentRef } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text, TextInput } from "./ThemedText";
 import { colors, radius, spacing } from "../theme";
 
 type PinInputProps = {

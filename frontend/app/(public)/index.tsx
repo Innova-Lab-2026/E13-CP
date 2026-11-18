@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
+import { Text } from "../../src/components/ThemedText";
 import { Redirect, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppButton from "../../src/components/AppButton";

@@ -2,12 +2,13 @@
 // encabezado "Dispositivo de <nombre>", tarjeta resumen con la edad y las webs
 // bloqueadas en la semana, y el historial reciente. Debajo, discretos, quedan la
 // pausa de la protección y el desvincular con PIN, que Figma no muestra.
-import { useEffect, useRef, useState, type ComponentProps } from 'react';
-import { AppState, Pressable, View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AppState, Pressable, View, StyleSheet, ScrollView } from 'react-native';
+import { Text } from '../../../../src/components/ThemedText';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import AppAlert from '../../../../src/components/AppAlert';
 import AppButton from '../../../../src/components/AppButton';
@@ -19,7 +20,7 @@ import RestrictionSummaryCard, {
   type MetricItem,
 } from '../../../../src/components/RestrictionSummaryCard';
 import ScreenState from '../../../../src/components/ScreenState';
-import type { HistoryVariant } from '../../../../src/components/historial/HistoryCard';
+import { historyLook } from '../../../../src/components/historial/historyLook';
 import { useAsyncResource } from '../../../../src/hooks/useAsyncResource';
 import {
   generateLinkCode,
@@ -55,15 +56,6 @@ const STATUS_TONE = {
   pending: 'warning',
   disabled: 'danger',
 } as const;
-
-type IconName = ComponentProps<typeof Ionicons>['name'];
-
-const ROW_ICON: Record<HistoryVariant, { name: IconName; color: string; background: string }> = {
-  blocked: { name: 'ban', color: colors.danger, background: colors.dangerSoft },
-  alert: { name: 'alert-circle-outline', color: colors.warning, background: colors.warningSoft },
-  settings: { name: 'settings-outline', color: colors.textMuted, background: colors.surfaceMuted },
-  protected: { name: 'shield-checkmark-outline', color: colors.success, background: colors.successSoft },
-};
 
 function formatLastSeen(value?: string): string | null {
   if (!value) return null;
@@ -494,7 +486,7 @@ function HistoryRow({
   last: boolean;
   onPress: () => void;
 }) {
-  const icon = ROW_ICON[event.variant] ?? ROW_ICON.settings;
+  const look = historyLook(event.variant);
   const detail = event.domain || event.description;
   const when = formatRelativeTime(event.timestamp);
 
@@ -506,8 +498,8 @@ function HistoryRow({
       accessibilityLabel={`${event.title}. ${detail}. ${when}`}
       accessibilityHint="Abre el detalle de la actividad"
     >
-      <View style={[styles.rowIcon, { backgroundColor: icon.background }]}>
-        <Ionicons name={icon.name} size={20} color={icon.color} />
+      <View style={[styles.rowIcon, { backgroundColor: look.iconBackground }]}>
+        <MaterialCommunityIcons name={look.icon} size={20} color={look.iconColor} />
       </View>
       <View style={styles.flex}>
         <Text style={styles.rowTitle} numberOfLines={1}>

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "./ThemedText";
 
 import AppAlert from "./AppAlert";
 import AppButton from "./AppButton";

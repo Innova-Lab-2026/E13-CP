@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "../../src/components/ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Redirect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,6 +9,7 @@ import AppAlert from "../../src/components/AppAlert";
 import PinInput from "../../src/components/PinInput";
 import ConfirmModal from "../../src/components/ConfirmModal";
 import ScreenState from "../../src/components/ScreenState";
+import { avatarColors } from "../../src/components/DeviceAvatar";
 import { useAsyncResource } from "../../src/hooks/useAsyncResource";
 import {
   confirmDeviceLink,
@@ -28,22 +30,9 @@ type Step = "choose" | "pin" | "success";
 const GOOGLE_SESSION_NOTICE =
   "Iniciaste sesión con Google en este celular. Cuando termines, cerrá tu sesión de Google en el navegador para que el menor no pueda usar tu cuenta.";
 
-/** Colores de los avatares de persona del Figma (fondo suave e ícono). */
-const AVATAR_COLORS = [
-  { background: "#FCD9E8", icon: "#E7609E" },
-  { background: "#FDE5BC", icon: "#E39A1B" },
-  { background: "#D9E8FC", icon: "#3B7DD8" },
-  { background: "#DDF3D0", icon: "#3E9B2F" },
-  { background: "#E8DDFB", icon: "#8A5CD6" },
-] as const;
-
-/** El mismo perfil siempre tiene el mismo color. */
+/** El mismo perfil tiene el mismo color que en la app del adulto (DeviceAvatar). */
 function avatarColorFor(device: Device) {
-  let hash = 0;
-  for (const char of device.id || device.name) {
-    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-  }
-  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+  return avatarColors(device.id || device.name);
 }
 
 const STATUS_DISPLAY: Record<

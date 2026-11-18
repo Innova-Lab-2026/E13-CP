@@ -1,5 +1,6 @@
 // Tokens visuales de BA Protege+ tomados del UI Kit de Figma ("BA Protege+ / UI Kit · Android · Light").
 // Usar siempre estos valores en lugar de colores sueltos para que todas las pantallas se vean iguales.
+import { Platform } from "react-native";
 
 export const colors = {
   brand: "#FFD500",
@@ -45,6 +46,17 @@ export const spacing = {
   xl: 20,
   xxl: 24,
   xxxl: 32,
+} as const;
+
+/** Familia cargada en app/_layout.tsx (src/fonts.ts). */
+export const FONT_FAMILY = "Inter";
+
+export const fonts = {
+  // En la web, si Inter todavía no llegó (o falla), se ve la fuente del sistema.
+  family: Platform.select({
+    web: `${FONT_FAMILY}, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`,
+    default: FONT_FAMILY,
+  }),
 } as const;
 
 export const typography = {

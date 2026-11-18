@@ -6,9 +6,9 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "../../../../src/components/ThemedText";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -185,7 +185,10 @@ export default function DashboardScreen() {
 
   const renderAttention = () => {
     if (!attentionAlert) return null;
-    const message = attentionAlert.description.replace(/^¡Alerta de seguridad!\s*/, "");
+    // "Sofía intentó desinstalar la aplicación" (subtítulo armado por alertService).
+    const message =
+      attentionAlert.subtitle ||
+      attentionAlert.description.replace(/^¡Alerta de seguridad!\s*/, "");
     const when =
       attentionAlert.date === "Hoy"
         ? attentionAlert.time

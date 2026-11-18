@@ -1,7 +1,8 @@
 // "Código de vinculación" (Figma "Vinculación código - Responsable"): se abre
 // después de crear un perfil y desde el detalle de un perfil pendiente.
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, View, Text, StyleSheet, ScrollView } from 'react-native';
+import { AppState, View, StyleSheet, ScrollView } from 'react-native';
+import { Text } from '../../../../src/components/ThemedText';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';

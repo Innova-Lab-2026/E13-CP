@@ -4,9 +4,9 @@ import {
   ImageSourcePropType,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "./ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppButton from "./AppButton";
 import { colors, radius, spacing, typography } from "../theme";

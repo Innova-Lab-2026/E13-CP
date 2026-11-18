@@ -1,6 +1,7 @@
 // Botón con borde punteado "+ Agregar dispositivo" que aparece debajo de la lista
 // de dispositivos, en Mis dispositivos y en el inicio (Figma).
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import { Text } from './ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme';
 

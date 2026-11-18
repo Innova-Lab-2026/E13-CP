@@ -1,11 +1,10 @@
 import { useState } from "react";
 import {
   View,
-  Text,
-  TextInput,
   Pressable,
   StyleSheet,
 } from "react-native";
+import { Text, TextInput } from "./ThemedText";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, radius } from "../theme";
 

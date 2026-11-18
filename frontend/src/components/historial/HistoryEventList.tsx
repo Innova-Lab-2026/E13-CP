@@ -2,7 +2,8 @@
 // Sirve para el historial completo y para el de un solo dispositivo
 // (con `hideDeviceName`, las tarjetas no repiten el nombre del perfil).
 import { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "../ThemedText";
 import { colors, spacing } from "../../theme";
 import type { HistoryEvent } from "../../services/historyService";
 import HistoryCard from "./HistoryCard";

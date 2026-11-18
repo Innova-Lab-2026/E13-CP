@@ -2,7 +2,8 @@
 // estado de la protección arriba y, debajo, métricas grandes (edad, webs
 // bloqueadas en la semana).
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Text } from './ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, shadow, spacing } from '../theme';
 

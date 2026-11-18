@@ -1,7 +1,8 @@
 // Fila compacta de un perfil protegido (Figma "Mis Dispositivos" y el inicio):
 // avatar de color, nombre y, a la derecha, el estado de la protección.
 import type { ComponentProps } from 'react';
-import { Pressable, Text, View, StyleSheet } from 'react-native';
+import { Pressable, View, StyleSheet } from 'react-native';
+import { Text } from './ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import type { DeviceStatus } from '../services/deviceService';
 import DeviceAvatar from './DeviceAvatar';

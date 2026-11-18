@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Pressable,
   Platform,
-  TextInput,
   KeyboardAvoidingView,
 } from 'react-native';
+import { Text, TextInput } from '../../../../src/components/ThemedText';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';

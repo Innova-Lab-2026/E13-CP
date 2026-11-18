@@ -1,7 +1,8 @@
 // Tarjeta compacta de un evento (Figma "Historial"): ícono en círculo de color,
 // título del color del tipo, "Nombre - detalle" y la hora. La usan el historial,
 // las alertas, el inicio y el detalle de un dispositivo.
-import { Pressable, View, Text, StyleSheet } from "react-native";
+import { Pressable, View, StyleSheet } from "react-native";
+import { Text } from "../ThemedText";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, radius, shadow, spacing } from "../../theme";
 import { historyLook, type HistoryVariant } from "./historyLook";

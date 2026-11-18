@@ -1,4 +1,5 @@
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./ThemedText";
 import { useGoogleLoginEnabled } from "../services/googleAuth";
 import { colors, radius, spacing, typography } from "../theme";
 

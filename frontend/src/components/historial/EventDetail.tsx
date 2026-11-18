@@ -1,9 +1,11 @@
 // Cuerpo de "Detalle del evento" (Figma): lo comparten el detalle de una alerta y
 // el de un evento del historial.
 import { Fragment, type ReactNode } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "../ThemedText";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AppButton from "../AppButton";
+import { avatarColors } from "../DeviceAvatar";
 import { colors, radius, shadow, spacing } from "../../theme";
 import {
   STATUS_BY_VARIANT,
@@ -18,6 +20,8 @@ type EventDetailProps = {
   /** "Sofía intentó acceder a un sitio restringido". */
   sentence: string;
   deviceName: string;
+  /** Id del perfil: fija el color del avatar (como en DeviceAvatar). */
+  deviceId?: string;
   site?: string;
   /** "Hoy - 14:25". */
   dateTime: string;
@@ -35,6 +39,7 @@ export default function EventDetail({
   title,
   sentence,
   deviceName,
+  deviceId,
   site,
   dateTime,
   status,
@@ -44,6 +49,8 @@ export default function EventDetail({
   onViewDevice,
 }: EventDetailProps) {
   const look = historyLook(variant);
+  // El mismo color de avatar que el perfil tiene en Mis dispositivos.
+  const avatar = avatarColors(deviceId || deviceName);
   const statusLook = STATUS_BY_VARIANT[variant] ?? STATUS_BY_VARIANT.settings;
   const statusLabel = status ?? statusLook.label;
 
@@ -55,8 +62,8 @@ export default function EventDetail({
       onPress: onViewDevice,
       node: (
         <>
-          <View style={[styles.avatar, { backgroundColor: colors.warningSoft }]}>
-            <MaterialCommunityIcons name="account" size={20} color={colors.warning} />
+          <View style={[styles.avatar, { backgroundColor: avatar.background }]}>
+            <MaterialCommunityIcons name="account" size={20} color={avatar.icon} />
           </View>
           <Text style={styles.rowText}>
             Dispositivo de <Text style={styles.bold}>{deviceName}</Text>
