@@ -24,7 +24,7 @@ npm test               # pruebas de integración (jest + supertest)
 | `PORT` | Puerto del servidor | `3000` |
 | `NODE_ENV` | `development` \| `production` \| `test` | — |
 | `JWT_SECRET` | Clave de firma de los JWT | clave por defecto solo en desarrollo y tests; **obligatoria en producción** |
-| `ADMIN_SECRET` | Secreto de las operaciones administrativas (sincronización de la lista oficial de LOTBA y listado de sugerencias) | sin valor (la operación queda deshabilitada con `503`) |
+| `ADMIN_SECRET` | Secreto de las operaciones administrativas (sincronización de la lista oficial de LOTBA y listados de sugerencias y opiniones) | sin valor (la operación queda deshabilitada con `503`) |
 | `LINK_CODE_TTL_MINUTES` | Vigencia, en minutos, del código para vincular el celular del menor | `1440` (24 h) |
 | `TRUST_PROXY` | Proxies de confianza para `req.ip` (límite de intentos por IP de `POST /api/devices/claim`): saltos (`1`), `true`/`false` o IPs/subredes, como el `trust proxy` de Express | `1` en Vercel; `false` en los demás casos |
 
@@ -197,7 +197,17 @@ vinculación de dispositivos y los cambios críticos. El PIN se cifra con
 { "pin": "4829" }
 ```
 
+Para cambiar un PIN que ya existe:
+
+```json
+{ "currentPin": "4829", "pin": "2468" }
+```
+
 - `pin`: obligatorio, exactamente 4 dígitos numéricos.
+- `currentPin`: **obligatorio si el responsable ya tiene PIN**, aunque el JWT sea válido. En la
+  vinculación clásica el celular del menor tiene la sesión del adulto: sin esta regla, podría pisar
+  el PIN y con el nuevo pausar la protección o salir del modo protegido. Cuenta para el mismo
+  bloqueo de 5 intentos / 15 minutos que el resto de las pantallas que piden el PIN.
 
 **Response `200 OK`**
 
@@ -205,9 +215,15 @@ vinculación de dispositivos y los cambios críticos. El PIN se cifra con
 { "message": "PIN creado con éxito" }
 ```
 
-**Errores:** `400` PIN no válido (no son 4 dígitos) · `401` sin token · `403` token inválido · `404` responsable inexistente.
+**Errores:** `400` PIN no válido (no son 4 dígitos) · `400` `"Ingresá tu PIN actual para cambiarlo"`
+(falta `currentPin` y ya hay PIN) · `400` `currentPin` que no tiene 4 dígitos · `401` sin token ·
+`401` `"El PIN actual es incorrecto"` · `403` token inválido · `404` responsable inexistente ·
+`429` PIN bloqueado por intentos fallidos.
 
-> Solo puede existir un PIN activo por responsable: el nuevo sobrescribe al anterior.
+> Solo puede existir un PIN activo por responsable: el nuevo sobrescribe al anterior. Como cambiarlo
+> siempre pide el actual, **no hay recuperación de PIN olvidado**: hoy la alternativa es eliminar la
+> cuenta (`DELETE /api/auth/me`, que en las cuentas con contraseña se confirma con la contraseña;
+> en las creadas con Google, con el PIN).
 
 ---
 
@@ -249,21 +265,22 @@ npm test
 | `src/__tests__/blocklist.test.ts` | Consulta de dominios · dominios personalizados · estado de actualización · sincronización de la lista oficial |
 | `src/__tests__/app.test.ts` | Integración de health, auth, dispositivos, blocklist y eventos |
 | `src/__tests__/devices.claim.test.ts` | Vinculación por código · credencial del celular y rutas `/me` · regenerar código · `JWT_SECRET` en producción |
-| `src/__tests__/suggestions.test.ts` | Sugerir un sitio · límite diario · listado administrativo |
+| `src/__tests__/suggestions.test.ts` | Sugerir un sitio (opción fija y motivo libre) · límite diario · listado administrativo |
+| `src/__tests__/feedback.test.ts` | Ayudanos a mejorar · largo del texto · límite diario · listado administrativo |
 
 ---
 
 ## Midestones 2 y 3
 
-Ya implementados en el backend (aún sin pantallas conectadas en el cliente):
+Rutas implementadas en el backend:
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| `PATCH` | `/api/auth/pin` | Configura el PIN de seguridad del responsable (Hito 2) 🔒 |
+| `PATCH` | `/api/auth/pin` | Configura el PIN de seguridad del responsable; si ya hay uno, pide `currentPin` (Hito 2) 🔒 |
 | `POST` | `/api/devices/link` | Registra un dispositivo protegido (estado PENDING + linkCode) 🔒 |
 | `POST` | `/api/devices/confirm-link` | Confirma el vínculo validando el PIN (estado ACTIVE) 🔒 |
 | `GET` | `/api/devices` | Lista los dispositivos del responsable 🔒 |
-| `PATCH` | `/api/devices/:id/status` | Activa/desactiva un dispositivo; con `pending` lo desvincula 🔒 |
+| `PATCH` | `/api/devices/:id/status` | Pausa o reactiva un dispositivo (registra `PROTECTION_MODIFIED`); con `pending` lo desvincula 🔒 |
 | `POST` | `/api/devices/:id/link-code` | Genera un código de vinculación nuevo (si está vinculado, pide PIN y lo desvincula) 🔒 |
 | `POST` | `/api/devices/claim` | Vincula el celular del menor con código + PIN (público) |
 | `GET` | `/api/devices/me` | Estado del celular vinculado 📱 |
@@ -275,6 +292,8 @@ Ya implementados en el backend (aún sin pantallas conectadas en el cliente):
 | `POST` | `/api/blocklist/check` | Verifica si un dominio está bloqueado (público; con credencial suma los personalizados) |
 | `POST` | `/api/blocklist/suggestions` | Sugiere un sitio para revisar con LOTBA 🔒 |
 | `GET` | `/api/blocklist/suggestions` | Lista las sugerencias para revisarlas ⚙️ |
+| `POST` | `/api/feedback` | Envía una opinión de «Ayudanos a mejorar» 🔒 |
+| `GET` | `/api/feedback` | Lista las opiniones para el equipo ⚙️ |
 | `GET` | `/api/blocklist` | Lista de bloqueo oficial + personalizada 🔒 |
 | `GET` | `/api/blocklist/status` | Estado de actualización de la lista de bloqueo 🔒 |
 | `POST` | `/api/blocklist/sync/official` | Sincroniza el listado oficial de LOTBA ⚙️ |
@@ -573,13 +592,19 @@ Activa o desactiva la protección del dispositivo.
 Valores admitidos: `active` | `inactive` | `pending` (case-insensitive). `pending` **desvincula**
 el celular (lo usa `unlinkDevice` en la app): revoca su credencial y genera un código nuevo.
 
+Pausar (`active` → `inactive`) o reactivar (`inactive` → `active`) desde la cuenta del adulto
+registra un evento `PROTECTION_MODIFIED` («Se pausó la protección» / «Se reactivó la protección»),
+igual que cuando se hace desde el celular con `PATCH /api/devices/me/status`. Así queda en el historial.
+
 **Response `200 OK`**
 
 ```json
 { "message": "Device status updated successfully", "device": { ... } }
 ```
 
-**Errores:** `400` status inválido · `401` sin token · `403` token inválido · `404` dispositivo no encontrado o no pertenece al responsable.
+**Errores:** `400` status inválido · `401` sin token · `403` token inválido · `404` dispositivo no encontrado o no pertenece al responsable ·
+`409` `"Este celular se desvinculó. Para volver a protegerlo, vinculalo con el código nuevo."`
+(se pidió `active` o `inactive` para un celular desvinculado que espera un código nuevo).
 
 ---
 
@@ -678,6 +703,14 @@ hasta que el equipo la revise y la envíe a LOTBA.
 
 **Request**
 
+La app actual manda el motivo escrito por el adulto («¿Por qué querés denunciarlo?»):
+
+```json
+{ "url": "https://www.sitio-de-apuestas.com/ruleta", "motivoTexto": "Lo vi en una publicidad en un video", "info": "Aparece de noche" }
+```
+
+Las versiones anteriores de la app mandan una opción fija, que se sigue aceptando:
+
 ```json
 { "url": "https://www.sitio-de-apuestas.com/ruleta", "motivo": "apuestas_ilegales", "info": "Lo vi en una publicidad" }
 ```
@@ -685,8 +718,11 @@ hasta que el equipo la revise y la envíe a LOTBA.
 | Campo | Reglas |
 |-------|--------|
 | `url` | Obligatoria. Se guarda el dominio pelado (`sitio-de-apuestas.com`): sin protocolo, ruta, puerto ni `www.`. |
-| `motivo` | `apuestas_ilegales` \| `publicidad_apuestas` \| `contenido_inapropiado` \| `otro` |
+| `motivoTexto` | Motivo con texto libre, hasta 300 caracteres (se recorta). |
+| `motivo` | Opción fija: `apuestas_ilegales` \| `publicidad_apuestas` \| `contenido_inapropiado` \| `otro`. Si solo llega `motivoTexto`, se guarda `otro`. |
 | `info` | Opcional, hasta 500 caracteres. |
+
+Hace falta `motivoTexto` o `motivo` (alcanza con uno; pueden venir los dos).
 
 **Response `201 Created`**
 
@@ -705,8 +741,12 @@ hasta que el equipo la revise y la envíe a LOTBA.
 }
 ```
 
+La respuesta incluye `motivoTexto` solo si se envió.
+
 **Errores:** `400` `"Por favor, ingresá la URL del sitio."` · dirección que no es un sitio ·
-`"Por favor, seleccioná el motivo."` · `info` de más de 500 caracteres · `401` sin sesión ·
+`"Por favor, contanos por qué querés denunciarlo."` (no llegó ningún motivo) ·
+`"Por favor, seleccioná el motivo."` (`motivo` fuera del catálogo) · `motivoTexto` que no es texto
+o de más de 300 caracteres · `info` de más de 500 caracteres · `401` sin sesión ·
 `429` más de 20 sugerencias en 24 horas.
 
 ### `GET /api/blocklist/suggestions` ⚙️
@@ -716,6 +756,46 @@ Requiere `x-admin-secret`, como la sincronización de la lista oficial.
 
 ```json
 { "total": 1, "suggestions": [ { "id": "uuid", "domain": "sitio-de-apuestas.com", "motivo": "apuestas_ilegales", "status": "pendiente", ... } ] }
+```
+
+**Errores:** `401` sin secreto o secreto incorrecto · `503` si `ADMIN_SECRET` no está configurado.
+
+---
+
+## Ayudanos a mejorar
+
+### `POST /api/feedback` 🔒
+
+El adulto responde «¿Cómo podríamos mejorar?» desde Configuración. La opinión se guarda en el
+estado persistido para que el equipo la lea.
+
+**Request**
+
+```json
+{ "text": "Me gustaría ver un resumen semanal" }
+```
+
+- `text`: obligatorio, entre 3 y 1000 caracteres después de recortar los espacios.
+
+**Response `201 Created`**
+
+```json
+{
+  "message": "Opinión enviada",
+  "feedback": { "id": "uuid", "responsibleId": "uuid", "text": "Me gustaría ver un resumen semanal", "createdAt": "2026-..." }
+}
+```
+
+**Errores:** `400` `"Por favor, contanos cómo podríamos mejorar."` (vacío) · `"Escribí al menos 3 caracteres."` ·
+`"La opinión puede tener hasta 1000 caracteres."` · `text` que no es texto · `401` sin token ·
+`403` token inválido · `429` más de 10 opiniones en 24 horas.
+
+### `GET /api/feedback` ⚙️
+
+Listado de opiniones (más nuevas primero). Requiere `x-admin-secret`, como el listado de sugerencias.
+
+```json
+{ "total": 1, "feedback": [ { "id": "uuid", "responsibleId": "uuid", "text": "...", "createdAt": "2026-..." } ] }
 ```
 
 **Errores:** `401` sin secreto o secreto incorrecto · `503` si `ADMIN_SECRET` no está configurado.
@@ -734,5 +814,6 @@ npm test
 | `src/__tests__/blocklist.test.ts` | Consulta de dominios · dominios personalizados · estado de actualización · sincronización de la lista oficial |
 | `src/__tests__/devices.test.ts` | BK-2.1 PIN · BK-2.2 link device · BK-2.3 confirm-link · BK-2.4 list y status |
 | `src/__tests__/devices.claim.test.ts` | Vinculación por código · credencial del celular y rutas `/me` · regenerar código · `JWT_SECRET` en producción |
-| `src/__tests__/suggestions.test.ts` | Sugerir un sitio · límite diario · listado administrativo |
+| `src/__tests__/suggestions.test.ts` | Sugerir un sitio (opción fija y motivo libre) · límite diario · listado administrativo |
+| `src/__tests__/feedback.test.ts` | Ayudanos a mejorar · largo del texto · límite diario · listado administrativo |
 | `src/__tests__/app.test.ts` | Integración de health, auth, dispositivos, blocklist y eventos |

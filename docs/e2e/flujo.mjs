@@ -289,6 +289,10 @@ await run("navegación y sus 4 pantallas", c, async () => {
   await visibleText(c, /listado oficial de apuestas online de LOTBA/).waitFor(T);
   await visibleText(c, /^Te ayudamos a navegar más seguro$/).waitFor();
   await btn(c, /^Volver$/).click();
+  // Volver hace history.back() asincrónico: si el goto arranca antes de que termine,
+  // el navegador lo aborta (net::ERR_ABORTED). Se espera a estar de nuevo en la lista.
+  await visibleText(c, /^Navegá seguro$/).waitFor(T);
+  await c.waitForLoadState("networkidle").catch(() => {});
   // Recargar una pantalla interna: Volver lleva a la pantalla padre, no al Inicio.
   await c.goto(BASE + "/app/protected/navegacion/datos");
   await visibleText(c, /^Usá contraseñas seguras$/).waitFor(T);
